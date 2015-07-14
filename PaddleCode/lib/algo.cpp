@@ -808,7 +808,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
 	}
 
     
-    // convolution to create correlation between paddles HAMSTER HAMSTER HAMSTER
+    // convolution to create correlation between paddles HAMSTER
     // periodic boundary conditions are used
      
     // Gaussian convolution
