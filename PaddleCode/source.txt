@@ -1,0 +1,6 @@
+cd lib
+make -B
+echo 'Flo Source'
+cd ..
+make -B
+

@@ -1,0 +1,515 @@
+
+  /*
+library to control the active grid.  
+
+This class provides the tools necessary to make 
+the active grid do what you want it to do.  
+
+The active grid is composed of N servos, 
+which can be set to angles between -90 and 90 
+degrees.  
+angle = 0 corresponds to grid flap parallel to 
+the flow.  
+
+The servos are arranged on a grid.  
+
+if any error is encountered, all paddles are opened.  
+
+Florian Koehler
+2011
+*/
+
+#include <activegrid.h>
+#include <curses.h>
+#include <time.h>
+
+//set the speed of the servo:
+void activegrid::setmovetime(double newmovetime){;}
+
+//set angles of the servos:
+int  activegrid::setangles(double newangle[14][12]){
+
+  //safety check if there exist too many big angles
+  if(checkangles(newangle)==1){
+
+    //update angle array
+    for(int row=0;row<12;row++){
+      for(int col=0;col<14;col++){
+	angle[col][row]=newangle[col][row];
+      }
+    }
+
+    for(int row=11;row>=1;row--){
+      for(int col=1;col<=13;col++){
+	if(servo[col][row]!=0){
+	  if(servo[col][row]>=10000 && servo[col][row]<=20000){
+	    leftboard->setangle((servo[col][row]-10000), angle[col][row]); 
+	  }
+	  if(servo[col][row]>=20000 && servo[col][row]<=20200){
+	    rightboard->setangle((servo[col][row]-20000), angle[col][row]); 
+	  }
+	}
+      }
+    }
+  }
+  else{
+    return -1;
+  }
+  return 1;
+}
+
+//set angles of the servos:
+int  activegrid::setanglesII(double newangle[14][12]){
+
+  //safety check if there exist too many big angles
+  //if(checkangles(newangle)==1){
+
+    //update angle array
+    for(int row=0;row<12;row++){
+      for(int col=0;col<14;col++){
+	angle[col][row]=newangle[col][row];
+      }
+    }
+
+    for(int row=11;row>=1;row--){
+      for(int col=1;col<=13;col++){
+	if(servo[col][row]!=0){
+	  if(servo[col][row]>=10000 && servo[col][row]<=20000){
+	    leftboard_orderofangle[(servo[col][row]-10001)]=angle[col][row];
+
+	  }
+	  if(servo[col][row]>=20000 && servo[col][row]<=20200){
+	    rightboard_orderofangle[(servo[col][row]-20001)]=angle[col][row];
+	  }
+	}
+      }
+    }    
+    leftboard->setangles(1,67,leftboard_orderofangle); 
+    rightboard->setangles(1,62,rightboard_orderofangle); 
+    //}
+    //else{
+    //return -1;
+    //} 
+  return 1;
+}
+
+//set angles of the servos:
+int activegrid::setanglesIII(double newangle[14][12], double newangleperstep[14][12], int updaterateinmus){
+  
+  //update angle array
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      angle[col][row]=newangle[col][row];
+    }
+  }
+
+  //cout << "error22   " << (double) updaterateinmus/1000000 << endl;
+
+  for(int row=11;row>=1;row--){
+    for(int col=1;col<=13;col++){
+      if(servo[col][row]!=0){
+	if(servo[col][row]>=10000 && servo[col][row]<=20000){
+	  leftboard_orderofangle[(servo[col][row]-10001)]=angle[col][row];
+	  leftboard_anglestep_orderofangle[(servo[col][row]-10001)]=abs(newangleperstep[col][row]);
+	  //cout << "error22 l   " <<  leftboard_anglestep_orderofangle[(servo[col][row]-10001)] << endl;	
+	}
+	if(servo[col][row]>=20000 && servo[col][row]<=20200){
+	  rightboard_orderofangle[(servo[col][row]-20001)]=angle[col][row];
+	  rightboard_anglestep_orderofangle[(servo[col][row]-20001)]=abs(newangleperstep[col][row]);
+	  //cout << "error22 r  " <<  rightboard_anglestep_orderofangle[(servo[col][row]-20001)] << endl;		
+	} 
+      }
+    }
+  }
+   
+  //cout << "-----------------------------" << rightboard_anglestep_orderofangle[22] << endl;
+  
+  leftboard->setspeeds(1,67,leftboard_anglestep_orderofangle);
+  rightboard->setspeeds(1,62,rightboard_anglestep_orderofangle);
+  
+  leftboard->setangles(1,67,leftboard_orderofangle); 
+  rightboard->setangles(1,62,rightboard_orderofangle); 
+  return 1;
+}
+
+double  activegrid::checkorientationofservo(int col, int row, double angle){
+  if((row%2==0 && col%2==0) || row%2==0)angle=-angle;
+  return angle;
+}
+
+
+int  activegrid::setsameangletoallservos(double angle){
+  double newangle[14][12];
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      if(servo[col][row]!=0) newangle[col][row]=checkorientationofservo(col,row,angle);
+      else newangle[col][row]=-100;
+    }
+  }
+  setanglesII(newangle);
+  return 1;
+}
+
+int  activegrid::setanglestoallservos(float * positions, float * anglesteps, int updatetimeinmus, int combine){
+  double newangle[14][12];
+  double newangleperstep[14][12];
+  int count=0;
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+	if(servo[col][row]!=0){
+	  newangle[col][row]=positions[count];
+	  newangleperstep[col][row]=anglesteps[count];
+	}
+	else{
+	  newangle[col][row]=-100;
+	  newangleperstep[col][row]=0;
+	}
+	if(combine==1)count++;
+	if(combine==2){
+	  if(col%2==1)count++;
+	  if(col==12 && row==1 || col==1 && row==2 || col==1 && row==3 || col==1 && row==4 || col==1 && row==5 || col==1 && row==6 || col==1 && row==7 || col==1 && row==8 || col==12 && row==9 || col==3 && row==10 || col==10 && row==11){
+	    newangle[col][row]=positions[count];
+	    newangleperstep[col][row]=positions[count];
+	  }
+	}
+	if(combine==3){
+	  if(col%3==0)count++;
+	  if(col==2 && row==1 || col==3 && row==1 || col==13 && row==2 || col==13 && row==3 || col==13 && row==4 || col==13 && row==5 || col==13 && row==6 || col==13 && row==7 || col==13 && row==8 || col==2 && row==9 || col==3 && row==9 || col==3 && row==10 || col==10 && row==10 || col==10 && row==11){
+	    newangle[col][row]=positions[count];
+	    newangleperstep[col][row]=positions[count];
+	  }
+	}
+	if(combine==4){
+	  if(col%4==0)count++;
+	  if(col==2 && row==1 || col==3 && row==1 || col==4 && row==1 || col==13 && row==2 || col==13 && row==3 || col==13 && row==4 || col==13 && row==5 || col==13 && row==6 || col==13 && row==7 || col==13 && row==8 || col==2 && row==9 || col==3 && row==9 || col==4 && row==9 || col==3 && row==10 || col==4 && row==10 || col==9 && row==10 || col==10 && row==10 || col==11 && row==10 || col==4 && row==11 || col==9 && row==11 || col==10 && row==11){
+	    newangle[col][row]=positions[count];
+	    newangleperstep[col][row]=positions[count];
+	  }
+	}
+	if(combine==5){
+	  if(col%5==1)count++;
+	  if(col==12 || col==13 || col==1 || row==11 || col==3 && row==10 || col==4 && row==10 || col==5 && row==10 || col==6 && row==10){
+	    newangle[col][row]=positions[count];
+	    newangleperstep[col][row]=positions[count];
+	  }
+	}
+	if(combine==6){
+	  if(col%6==1)count++;
+	  if(col==1 || col==13 || col==1 || row==11 || col==8 && row==1 || col==9 && row==1 || col==10 && row==1 || col==11 && row==1 || col==12 && row==1 || col==8 && row==9 || col==9 && row==9 || col==10 && row==9 || col==11 && row==9 || col==12 && row==9 || row==10 || row==11){
+	    newangle[col][row]=positions[count];
+	    newangleperstep[col][row]=positions[count];
+	  }
+	}
+    }
+  }
+  
+  setanglesIII(newangle,newangleperstep,updatetimeinmus);
+  return 1;
+}
+
+
+int  activegrid::setsameangletoallservosII(double angle, double angleperstep, int updaterateinmus){
+  //cout << "error1" << endl;
+  double newangle[14][12];
+  double newangleperstep[14][12];
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      if(servo[col][row]!=0){
+	newangle[col][row]=angle;
+	newangleperstep[col][row]=angleperstep;
+      }
+      else{
+	newangle[col][row]=-100;
+	newangleperstep[col][row]=0;
+      }
+    }
+  }
+  //cout << "error2" << endl;
+  setanglesIII(newangle,newangleperstep,updaterateinmus);
+  return 1;
+}
+
+
+int  activegrid::setangleofoneservo(int tunedcol, int tunedrow, double tunedangle){
+  double newangle[14][12];
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      if(servo[col][row]!=0){
+	if(col==tunedcol && row==tunedrow)newangle[col][row]=tunedangle;
+	else newangle[col][row]=angle[col][row];
+      }
+      else newangle[col][row]=-100;
+    }
+  }
+  setanglesII(newangle);
+  return 1;
+}
+
+int  activegrid::setanglesofonerow(int tunedrow, double tunedangle){
+  double newangle[14][12];
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      if(servo[col][row]!=0){
+	if(row==tunedrow)newangle[col][row]=tunedangle;
+	else newangle[col][row]=angle[col][row];
+      }
+      else newangle[col][row]=-100;
+    }
+  }
+  setanglesII(newangle);
+  return 1;
+}
+
+int  activegrid::setanglesofonecolumn(int tunedcol, double tunedangle){
+double newangle[14][12];
+for(int row=0;row<12;row++){
+  for(int col=0;col<14;col++){
+    if(servo[col][row]!=0){
+      if(col==tunedcol)newangle[col][row]=tunedangle;
+      else newangle[col][row]=angle[col][row];
+    }
+    else newangle[col][row]=-100;
+  }
+ }
+ setanglesII(newangle);
+ return 1;
+}
+
+
+int  activegrid::openhalfclosehalf(){
+  double newangle[14][12];
+  for(int row=0;row<12;row++){
+    for(int col=0;col<14;col++){
+      if(servo[col][row]!=0){
+	if(row<=5)newangle[col][row]=90;
+	else newangle[col][row]=0;
+      }
+      else newangle[col][row]=-100;
+    }
+  }
+  setanglesII(newangle);
+  return 1;
+}
+
+int  activegrid::getangle(int col, int row){
+  return angle[col][row];
+} 
+
+double activegrid::getangleFromBoard(int col, int row){
+  if(servo[col][row]!=0){
+    if(servo[col][row]>=10000 && servo[col][row]<=20000){
+      return leftboard->getangle((servo[col][row]-10000));
+    }
+    if(servo[col][row]>=20000 && servo[col][row]<=20200){
+      return rightboard->getangle((servo[col][row]-20000));
+    }
+  }
+  else
+    cout << "In (" << col << "," << row << ") no servo exist" << endl;
+  return -999;
+}
+
+
+
+// set all servos angles to zero degrees: 
+int activegrid::opengrid(){
+double newangle[14][12];
+for(int row=0;row<12;row++){
+  for(int col=0;col<14;col++){
+    if(servo[col][row]!=0) newangle[col][row]=0;
+    else newangle[col][row]=-100;
+  }
+ }
+ setanglesII(newangle);
+ return 1;
+}
+
+// set the speeds of all of the servos: 
+int  activegrid::setspeeds(double speeds[14][12]){return 0;}
+
+//error message
+int activegrid::checkangles(double newangle[14][12]){
+  int numberofservoswithbigangles=0;
+  int maxnumberofservoswithbigangles=80;
+  for(int row=11;row>=1;row--){
+    for(int col=1;col<=13;col++){
+      if((newangle[col][row]>45 || newangle[col][row]<-45) && newangle[col][row]!=-100)numberofservoswithbigangles++;
+    }
+  } 
+  //cout << "Number of wide angles: " << numberofservoswithbigangles << endl;
+  if(numberofservoswithbigangles>maxnumberofservoswithbigangles){
+    cout << "activegrid::checkangles: Applied angle configuration is impossible for safety reasons. More than " << maxnumberofservoswithbigangles << " servos would have angles bigger than +/- 45 degrees." << endl; 
+    return -1;
+  }
+  
+  return 1;
+}
+
+
+//show a map of the current angles
+void activegrid::showallangles(){
+  cout << "activegrid:showallangles(): Current angle configuration is shown: " << endl;
+  cout << "row: " << endl;
+  for(int row=11;row>=1;row--){
+    cout << row << "\t||\t";
+    for(int col=1;col<=13;col++){
+      cout << angle[col][row] << "\t";
+    }
+    cout << endl;
+  }
+  for(int i=1;i<=120;i++) cout << "-";
+  cout << endl;
+  cout << "col: \t||\t";
+  for(int col=1;col<=13;col++){
+    cout << col << "  \t";
+  }
+  cout << endl;
+}
+
+//show a map of the servos
+void activegrid::showservomap(){
+  string leftname, rightname;
+  leftname=leftboard->getpath();
+  rightname=rightboard->getpath();
+  cout << "activegrid:showservomap(): Map of the servos: \ntwo boards: \n 10001-10067: \t" << leftname << "\n 20001-20062:\t" << rightname << endl;
+  for(int row=11;row>=1;row--){
+    for(int col=1;col<=13;col++){
+      cout << servo[col][row] << "\t";
+    }
+    cout << endl;
+  }
+}
+
+//error message
+int activegrid::error(){
+  const char * header = "activegrid::error: "; 
+  cout << header << "Cannot set the requiered angles for savety reasons." << endl;
+  return -1;
+}
+
+void activegrid::wait ( float seconds ){
+  clock_t endwait;
+  endwait = clock() + seconds * CLOCKS_PER_SEC ;
+  while (clock() < endwait) {}
+}
+
+
+
+int activegrid::allperiodic(double angle, double frequency){
+  
+  //timing:
+  timeval testtime;
+  gettimeofday(&testtime,0);
+  cout << "sec: " << testtime.tv_sec << endl;
+  cout << "ms: " << testtime.tv_usec << endl;
+
+  int numberofloops=20;  
+  int updaterateinmus = 100000;//in mu sec   updaterate: 10 Hz, 
+  int steps=(int)(1/(((double)updaterateinmus/1000000)*frequency));
+  double angleperstep=(angle*4/steps);
+  cout << "frequency: " << frequency << " [Hz], updaterate: " << 1/((double)updaterateinmus/1000000) << " [Hz], steps for half period: " << steps/2 << "\nangle: " << angle << ", angleperstep: " << angleperstep << endl;
+
+  double actualangle=angle*(-1);
+  int sign=-1;
+  setsameangletoallservos(actualangle);
+
+  gettimeofday(&testtime,0);
+  long time_usec=0;//testtime.tv_usec;
+  //  long time_sec=testtime.tv_sec;
+  while ( testtime.tv_usec > updaterateinmus ) gettimeofday(&testtime,0);
+   
+  
+  //loop over number of periodic movements:   
+  for(int count = 0;count<=(numberofloops*2);count++){
+    
+    cout << "\nnumber of loops: " << count << endl;
+    cout << "actual sec: " << testtime.tv_sec << endl;     
+    cout << " angle: " << endl;
+    
+    for(int anglestep = 1;anglestep<=(steps/2);anglestep++){
+      time_usec += updaterateinmus;
+      gettimeofday(&testtime,0);
+      if(time_usec>1000000)time_usec-=1000000;
+      cout << "difference: " << (time_usec - testtime.tv_usec)/1000 << " milli sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+      
+      if(testtime.tv_usec > time_usec) {
+	cout << "---------------------------------Problem!!!------------------------------" << endl;
+	//cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+      }
+      
+      while (testtime.tv_usec <= time_usec){
+	gettimeofday(&testtime,0);
+	if(time_usec==1000000 && testtime.tv_usec<updaterateinmus ){
+	  break;
+	}
+      }
+      
+      cout << actualangle << ", " << endl;
+      
+      if(actualangle>=(angle)){
+	sign=-1;
+      }
+      if(actualangle<=(angle*(-1))){
+	sign=+1;
+      }
+      
+      actualangle+=angleperstep*sign;
+      
+      //setsameangletoallservos(actualangle);
+      setsameangletoallservosII(actualangle,angleperstep,updaterateinmus);
+
+    }
+  } 
+
+
+  return 0;
+}
+
+
+int activegrid::caoticMovement(int combine){
+  int servos=0;
+  servos=168;
+  float positions[servos];
+  float anglesteps[servos];
+  algo testalgo(servos);
+  float oldpos=0;
+
+  
+  //timing:
+  timeval testtime;
+  gettimeofday(&testtime,0);
+  long time_usec=0;
+  while ( testtime.tv_usec > testalgo.updatetimeinmus) gettimeofday(&testtime,0);
+  
+
+  //  while(0==0){
+  for(int j=0;j<1000;j++){
+    //getpositions of each servo:
+    testalgo.run(positions,anglesteps);
+    for(int i=0;i<1/*servos*/;i++)cout << i << ": " << positions[i] << "  step: " << positions[i]-oldpos << endl; 
+    oldpos=positions[0];
+
+    //setposition of each servo:
+    time_usec += testalgo.updatetimeinmus;
+    gettimeofday(&testtime,0);
+    if(time_usec>1000000)time_usec-=1000000;
+    if(testtime.tv_usec > time_usec) {
+    cout << "---------------------------------Problem!!!------------------------------" << endl;
+    cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+  }
+  while (testtime.tv_usec <= time_usec){
+    gettimeofday(&testtime,0);
+    if(time_usec==1000000 && testtime.tv_usec<testalgo.updatetimeinmus ){
+      break;
+    }
+  }
+  setanglestoallservos(positions,anglesteps,testalgo.updatetimeinmus,combine);
+  }
+  
+  
+  
+  
+  return 0;
+}
+  
+

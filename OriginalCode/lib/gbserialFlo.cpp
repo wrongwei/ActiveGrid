@@ -1,0 +1,126 @@
+
+/* 
+interface for serial communication
+
+This class provides simple tools to communicate through 
+a serial port.  
+The tools initialize the port, send data, and receive 
+data through the port.  
+
+By using this class, whatever changes need to be made 
+to the serial port communication code can be made once, 
+by replacing the .cpp file corresponding to the header 
+file, rather than throughout whatever other code needs 
+to access the serial port.  
+
+The code in the .cpp file is for a Mac.  
+Much of the meat of the code comes from Apple's serial 
+port example C program for communicating with a modem, 
+which is on the web: 
+http://developer.apple.com/samplecode/SerialPortSample
+
+115,200 baud, 8 bit words, 2 stop bits, and no parity 
+are all hard coded in the function OpenSerialPort, 
+since this is what the SD84 board requires.  
+
+An instance of this object makes a connection with a 
+serial port when the user calls attach().  Once a 
+successful attachment with a serial port is made, the 
+instance is permanently connected to that serial port.  
+Use the "portnametag" to select which serial port you 
+connect to - the object only attaches to serial ports 
+whose path name contains this string.  
+
+Greg Bewley
+September 2009
+ */
+
+#include <gbserialFlo.h>
+
+// initialize the port; a single instance of a GBSerialPort can 
+// be succesfully attached to a serial port only once: 
+int GBSerialPort::attach(char * newportnametag)
+{
+  const char * header = "GBSerialPort::attach: "; 
+
+  int device = -1; // Handle for serial interface
+
+  //const char *devicePath = "/dev/ttyUSB0"; //for linux
+  devicePath= newportnametag;//"/dev/cu.usbserial-A2001mH5"; //for apple
+  
+
+  //const char * devicePath = "/dev/cu.usbserial-A2001mH5"; //for apple
+  
+
+  struct termios options;
+  if ((device == -1) && (devicePath != NULL)) {
+    device = open(devicePath, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    strcpy(bsdPath,devicePath);//flo 
+    if (device != -1) {
+      ioctl(device, TIOCEXCL);
+      fcntl(device, F_SETFL, 0);
+      tcgetattr(device, &options);
+      cfmakeraw(&options);
+      options.c_cc[VMIN] = 1;
+      options.c_cc[VTIME] = 10;
+      cfsetspeed(&options, B115200);
+      tcsetattr(device, TCSANOW, &options);
+    }
+    else {
+      //return -1;
+    }
+  }
+  fileDescriptor=device;  
+  
+  cout << header << "device: " << device << endl;
+  cout << header << "Serial port attached and initialized.  " << endl; 
+  return 1; 
+}
+
+// read something from the port: 
+int GBSerialPort::receive(int numofbytes, uchar * inputbuffer)
+{
+  const char * header = "GBSerialPort::receive: "; 
+  
+  ///cout << "GBSerialPort::receive: try to read " << numofbytes; 
+  ///cout << " bytes from the serial port...  " << endl; 
+  
+  int numBytesread = read(fileDescriptor, inputbuffer, numofbytes); 
+  ////cout << header << "read " << numBytesread << " bytes.  " << endl;
+  if ((numBytesread == -1) || (numBytesread < numofbytes)){
+      cout << header << "Error Reading from the serial port at "; 
+      cout << bsdPath << " - " << strerror(errno) << " (" << errno << ").  " << endl; 
+      return -1; 
+  }
+  
+  return 1; 
+}
+
+// write something to the port: 
+int GBSerialPort::send(uchar * message, int numofbytes)
+{
+  const char * header = "GBSerialPort::send: "; 
+  
+  //cout << "GBSerialPort::send: try to write _" << message << "_ with length " << numofbytes; 
+  //cout << " to the serial port...  " << endl; 
+  
+  int numByteswritten = write(fileDescriptor, message, numofbytes); 
+  ////cout << header << "wrote " << numByteswritten << " bytes.  " << endl;
+
+  if ((numByteswritten == -1) | (numByteswritten < numofbytes)){
+    cout << header << "Error writing to the serial port at "; 
+    cout << bsdPath << " - " << strerror(errno) << " (" << errno << ").  " << endl; 
+    return -1; 
+  }
+  
+  return 1; 
+}
+
+  // return the path name of the port: 
+string GBSerialPort::getnameofpath()
+{
+  cout << "GBSerialPort::getpath: " << devicePath << "   bla" << endl;
+  //strcpy(pathname, devicePath); 
+  return devicePath;
+  //  cout << "GBSerialPort::getpath(char * pathname): pathname: " << pathname << endl;
+}

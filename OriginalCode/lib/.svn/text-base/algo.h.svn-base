@@ -1,0 +1,71 @@
+#include <iostream.h>
+#include <vector.h>
+#include <cstdlib>
+#include <time.h>
+
+class algo{
+ public:
+  algo(int number);
+  ~algo(){};
+
+
+  //get period,frequency,amplitude:
+  int min_period,max_period;
+  float min_frequency,max_frequency;
+  float min_amplitude,max_amplitude;
+  int period;
+  float frequency;
+  float amplitude;  
+  float max_angleperstep;
+  float angleperstep;
+  int updatetimeinmus;//in mu sec
+  float updaterate;//[Hz] (10Hz)
+
+  //methods
+  void updateOneWing(int WingNumber);
+  void run(float actpos[], float actstep[]);
+
+  int numberOfServos;
+  vector<float> * positions;
+  vector<float> * steps;
+  float * actualposition;
+  float * actualstep;
+  int * actualpositioninvector;
+
+
+ private:
+
+  
+};
+
+inline algo::algo(int number){
+  srand(0/*time(NULL)*/);//initialize random seed  
+  cout << "algo::algo()" << endl;
+
+  numberOfServos=number;
+  cout << "numberOfServos: " << numberOfServos << endl;
+  positions = new vector<float>[numberOfServos];
+  steps = new vector<float>[numberOfServos];
+  actualposition = new float[numberOfServos];
+  actualstep = new float[numberOfServos];
+  actualpositioninvector = new int[numberOfServos];
+  
+  //get period,frequency,amplitude:
+  min_period=2;max_period=5;
+  min_frequency=0.5;max_frequency=1.5;
+  min_amplitude=0;max_amplitude=40;
+  max_angleperstep=25; 
+
+  angleperstep=40;
+  updatetimeinmus = 100000;//in mu sec
+  updaterate=1000000/updatetimeinmus;//[Hz] (10Hz)
+
+  for(int i=0;i<numberOfServos;i++){
+    updateOneWing(i);
+    actualposition[i]=positions[i].at(0);
+    actualstep[i]=steps[i].at(0);
+    actualpositioninvector[i]=0;
+  }
+  cout << "algo::algo() END" << endl;
+
+}

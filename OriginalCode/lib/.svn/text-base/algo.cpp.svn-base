@@ -1,0 +1,93 @@
+#include <algo.h>
+#include <time.h>
+//#include <curses.h>
+
+
+void algo::updateOneWing(int WingNumber){
+  //clear positions:
+  positions[WingNumber].clear();
+  steps[WingNumber].clear();
+
+  period=(int)(((float)rand()/RAND_MAX)*(max_period-min_period))+min_period;
+  angleperstep=200;
+  while(angleperstep>max_angleperstep /* && amplitude-angleperstep<0*/){
+    frequency=(((float)rand()/RAND_MAX)*(max_frequency-min_frequency))+min_frequency;
+    amplitude=(((float)rand()/RAND_MAX)*(max_amplitude-min_amplitude))+min_amplitude;
+    //calculate posisitons:
+    // updaterate: 10 Hz -> angleperstep=(pathlength in 1 sec)/(updates in 1 sec)=ampli*4*freq/updaterate 
+    angleperstep=(amplitude*4*frequency)/updaterate;
+  }
+  
+  if(WingNumber==0) cout << "\nWing: " << WingNumber <<  " period: " << period << " frequency: " << frequency << " [Hz], updaterate: " << updaterate << " [Hz], amplitude: " << amplitude << ", angleperstep: " << angleperstep << endl;
+  //cout << "ampli*4: " << amplitude*4 << "  ampli*4*freq: " << amplitude*4*frequency << endl;
+  double actualangle=0;
+  int sign=+1;
+  int count_period=0;
+  for(int k=0;k<(int)(period*updaterate/frequency);k++){
+    if((actualangle+angleperstep)>=(amplitude)){
+      sign=-1; 
+      actualangle=amplitude-(angleperstep-(amplitude-actualangle));
+    }
+    if((actualangle-angleperstep)<=(amplitude*(-1))){
+      actualangle=(-1)*(amplitude-(angleperstep-(amplitude+actualangle)));
+      sign=+1;
+    }
+    if(actualangle>(amplitude*(-1)) && actualangle<(amplitude)){	
+      actualangle+=angleperstep*sign;
+    }
+    //cout << actualangle << ", ";
+    if(positions[WingNumber].size()>0){
+      if(positions[WingNumber].at(positions[WingNumber].size()-1)<0 && actualangle>0){
+	count_period++;
+	if(count_period==period) break;
+	else {
+	  positions[WingNumber].push_back(actualangle);
+	  steps[WingNumber].push_back(angleperstep);
+	}
+      }
+      else{
+	positions[WingNumber].push_back(actualangle);
+	steps[WingNumber].push_back(angleperstep);
+      }
+    }
+    else{
+      positions[WingNumber].push_back(actualangle);
+      steps[WingNumber].push_back(angleperstep);
+    }
+  }
+  //cout << endl;
+  
+
+  //end:
+  positions[WingNumber].push_back(-100);
+  steps[WingNumber].push_back(-100);
+  actualpositioninvector[WingNumber]=0;
+}
+
+
+void algo::run(float actpos[], float actstep[]){
+  //  actpos = new float[numberOfServos];
+  //actstep = new float[numberOfServos];
+
+  for(int i=0;i<numberOfServos;i++){
+    //get current positions:
+    if(positions[i].at(actualpositioninvector[i])!=-100){
+      actpos[i]=positions[i].at(actualpositioninvector[i]);
+      actstep[i]=steps[i].at(actualpositioninvector[i]);
+      actualpositioninvector[i]++;
+    }
+    else{
+      updateOneWing(i);
+      actpos[i]=positions[i].at(actualpositioninvector[i]);
+      actstep[i]=steps[i].at(actualpositioninvector[i]);
+      actualpositioninvector[i]++;
+    }  
+  }
+  //Set current positions:
+  //cout << endl;
+  for(int i=0;i<1/*numberOfServos*/;i++){
+    //cout << "Wing: " << i << "  actualpositioninvector[i]: " << actualpositioninvector[i]-1 << "  actualposition[i]: " << actualposition[i] << endl;
+  }
+
+  
+}

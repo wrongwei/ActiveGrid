@@ -1,0 +1,45 @@
+/* 
+The values defined here make the SD84 code easier to read.  
+
+Greg Bewley
+September 2009
+*/
+
+#define MAXSERVOS  84     // maximum number of servos the board controls.  
+#define CYCLETIME  20     // [milliseconds] between servo pulses.  
+#define DWMAX      255    // maximum pulse width increment, 
+                          // limited by the 1 byte we send it in.  
+
+enum ChannelMode
+  {
+    OUTPUT_MODE0 = 21,  // output low, logic 0
+    OUTPUT_MODE1 = 22,  // output high, logic 1
+    INPUT_MODE,           // can read high or low
+    ANALOG_MODE,          // can read 0-1023 (10 bit conversion)
+    SERVO_MODE            // outputs servo pulse, 20 ms rep rate
+  }; 
+
+enum ErrorCode
+  {
+    OK = 0x00,  // alles in ordnung
+    WARNING,    // attempt to change to or from Analogue mode 
+    //  by writing to mode register ignored
+    RANGE,      // range of channels is less than 1 or more than 84 
+    MODE        // unknown mode received.  
+  }; 
+
+enum Commands
+  {
+    SET_SERVO = 0x01, // set the position of 1 to 84 servos
+    GET_SERVO=0x02,        // get the position of a single servo
+    SET_SPEED,        // set the speed of 1 to 84 servos
+    SET_MODE=0x04,         // set the mode of 1 to 84 channels, except analog
+    GET_MODE,         // get the current mode of a single channel
+    SET_AD_CNT=0x06,       // set the number of analog channels from 1 to 36
+    GET_AD_CNT=0x07,       // get the number of channels set to analog
+    GET_INPUT=0x08,        // returns the status of a single input
+    GET_ADC=0x09,          // returns the value of a single analog channel
+    GET_VERSION,      // returns the version number of processor 1, 2, 3, or 4
+    GET_BULK,         // used for factory testing
+    TEST              // used for factory testing
+  }; 
