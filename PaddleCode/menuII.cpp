@@ -499,7 +499,7 @@ int main (int argc , char * const argv[]) {
             
             cout << "\nPreliminary computations in progress, the grid will move soon.\n";
             
-            alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms);
+            alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms, 0);
         } 
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column

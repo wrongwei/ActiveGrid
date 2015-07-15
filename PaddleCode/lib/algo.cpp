@@ -1488,6 +1488,8 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
 float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel){
     cout << "compute_rmscorr_3D is under construction" << endl;
     
+    return 0;
+    /*
     // unedited...
     float control_positions[numberOfServos][4000];
     float mean=0;
@@ -1517,14 +1519,14 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
     
     rms=sqrt (rms); // rms is the sqrt of variance (that we actually computed)
     
-    return rms;
+    return rms;*/
 }
 
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
-    runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
-    compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
+    //runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
+    //    compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
     // change return
     return 0;
 }
