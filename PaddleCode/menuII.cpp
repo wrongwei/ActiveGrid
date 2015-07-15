@@ -503,6 +503,10 @@ int main (int argc , char * const argv[]) {
 	      " dimension?\n(In other words, how wide should the temporal"
 	      " kernel be?)" << endl;
 	    cin >> width_of_temporal_kernel;
+	    while (width_of_temporal_kernel <= 0){
+	      cout << "Choose an integer greater than zero!" << endl;
+	      cin >> width_of_temporal_kernel;
+	    }
             
 	    cout << "\nPreliminary computations in progress,"
 	      " the grid will move soon." << endl;
