@@ -10,7 +10,7 @@ addpath(pathname);
 
 % which workspace stats do you want to load?/?????????
 % -----------------------------------------------------------------------
-load statscorr_196trd1.5retake.mat
+load statscorr_14-07-15_gaussian_sigma4_rms10.mat
 % -------------------------------------------------------------------
 
 %sepval = [1:12e6]/(20000)*mean(u); 
@@ -62,7 +62,7 @@ title('Correlation Function loglog')
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? -------------------------------------------------------------------------------
 %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
-logcorf = fullfile(pathname, 'logcorel_196trd1.5r.fig');
+logcorf = fullfile(pathname, 'logcorel_testdataset_rms10.fig');
 
 %saveas(H1, ncorf);
 saveas(H2, logcorf);
