@@ -4,7 +4,8 @@
 % Horace Zhang + Jessie Liu Summer 2014
 
 % Where is the path?-----------------------------------------------------
-pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
+%pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
+pathname = fileparts('/Users/nathan/Documents/Data/14072015data/');
 addpath(pathname); 
 
 % which workspace stats do you want to load?/?????????
