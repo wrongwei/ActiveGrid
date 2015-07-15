@@ -116,7 +116,7 @@ inline algo::algo(){
     steps_random = new vector<float>[numberOfServos];
     actualpositioninvector = new int[numberOfServos];
     positions_random_3d = new vector<vector<float>[numberOfServos]>; // pointer to vectors (servos in every time-step in block of interest)
-    steps_random_3d = new vector<vector<float>[numberOfServos]>; // necessary?
+    steps_random_3d = new vector<vector<float>[numberOfServos]>; // THESE ARE WRONG
     actualpositioninvector_3d = new int[numberOfServos]>;
     
     old_angle = new double [numberOfServos];

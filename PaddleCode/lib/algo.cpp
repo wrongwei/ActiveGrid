@@ -1492,7 +1492,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             if(positions_random_3d.at(t).at(actualpositioninvector_3d[i])==-100){
                 updateOneWing2(i); // compute next step for paddle at random, if no position exists at this point yet
             }
-            interpos[columns[i]][rows[i]][t]=positions_random_3d.at(t).at(actualpositioninvector_3d[i]);
+            interpos[columns[i]][rows[i]][t]=positions_random_3d.at(t).at(actualpositioninvector_3d[i]); // WRONG
             interstep[columns[i]][rows[i]][t]=steps_random_3d.at(t).at(actualpositioninvector_3d[i]);
             actualpositioninvector_3d[i]++;
         }
