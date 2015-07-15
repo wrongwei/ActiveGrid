@@ -82,7 +82,7 @@ public:
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
     void runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
-    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
+    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol);
     float compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel);
@@ -115,6 +115,9 @@ inline algo::algo(){
     positions_random = new vector<float>[numberOfServos]; // pointer to (ie array of) vectors
     steps_random = new vector<float>[numberOfServos];
     actualpositioninvector = new int[numberOfServos];
+    positions_random_3d = new vector<vector<float>[numberOfServos]>; // pointer to vectors (servos in every time-step in block of interest)
+    steps_random_3d = new vector<vector<float>[numberOfServos]>; // necessary?
+    actualpositioninvector_3d = new int[numberOfServos]>;
     
     old_angle = new double [numberOfServos];
     new_angle= new double [numberOfServos];

@@ -793,17 +793,12 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     
 	for(int i=0;i<numberOfServos;i++){
 		//get current positions:
-		if(positions_random[i].at(actualpositioninvector[i])!=-100){
-			interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-			interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
+		if(positions_random[i].at(actualpositioninvector[i])==-100){
+			updateOneWing2(i);
 		}
-		else{
-			updateOneWing2(i); // compute next steps (randomly) 
-			interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-			interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
-		}
+        interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
+        interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
+        actualpositioninvector[i]++;
 	}
 
     
@@ -1478,27 +1473,28 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions where????
-void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
     int col=0;
     int row=0;
     
-    float interpos[13][11]; // arrays storing the intermediate computed values before convolution
-    float interstep[13][11];
+    // Resize 3d arrays to length of user-selected temporal width parameter (i.e. number of time-slices to store in memory and correlate over)
+    positions_random_3d.resize(width);
+    steps_random_3d.resize(width);
+    actualpositioninvector_3d.resize(width);
     
-    // NEEDS TO BE 3D-IFIED
-    for(int i=0;i<numberOfServos;i++){
-        //get current positions:
-        if(positions_random[i].at(actualpositioninvector[i])!=-100){
-            interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-            interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-            actualpositioninvector[i]++;
-        }
-        else{
-            updateOneWing2(i); // compute next steps (randomly)
-            interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-            interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-            actualpositioninvector[i]++;
+    float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
+    float interstep[13][11][width];
+    
+    for (int t=0;t<width;t++){
+        for(int i=0;i<numberOfServos;i++){
+            //get current positions
+            if(positions_random_3d.at(t).at(actualpositioninvector_3d[i])==-100){
+                updateOneWing2(i); // compute next step for paddle at random, if no position exists at this point yet
+            }
+            interpos[columns[i]][rows[i]][t]=positions_random_3d.at(t).at(actualpositioninvector_3d[i]);
+            interstep[columns[i]][rows[i]][t]=steps_random_3d.at(t).at(actualpositioninvector_3d[i]);
+            actualpositioninvector_3d[i]++;
         }
     }
     
