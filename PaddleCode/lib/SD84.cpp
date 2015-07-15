@@ -225,7 +225,11 @@ float SD84::getAnalog(int numberOfServo)
 	outputbuffer[5] = 0;     
 	result += thePort.send(outputbuffer, 6); 
 	result += thePort.receive(2, inputbuffer);
-	int temp = (int)(((uchar) inputbuffer[1] << 8) + (uchar) inputbuffer[0]);
+	
+	// The temp variable below is unused and this expression has no side effects so it has
+	// been commented out by Kevin Griffin 15/07/15
+	///int temp = (int)(((uchar) inputbuffer[1] << 8) + (uchar) inputbuffer[0]);
+	
 	///cout << "analogue value: " << temp << endl; 
 	///cout << "low: " << (int) inputbuffer[0] << endl; // is correct
 	///cout << "high: " << (int) inputbuffer[1] << endl; // 256 512 ..., e.g.: 3 means 256+512=768

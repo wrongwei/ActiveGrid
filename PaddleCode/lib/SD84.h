@@ -60,7 +60,7 @@ class SD84
 {
 public: 
 	  // creator: 
-	SD84(char * portnametag = "", 
+  SD84(char * portnametag = (char *) "", 
 	     int newservocenter = SERVOCENTER, 
 	     int newmsp180deg   = MSP180DEG); 
 	  // destructor: do nothing (the serial port shuts itself down...  ).  

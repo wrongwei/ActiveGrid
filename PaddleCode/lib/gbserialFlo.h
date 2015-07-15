@@ -69,13 +69,13 @@ class GBSerialPort
 
 public: 
 	  // creator: 
-	GBSerialPort(char * newportnametag = PORTNAMETAG); 
+  GBSerialPort(char * newportnametag = (char *) PORTNAMETAG); 
 	  // destructor: 
 	~GBSerialPort() {}; 
 	
 	// initialize the port; a single instance of a GBSerialPort can 
 	// be succesfully attached to a serial port only once: 
-	int  attach(char * newportnametag = PORTNAMETAG); 
+	int  attach(char * newportnametag = (char *) PORTNAMETAG); 
 	
 	  // read something from the port: 
 	int  receive(int numofbytes, uchar * inputbuffer); 

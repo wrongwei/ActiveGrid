@@ -105,7 +105,9 @@ class activegrid
   SD84 * leftboard;// controls the left side of the grid, viewed upstream.  
   SD84 * rightboard;// controls the right side of the grid, viewed upstream.  
   
-  double movetime;  // set time it takes for servos to get to a new set angle.
+  // it appears that the private field movetime is not needed, so I have
+  //  commented it out below. -Kevin Griffin
+  //  double movetime;  // set time it takes for servos to get to a new set angle.
 	
   int error();      // opens all paddles and returns -1.  
 }; 
@@ -114,8 +116,8 @@ class activegrid
 
 inline activegrid::activegrid(){
 
-  leftboard = new SD84("/dev/cu.usbserial-A2001mHD",1500,1200);   //initialize board 1
-  rightboard = new SD84("/dev/cu.usbserial-A2001mHT",1500,1200);   //initialize board 2
+  leftboard = new SD84((char *)"/dev/cu.usbserial-A2001mHD",1500,1200);   //initialize board 1
+  rightboard = new SD84((char*)"/dev/cu.usbserial-A2001mHT",1500,1200);   //initialize board 2
     // The digital output is on channel 84 of rightboard
     // names for the boards in the hall : LB : "/dev/cu.usbserial-A2001mHD"
     // RB : "/dev/cu.usbserial-A2001mHT"

@@ -5,7 +5,7 @@ using namespace std;
     
 int main(){  
   SD84 * board;  
-  board = new SD84("/dev/cu.usbserial-A2001mHT",1500,1200);   //initialize board 2
+  board = new SD84((char *)"/dev/cu.usbserial-A2001mHT",1500,1200);   //initialize board 2
   cout << " --- START --- " << endl;
   float voltageSignal;  
   int analogChannel=21;     

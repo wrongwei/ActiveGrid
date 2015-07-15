@@ -1,7 +1,6 @@
-cd lib
 echo 'Compiling files in PaddleCode/lib ...'
 make -B
 cd ..
 echo 'Compiling files in PaddleCode ...'
 make -B
-
+cd lib

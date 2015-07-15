@@ -230,14 +230,14 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
                 }
                 if(combine==5){
                     if(col%5==1)count++;
-                    if(col==12 || col==13 || col==1 || row==11 || col==3 && row==10 || col==4 && row==10 || col==5 && row==10 || col==6 && row==10){
+                    if(col==12 || col==13 || col==1 || row==11 || (col==3 && row==10) || (col==4 && row==10) || (col==5 && row==10) || (col==6 && row==10)){
                         newangle[col][row]=positions[count];
                         newangleperstep[col][row]=anglesteps[count];
                     }
                 }
                 if(combine==6){
                     if(col%6==1)count++;
-                    if(col==1 || col==13 || col==1 || row==11 || col==8 && row==1 || col==9 && row==1 || col==10 && row==1 || col==11 && row==1 || col==12 && row==1 || col==8 && row==9 || col==9 && row==9 || col==10 && row==9 || col==11 && row==9 || col==12 && row==9 || row==10 || row==11){
+                    if(col==1 || col==13 || col==1 || row==11 || (col==8 && row==1) || (col==9 && row==1) || (col==10 && row==1) || (col==11 && row==1) || (col==12 && row==1) || (col==8 && row==9) || (col==9 && row==9) || (col==10 && row==9) || (col==11 && row==9) || (col==12 && row==9) || row==10 || row==11){
                         newangle[col][row]=positions[count];
                         newangleperstep[col][row]=anglesteps[count];
                     }
@@ -288,7 +288,7 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
                     }
                 }
                 if (combine==3) {
-                    if (row==1 && col==13 || row==9 && col==13) {
+		  if ((row==1 && col==13) || (row==9 && col==13)) {
                         newangle[col][row]=Fictive;
                         newangleperstep[col][row]=0;
                         row++;
