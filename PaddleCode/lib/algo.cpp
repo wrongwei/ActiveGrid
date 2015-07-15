@@ -42,7 +42,7 @@ int  algo::setsameangletoallservos(double angle){
             else newangle[col][row]= Fictive;
         }
     }
-    grid.setanglesII(newangle);/Users/nathan/Documents/Code/ActiveGrid/MaxPlanck/Documents
+    grid.setanglesII(newangle);
     return 1;
 }
 
@@ -1480,7 +1480,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // positions where????
 void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
-    int col=0;
+    /*    int col=0;
     int row=0;
     
     float interpos[13][11]; // arrays storing the intermediate computed values before convolution
@@ -1832,7 +1832,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             else if (actstep[i]<-40) {actstep[i]=-40;}
         }
     }
-    
+    */    
 
     
 }

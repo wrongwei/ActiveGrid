@@ -444,6 +444,7 @@ int main (int argc , char * const argv[]) {
             int typeOfSpatialCorr;
             int typeOfTemporalCorr;
             float target_rms;
+	    int width_of_temporal_kernel;
             
             cout << "Choose the spatial correlation function: \n"
             " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n";
@@ -493,13 +494,20 @@ int main (int argc , char * const argv[]) {
             cin >> constantArea;
             while (constantArea < 0 || constantArea > 1){
                 cout << "Choose zero or 1\n";
-                cout << "Should the area be kept constant? (1,0) ";
+                cout << "Should the area be kept constant? (1,0)" << endl;
                 cin >> constantArea;
             }
             
-            cout << "\nPreliminary computations in progress, the grid will move soon.\n";
+                        
+	    cout << "What is the range of correlation in the temporal"
+	      " dimension?\n(In other words, how wide should the temporal"
+	      " kernel be?)" << endl;
+	    cin >> width_of_temporal_kernel;
             
-            alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms, 0);
+	    cout << "\nPreliminary computations in progress,"
+	      " the grid will move soon." << endl;
+
+	    alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms, width_of_temporal_kernel);
         } 
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
