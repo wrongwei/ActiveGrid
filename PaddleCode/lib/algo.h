@@ -1,13 +1,13 @@
 /*
-Library to create sets of angles and angular speeds, in order to give to the grid a specific motion.
+ Library to create sets of angles and angular speeds, in order to give to the grid a specific motion.
  
-There are a lot of functions, but also a lot of possible motions.
-
-Florent Lachaussée
+ There are a lot of functions, but also a lot of possible motions.
+ 
+ Florent Lachaussée
  florent.lachaussee@ens.fr
-March 2013 
-
-*/
+ March 2013
+ 
+ */
 
 #include <iostream>
 #include <vector>
@@ -20,10 +20,10 @@ March 2013
 #define range_of_corr 7
 
 class algo{
- public:
-  algo(); //constructor
-  ~algo(){}; //destructor
-
+public:
+    algo(); //constructor
+    ~algo(){}; //destructor
+    
     // just create an active grid object
     activegrid grid;
     
@@ -47,6 +47,7 @@ class algo{
     int correlatedMovement (int constant, float sigma, float alpha, double height, int mode, int mrow, int mcol, float target_rms);
     int correlatedMovement_steps (int constant, float sigma1, float sigma2, int mode, float target_rms1, float target_rms2, double period, double duty_cycle);
     int correlatedMovement_periodic (int constant, float sigma, int mode, float target_rms, int numberofsteps);
+    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms);
     
     //keeps the projected area constant
     void area(double actpos[14][12], float rms);
@@ -61,10 +62,10 @@ class algo{
     // so we reintroduce temporarily array notations. Conversion tools follow.
     int columns[numberOfServos];
     int rows[numberOfServos];
-
+    
     
     //useful quantities for computations
-
+    
     float min_speed,max_speed;
     float min_amplitude,max_amplitude;
     double min_angle, max_angle;
@@ -81,10 +82,12 @@ class algo{
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
     void runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
+    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol);
-
-    // to store speeds and positions after random computation and before convolution 
+    float compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel);
+    
+    // to store speeds and positions after random computation and before convolution
     vector<float> * positions_random;
     vector<float> * steps_random;
     int * actualpositioninvector;
@@ -97,17 +100,17 @@ class algo{
     float err[numberOfServos];
     
     // modulo function with NON NEGATIVE reminder
-    int modulo(int numerator, int denominator); 
+    int modulo(int numerator, int denominator);
     
-
- private:
+    
+private:
     
 };
 
 inline algo::algo(){
     srand(time(NULL));//initialize random seed
     cout << "algo::algo()" << endl;
-
+    
     cout << "numberOfServos: " << numberOfServos << endl;
     positions_random = new vector<float>[numberOfServos]; // pointer to (ie array of) vectors
     steps_random = new vector<float>[numberOfServos];
@@ -123,7 +126,7 @@ inline algo::algo(){
     
     updatetimeinmus = 100000;//in mu sec !!!!!!!! SHOULD BE 100 000 !!!!!!!!!!!!!
     
-	// initializations
+    // initializations
     for(int i=0;i<numberOfServos;i++){
         old_angle[i]=0;
         new_angle[i]=0;
@@ -144,7 +147,7 @@ inline algo::algo(){
         rows[i]= floor(i/13);
     }
     grid.high_duty = false;
-
+    
     
     cout << "algo::algo() END" << endl;
 }

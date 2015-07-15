@@ -739,8 +739,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
         i += 1;
         
     }
-    
-    
+    anglefile.close();
     return 0;
 }
 
@@ -1476,3 +1475,56 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     anglefile.close();
     return 0;
 }
+
+// determines the positions of the servos by do a 3D correlation. Stores these
+// positions where????
+void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+    cout << "runcorr_3D is under construction" << endl;
+    
+}
+
+/* takes a random 3D sequence and computes its std dev. It's useful for the correction
+ coefficent that is needed to give to the output the desired rms value of angles. */
+float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel){
+    cout << "compute_rmscorr_3D is under construction" << endl;
+    
+    // unedited...
+    float control_positions[numberOfServos][4000];
+    float mean=0;
+    float rms=0;
+    
+    // takes a random correlated sequence of angles, without correction
+    for (int t =0; t<4000;t++){
+        //change to runcorr_3D and change parameters accordingly
+        runcorr(positions,anglesteps,sigma,alpha,height,mode,mrow,mcol,1,norm1,old_positions, old_steps, err);
+        
+        for (int i=0; i<numberOfServos;i++){
+            control_positions[i][t]=positions[i];
+        }
+    }
+    
+    // computes mean and rms value of angles in the first sequence
+    for (int i=0; i<numberOfServos;i++){
+        for (int t=0;t<4000;t++){
+            mean+= control_positions[i][t]/(numberOfServos*4000);
+        }
+    }
+    for (int i=0; i<numberOfServos;i++){
+        for (int t=0;t<4000;t++){
+            rms+= pow(control_positions[i][t]-mean, (int)2)/(numberOfServos*4000);
+        }
+    }
+    
+    rms=sqrt (rms); // rms is the sqrt of variance (that we actually computed)
+    
+    return rms;
+}
+
+// movement of the paddles that is correlated in space and in time
+int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
+    cout << "correlatedMovement_correlatedInTime is under construction" << endl;
+    runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
+    compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
+    return 0;
+}
+
