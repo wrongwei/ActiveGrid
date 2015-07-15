@@ -9,6 +9,8 @@
  clear all;
 
 % MODIFY THIS ------------------------------------------------------------------
+pathname = fileparts('/Users/nathan/Documents/Data/14072015data/');
+addpath(pathname)
 A = load('angleservo_cM.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
