@@ -1879,6 +1879,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
     runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
     compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
+    // change return
     return 0;
 }
 
