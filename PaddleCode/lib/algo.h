@@ -81,11 +81,17 @@ public:
     void updateOneWing(int WingNumber);
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
-    void runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
-    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
+    void runcorr(float actpos[], float actstep[], float sigma, float alpha,
+		 double height, int mode, int mrow, int mcol, float correction,
+		 float norm, float oldpos[], float oldstep[], float err[]);
+    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha,
+		    double height, int mode, int mrow, int mcol, float correction,
+		    float norm, float oldpos[], float oldstep[], float err[]);
     float compute_rms(int option);
-    float compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol);
-    float compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel);
+    float compute_rmscorr(float sigma, int mode, float alpha, double height,
+			  int mrow, int mcol);
+    float compute_rmscorr_3D(float sigma, int mode, float alpha, double height,
+			     int mrow, int mcol, int width_of_temporal_kernel);
     
     // to store speeds and positions after random computation and before convolution
     vector<float> * positions_random;
@@ -99,7 +105,7 @@ public:
     float old_steps[numberOfServos];
     float err[numberOfServos];
     
-    // modulo function with NON NEGATIVE reminder
+    // This function performs the modulo operation but will always have NON NEGATIVE remainder
     int modulo(int numerator, int denominator);
     
     
@@ -120,9 +126,15 @@ inline algo::algo(){
     new_angle= new double [numberOfServos];
     
     //get speed,amplitude:
-    min_speed=10.;max_speed=40.0; //maximal possible angle-per-step-motion (for updaterate 10Hz): 42.8 degrees/step, limited by the servo speed
-    min_amplitude=30;max_amplitude=90; // for piecewise periodic motion
-    min_angle=-50;max_angle=50; // max and min angle for random motion
+    //maximal possible angle-per-step-motion (for updaterate 10Hz): 42.8 degrees/step, limited by the servo speed
+    min_speed=10.;
+    max_speed=40.0;
+    // for piecewise periodic motion
+    min_amplitude=30;
+    max_amplitude=90; 
+    // max and min angle for random motion
+    min_angle=-50;
+    max_angle=50;
     
     updatetimeinmus = 100000;//in mu sec !!!!!!!! SHOULD BE 100 000 !!!!!!!!!!!!!
     
