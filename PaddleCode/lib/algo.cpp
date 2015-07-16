@@ -670,20 +670,17 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     /* anglefile.open("angleservo2.txt", ios::out | ios::trunc); // file to plot angles in function of time
     for (int numero=0; numero < 129; numero++){
         anglefile << "   Angle(" << numero << ")";
-
     }
     anglefile << endl; */
 
     // file header for all angles
-    anglefile.open("angleservo_cM.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    // file to plot angles in function of time
+    anglefile.open("angleservo_cM.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 143; numero++){
         anglefile << "   Angle(" << numero << ")";
-
     }
     anglefile << endl;*/
     
-    
-
     // compute normalization for gaussian convolution
     norm1=0;
     for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
@@ -692,8 +689,9 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
         }
     }
 
-    // takes a first random correlated sequence of angles, with the same parameters but without correction
-    // computes its mean and rms value of angles 
+    // makes a random correlated sequence of angles, with the same parameters but without correction
+    // computes its mean and rms value of angles. This is done so that the rms correction factor can be
+    // determined before the angles have been produced
     rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol);
 
     
