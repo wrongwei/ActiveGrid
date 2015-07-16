@@ -724,7 +724,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
                 break;
             }
         }
-        setanglestoallservosII(positions,anglesteps,constant,target_rms); // for motion
+        setanglestoallservosII(positions,anglesteps,constant,target_rms,false); // for motion
         cout << i << "\n";
         i += 1;
         
@@ -1319,7 +1319,7 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
                 break;
             }
         }
-        setanglestoallservosII(positions,anglesteps,constant, target_rms); // for motion
+        setanglestoallservosII(positions,anglesteps,constant, target_rms,false); // for motion
         cout << i << "\n";
         i += 1;
         
@@ -1453,7 +1453,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
                 break;
             }
         }
-        setanglestoallservosII(positions,anglesteps,constant, target_rms); // for motion
+        setanglestoallservosII(positions,anglesteps,constant, target_rms,false); // for motion
         cout << iteration << "  " << phase << "  " << loop_number << "  " << grid.high_duty << "  \n";
         iteration++;
     }
@@ -1932,7 +1932,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     break;
                 }
             }
-            setanglestoallservosII(positions,anglesteps,constant,target_rms); // for motion
+            setanglestoallservosII(positions,anglesteps,constant,target_rms,true); // for motion
             cout << i << "\n";
             i += 1;
         }
