@@ -1476,6 +1476,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
     int col=0;
     int row=0;
     
+    // LOAF READING LOOP GOES HERE
     float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
     float interstep[13][11][width];
     
@@ -1868,8 +1869,85 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
-    //runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
-    //    compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
+    // create Loaf object using constructor
+    
+    float oldslice[13][11]; // stores the last configuration of paddles that was sent to the grid
+    float newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
+    
+    float rms;
+    float correction=1;
+    int i=0;
+    int SPACING = 5; // number of interpolations needed to keep servo speed under its max value, in worst case
+    
+    // compute normalization for gaussian convolution - may need to be converted for 3D (TBD)
+    float norm2 = 0;
+    for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
+        for (int k = -range_of_corr; k <= range_of_corr; k++){// j and k refer to the shift
+            norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma,2)));
+        }
+    }
+    
+    // makes a random correlated sequence of angles, with the same parameters but without correction
+    // computes its mean and rms value of angles. This is done so that the rms correction factor can be
+    // determined before the angles have been produced
+    rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol); // use compute_rmscorr_3D when it's ready
+    
+    correction=target_rms/rms; // correction factor
+    
+    // initialize values to 0 (necessary to avoid NaN output) - note: not sure what these do or whether they'll be used...
+    for (int i=0; i<numberOfServos; i++){
+        positions[i]=0;
+        anglesteps[i]=0;
+        old_positions[i]=0;
+        old_steps[i]=0;
+        err[i]=0;
+    }
+    
+    //timing:
+    timeval testtime;
+    gettimeofday(&testtime,0);
+    long time_usec=0;
+    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
+    
+    // main loop: give angle orders
+    while(0==0){
+        
+        // shutoff switch
+        if (!kbhit()) { // note: may not work in all compilers
+            if (getch()=='x')
+                break;
+        }
+        
+        //getpositions of each servo: (needs to send pointers to both timeslices and Loaf object as well)
+        //runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
+        
+        // create five timeslices to separate old and new configurations safely, and feed each one to the grid in succession
+        for (int t = 0; t < SPACING; t++) {
+            
+            // safety logic here
+            
+            //setposition of each servo:
+            time_usec += updatetimeinmus;
+            gettimeofday(&testtime,0);
+            if(time_usec>1000000) time_usec-=1000000;
+            if(testtime.tv_usec > time_usec) {
+                cout << "---------------------------------Problem!!!------------------------------" << endl;
+                cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+            }
+            while (testtime.tv_usec <= time_usec){
+                gettimeofday(&testtime,0);
+                if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
+                    break;
+                }
+            }
+            setanglestoallservosII(positions,anglesteps,constant,target_rms); // for motion
+            cout << i << "\n";
+            i += 1;
+        }
+        oldslice = newslice; // store most recent slice as oldslice for next iteration
+        // Loaf.sliceBread (iterate) goes here
+    }
+    anglefile.close();
     // change return
     return 0;
 }
