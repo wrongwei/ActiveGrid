@@ -354,7 +354,7 @@ int  algo::setanglestoallservosII(float * positions, float * anglesteps, int con
     if(constant==1) {area(newangle, rms);}
 
     grid.setspeeds(newangleperstep);
-    grid.setanglesII(newangle); // hamster
+    grid.setanglesII(newangle);
     
     // writing-on-file can be commented to save computational time
     // for plot-output-file
@@ -791,21 +791,16 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     
 	for(int i=0;i<numberOfServos;i++){
 		//get current positions:
-		if(positions_random[i].at(actualpositioninvector[i])!=-100){
-			interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-			interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
+		if(positions_random[i].at(actualpositioninvector[i])==-100){
+			updateOneWing2(i);
 		}
-		else{
-			updateOneWing2(i); // compute next steps (randomly) 
-			interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-			interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
-		}
+        interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
+        interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
+        actualpositioninvector[i]++;
 	}
 
     
-    // convolution to create correlation between paddles HAMSTER
+    // convolution to create correlation between paddles
     // periodic boundary conditions are used
      
     // Gaussian convolution
@@ -1310,7 +1305,7 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
         if ( ((temps/period)- floor(temps/period)) < duty_cycle ){
             runcorr(positions,anglesteps,sigma1,0,0,mode,0,0,correction1,norm1, old_positions, old_steps, err);
             target_rms=target_rms1;
-            grid.high_duty = true; // hamster
+            grid.high_duty = true;
         }
         else {
             runcorr(positions,anglesteps,sigma2,0,0,mode,0,0,correction2,norm2, old_positions, old_steps, err);
@@ -1443,7 +1438,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
         phase = iteration%numberofsteps;
         loop_number = floor(iteration/numberofsteps);
         
-        if (loop_number%2==0) grid.high_duty = false; //to know when the pattern restarts to be read - hamster
+        if (loop_number%2==0) grid.high_duty = false; //to know when the pattern restarts to be read
         else grid.high_duty = true;
         
         // just read the values previously computed
@@ -1476,24 +1471,20 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions where????
-void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
-    /*    int col=0;
+    int col=0;
     int row=0;
     
-    float interpos[13][11]; // arrays storing the intermediate computed values before convolution
-    float interstep[13][11];
+    float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
+    float interstep[13][11][width];
     
-    // NEEDS TO BE 3D-IFIED
-    for(int i=0;i<numberOfServos;i++){
-        //get current positions:
-        if(positions_random[i].at(actualpositioninvector[i])!=-100){
-            interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-            interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-            actualpositioninvector[i]++;
-        }
-        else{
-            updateOneWing2(i); // compute next steps (randomly)
+    for (int t=0;t<width;t++){
+        for(int i=0;i<numberOfServos;i++){
+            //get current positions:
+            if(positions_random[i].at(actualpositioninvector[i])==-100){
+                updateOneWing2(i);
+            }
             interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
             interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
             actualpositioninvector[i]++;
@@ -1501,7 +1492,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
     }
     
     
-    // convolution to create correlation between paddles HAMSTER
+    // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
     // Gaussian convolution
@@ -1830,7 +1821,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             else if (actstep[i]<-40) {actstep[i]=-40;}
         }
     }
-    */    
+    
 
     
 }
