@@ -328,21 +328,24 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
 
 // to set differents angles to all servos (without combination between neighbours)
 // light version for correlated motion (less computational time)
-int  algo::setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms){
+int algo::setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms, bool is3D){
     double newangle[14][12];
     double newangleperstep[14][12];
     int count=0;
-    for(int row=1;row<12;row++){
-        for(int col=1;col<14;col++){
-            
-            if(grid.servo[col][row]!=0){
-                newangle[col][row]=positions[count];
-                newangleperstep[col][row]=anglesteps[count];
-                count++;
+    for(int row = 1; row < 12; row++) {
+        for(int col = 1; col < 14; col++) {
+            if (grid.servo[col][row]!=0){
+                if (is3D) { // converting 13x11 array into 14x12 array
+                    newangle[col][row]=angles[col-1][row-1];
+                    newangleperstep[col][row]=steps[col-1][row-1];
+                }
+                else { // converting 1D array into 14x12 array
+                    newangle[col][row]=positions[count];
+                    newangleperstep[col][row]=anglesteps[count];
+                    count++;
+                }
             }
-
-             
-            else{ // for non-existing servos
+            else { // for non-existing servos
                 if (row!=2) {
                     newangle[col][row]=Fictive;
                     newangleperstep[col][row]=0;
@@ -356,17 +359,7 @@ int  algo::setanglestoallservosII(float * positions, float * anglesteps, int con
     grid.setspeeds(newangleperstep);
     grid.setanglesII(newangle);
     
-    // writing-on-file can be commented to save computational time
-    // for plot-output-file
-
-    //write angles for actual servos to file
-    /*for(int row=1;row<12;row++){
-         for(int col=1;col<14;col++){
-             if(grid.servo[col][row]!=0){
-                 anglefile << "    " << newangle[col][row];}
-         }
-     }
-     anglefile << endl;*/
+    // writing-on-file removed for space; see above method for angle-writing code
     
      // write all angles to file
      for(int i = 0; i < 143; i++){
@@ -377,7 +370,6 @@ int  algo::setanglestoallservosII(float * positions, float * anglesteps, int con
     
     return 1;
 }
- 
 
 // give the same periodic motion to all paddles
 int algo::allperiodic(double angle, double frequency){
@@ -1471,13 +1463,13 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions where????
-void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
     int col=0;
     int row=0;
     
     // LOAF READING LOOP GOES HERE
-    float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
+    /*float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
     float interstep[13][11][width];
     
     for (int t=0;t<width;t++){
@@ -1490,7 +1482,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
             actualpositioninvector[i]++;
         }
-    }
+    }*/
     
     
     // convolution to create correlation between paddles
@@ -1924,7 +1916,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         // create five timeslices to separate old and new configurations safely, and feed each one to the grid in succession
         for (int t = 0; t < SPACING; t++) {
             
-            // safety logic here
+            // logic for computing angle steps
             
             //setposition of each servo:
             time_usec += updatetimeinmus;

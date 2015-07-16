@@ -37,9 +37,8 @@ public:
     int  openhalfclosehalf();
     
     // principle functions to pass the angle orders
-    int  setanglestoallservos(float * positions, float * anglesteps, int combine, int constant, float rms);
-    int  setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms);// light version
-    
+    int setanglestoallservos(float * positions, float * anglesteps, int combine, int constant, float rms);
+    int setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms, bool is3D);// light version
     
     // functions computing "complicated" motions
     int allperiodic(double angle, double frequency);
