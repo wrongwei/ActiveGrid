@@ -1478,23 +1478,18 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
     int col=0;
     int row=0;
     
-    // Resize 3d arrays to length of user-selected temporal width parameter (i.e. number of time-slices to store in memory and correlate over)
-    positions_random_3d.resize(width);
-    steps_random_3d.resize(width);
-    actualpositioninvector_3d.resize(width);
-    
     float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
     float interstep[13][11][width];
     
     for (int t=0;t<width;t++){
         for(int i=0;i<numberOfServos;i++){
-            //get current positions
-            if(positions_random_3d.at(t).at(actualpositioninvector_3d[i])==-100){
-                updateOneWing2(i); // compute next step for paddle at random, if no position exists at this point yet
+            //get current positions:
+            if(positions_random[i].at(actualpositioninvector[i])==-100){
+                updateOneWing2(i);
             }
-            interpos[columns[i]][rows[i]][t]=positions_random_3d.at(t).at(actualpositioninvector_3d[i]); // WRONG
-            interstep[columns[i]][rows[i]][t]=steps_random_3d.at(t).at(actualpositioninvector_3d[i]);
-            actualpositioninvector_3d[i]++;
+            interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
+            interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
+            actualpositioninvector[i]++;
         }
     }
     
