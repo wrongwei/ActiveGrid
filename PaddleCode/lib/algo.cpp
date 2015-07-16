@@ -1861,15 +1861,28 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
+    
+    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     // create Loaf object using constructor
     
-    float oldslice[13][11]; // stores the last configuration of paddles that was sent to the grid
-    float newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
+    double oldslice[13][11]; // stores the last configuration of paddles that was sent to the grid
+    double newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
+    double step_size[13][11]; // stores the step size needed to get to the next configuration
     
     float rms;
     float correction=1;
-    int i=0;
+    int i = 1; // grid number counter
     int SPACING = 5; // number of interpolations needed to keep servo speed under its max value, in worst case
+    
+    double amplitude; // for steps/speeds calculations and safety checks, below
+    double diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
+    double EPSILON = 0.001; // error tolerance for double comparisons
+    
+    // initialize oldslice to a zeros array (should be the starting position of the grid)
+    for (int i = 0; i < 13; i++) {
+        for (int j = 0; j < 11; j++)
+            oldslice[i][j] = 0;
+    }
     
     // compute normalization for gaussian convolution - may need to be converted for 3D (TBD)
     float norm2 = 0;
@@ -1886,15 +1899,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     correction=target_rms/rms; // correction factor
     
-    // initialize values to 0 (necessary to avoid NaN output) - note: not sure what these do or whether they'll be used...
-    for (int i=0; i<numberOfServos; i++){
-        positions[i]=0;
-        anglesteps[i]=0;
-        old_positions[i]=0;
-        old_steps[i]=0;
-        err[i]=0;
-    }
-    
     //timing:
     timeval testtime;
     gettimeofday(&testtime,0);
@@ -1910,13 +1914,75 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 break;
         }
         
+        cout << "Grid #" << i << ":"; // print grid number
+        i += 1;
+        
         //getpositions of each servo: (needs to send pointers to both timeslices and Loaf object as well)
         //runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
         
+        // store necessary servo speeds after carrying out safety checks
+        for (int col = 0; col < 13; col++) {
+            for (int row = 0; row < 11; row++) {
+                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+                if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
+                    cout < "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!";
+                    step_size[col][row] = max_speed;
+                }
+                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+                    // assign speeds based on min number of legal steps it will take to get to the target angle
+                    switch (1 + floor(fabs(amplitude)/(max_speed))) {
+                        case 5: // 160-180 degrees
+                            step_size[col][row] = amplitude/5.;
+                            break;
+                        case 4: // 120-159.99 degrees
+                            step_size[col][row] = amplitude/4.;
+                            break;
+                        case 3: // 80-119.99 degrees
+                            step_size[col][row] = amplitude/3.;
+                            break;
+                        case 2: // 40-79.99 degrees
+                            step_size[col][row] = amplitude/2.;
+                            break;
+                        case 1: // 0-39.99 degrees
+                            step_size[col][row] = amplitude;
+                            break;
+                    }
+                }*/
+                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+                else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING);
+                else {
+                    switch (floor(fabs(amplitude)/(min_speed))) {
+                        case 4: // 40-49.99 degrees - will move for 4 intermediate steps and rest on the last one
+                            step_size[col][row] = amplitude/4.;
+                            break;
+                        case 3: // 30-39.99 degrees - will move for 3 intermediate steps
+                            step_size[col][row] = amplitude/3.;
+                            break;
+                        case 2: // 20-29.99 degrees - will move for 2 intermediate steps
+                            step_size[col][row] = amplitude/2.;
+                            break;
+                        case 1: // 10-19.99 degrees - will move for the 1st intermediate step only
+                            step_size[col][row] = amplitude;
+                            break;
+                        default: // what to do if amplitude is less than min_speed? IDK :(
+                            step_size[col][row] = amplitude;
+                    }
+                }
+            }
+        }
+        
         // create five timeslices to separate old and new configurations safely, and feed each one to the grid in succession
         for (int t = 0; t < SPACING; t++) {
+            cout << " " << (t+1); // print interpolation number
             
-            // logic for computing angle steps
+            // compute new intermediate grid position, with steps necessary to attain it
+            for (int col = 0; col < 13; col++) {
+                for (int row = 0; row < 11; row++) {
+                    diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                    if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                    else step_size[col][row] = 0; // paddle has arrived; tell servo not to move
+                }
+            }
             
             //setposition of each servo:
             time_usec += updatetimeinmus;
@@ -1932,13 +1998,12 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     break;
                 }
             }
-            setanglestoallservosII(positions,anglesteps,constant,target_rms,true); // for motion
-            cout << i << "\n";
-            i += 1;
+            setanglestoallservosII(oldslice,step_size,constant,target_rms,true); // for motion
         }
-        oldslice = newslice; // store most recent slice as oldslice for next iteration
+        oldslice = newslice; // store most recent slice as oldslice for next iteration (should be equal anyway, but just in case)
         // Loaf.sliceBread (iterate) goes here
     }
+    cout << endl;
     anglefile.close();
     // change return
     return 0;
