@@ -81,17 +81,12 @@ public:
     void updateOneWing(int WingNumber);
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
-<<<<<<< HEAD
     void runcorr(float actpos[], float actstep[], float sigma, float alpha,
 		 double height, int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
     void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha,
 		    double height, int mode, int mrow, int mcol, float correction,
 		    float norm, float oldpos[], float oldstep[], float err[]);
-=======
-    void runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
-    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]);
->>>>>>> rc3d
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height,
 			  int mrow, int mcol);
