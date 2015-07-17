@@ -1,13 +1,19 @@
-/*
- Library to create sets of angles and angular speeds, in order to give to the grid a specific motion.
- 
- There are a lot of functions, but also a lot of possible motions.
- 
- Florent Lachaussée
- florent.lachaussee@ens.fr
- March 2013
- 
- */
+/*------------------------------------------------------------------------*/
+/* Library to create sets of angles and angular speeds, in order to give  */
+/* to the grid a specific motion.                                         */
+/* There are a lot of functions, but also a lot of possible motions.      */
+/*                                                                        */
+/* Florent Lachaussée
+ * florent.lachaussee@ens.fr
+ * March 2013                                                             */
+/* algo.h                                                                 */
+/*------------------------------------------------------------------------*/
+
+// Protecting against multiple inclusion ...
+#ifndef ALGO_INCLUDED
+#define ALGO_INCLUDED
+
+/*------------------------------------------------------------------------*/
 
 #include <iostream>
 #include <vector>
@@ -133,6 +139,8 @@ inline algo::algo(){
     min_amplitude=30;
     max_amplitude=90; 
     // max and min angle for random motion
+    // note that the loaf data type has its own values for min and max angle so
+    // changing the values below will not affect the values in loaf.cpp
     min_angle=-50;
     max_angle=50;
     
@@ -163,3 +171,5 @@ inline algo::algo(){
     
     cout << "algo::algo() END" << endl;
 }
+
+#endif // ALGO_INCLUDED
