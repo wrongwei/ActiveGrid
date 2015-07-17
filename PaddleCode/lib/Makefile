@@ -9,7 +9,8 @@ all:  \
 	gbserialFlo \
 	SD84 \
 	activegrid \
-	algo
+	algo \
+	loaf
 
 #	gbserialdummy \
 #	PosixSignalDispatcher \
@@ -44,5 +45,8 @@ SD84: SD84.cpp SD84.h
 activegrid: activegrid.cpp activegrid.h
 	$(CPP) $(FLAGS) -c activegrid.cpp
 
-algo: algo.cpp algo.h
+algo: algo.cpp algo.h loaf.h 
 	$(CPP) $(FLAGS) -c algo.cpp
+
+loaf: loaf.cpp loaf.h
+	$(CPP) $(FLAGS) -c loaf.cpp
