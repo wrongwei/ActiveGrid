@@ -1352,7 +1352,6 @@ void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma
     cout << "runcorr_3D is under construction" << endl;
     //int col=0;
     //int row=0;
-    
     // LOAF READING LOOP GOES HERE
     /*float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
     float interstep[13][11][width];
@@ -1698,7 +1697,10 @@ void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma
             if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
             else if (actstep[i]<-40) {actstep[i]=-40;}
         }
-    }*/
+    }
+    
+
+    */
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
