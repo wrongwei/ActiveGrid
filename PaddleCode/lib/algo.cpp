@@ -334,7 +334,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
     double newangle[14][12];
     double newangleperstep[14][12];
     int count=0;
-    for(int row = 1; row < 12; row++) {
+    /*for(int row = 1; row < 12; row++) {
         for(int col = 1; col < 14; col++) {
             if (grid.servo[col][row]!=0){
                 newangle[col][row]=positions[count];
@@ -353,7 +353,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
     if(constant==1) {area(newangle, rms);}
 
     grid.setspeeds(newangleperstep);
-    grid.setanglesII(newangle);
+    grid.setanglesII(newangle);*/
     
     // writing-on-file removed for space; see above method for angle-writing code
     
@@ -363,7 +363,6 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
      }
      anglefile << endl;
     
-    
     return 1;
 }
 
@@ -372,7 +371,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
 int algo::setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms){
     double newangle[14][12];
     double newangleperstep[14][12];
-    for(int row = 1; row < 12; row++) {
+    /*for(int row = 1; row < 12; row++) {
         for(int col = 1; col < 14; col++) {
             if (grid.servo[col][row]!=0){
                 // converting 13x11 array into 14x12 array
@@ -391,16 +390,16 @@ int algo::setanglestoallservosIII(float angles[13][11], float steps[13][11], int
     if(constant==1) {area(newangle, rms);}
     
     grid.setspeeds(newangleperstep);
-    grid.setanglesII(newangle);
+    grid.setanglesII(newangle);*/
     
     // writing-on-file removed for space; see above method for angle-writing code
     
     // write all angles to file
-    for(int i = 0; i < 143; i++){
-        anglefile << "    " << positions[i];
+    for (int i = 0; i < 13; i++) {
+        for (int j = 0; j < 11; j++)
+            anglefile << "    " << angles[i][j];
     }
     anglefile << endl;
-    
     
     return 1;
 }
