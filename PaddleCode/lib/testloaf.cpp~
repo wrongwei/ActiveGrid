@@ -1,0 +1,24 @@
+/*------------------------------------------------------------------------*/
+/* Author: Kevin Griffin                                                  */
+/* kevinpg@princeton.edu                                                  */
+/* 16/07/15                                                               */
+/* testloaf.cpp                                                           */
+/*------------------------------------------------------------------------*/
+
+#include "loaf.h"
+#include <iostream>
+
+/*------------------------------------------------------------------------*/
+
+/* A test client for loaf.cpp */
+
+int main(void)
+{
+  cout << "Test client for loaf.cpp is running..." << endl << endl;
+  
+  Loaf_T myLoaf = Loaf_bake(5);
+  Loaf_print(myLoaf, 5);
+
+  cout << "Done testing client for loaf.cpp!" << endl;
+  return 0;
+}
