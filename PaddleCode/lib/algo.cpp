@@ -1814,9 +1814,6 @@ void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma
             else if (actstep[i]<-40) {actstep[i]=-40;}
         }
     }
-    
-
-    
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1876,7 +1873,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     double amplitude; // for steps/speeds calculations and safety checks, below
     double diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
-    double EPSILON = 0.001; // error tolerance for double comparisons
+    double EPSILON = 1; // error tolerance for double comparisons (just be within a degree)
     
     // initialize oldslice to a zeros array (should be the starting position of the grid)
     for (int i = 0; i < 13; i++) {
@@ -1918,7 +1915,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         i += 1;
         
         //getpositions of each servo: (needs to send pointers to both timeslices and Loaf object as well)
-        //runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
+        //newslice = runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
         
         // store necessary servo speeds after carrying out safety checks
         for (int col = 0; col < 13; col++) {
@@ -1930,44 +1927,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 }
                 /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
                     // assign speeds based on min number of legal steps it will take to get to the target angle
-                    switch (1 + floor(fabs(amplitude)/(max_speed))) {
-                        case 5: // 160-180 degrees
-                            step_size[col][row] = amplitude/5.;
-                            break;
-                        case 4: // 120-159.99 degrees
-                            step_size[col][row] = amplitude/4.;
-                            break;
-                        case 3: // 80-119.99 degrees
-                            step_size[col][row] = amplitude/3.;
-                            break;
-                        case 2: // 40-79.99 degrees
-                            step_size[col][row] = amplitude/2.;
-                            break;
-                        case 1: // 0-39.99 degrees
-                            step_size[col][row] = amplitude;
-                            break;
-                    }
+                    step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
                 }*/
                 // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING);
-                else {
-                    switch (floor(fabs(amplitude)/(min_speed))) {
-                        case 4: // 40-49.99 degrees - will move for 4 intermediate steps and rest on the last one
-                            step_size[col][row] = amplitude/4.;
-                            break;
-                        case 3: // 30-39.99 degrees - will move for 3 intermediate steps
-                            step_size[col][row] = amplitude/3.;
-                            break;
-                        case 2: // 20-29.99 degrees - will move for 2 intermediate steps
-                            step_size[col][row] = amplitude/2.;
-                            break;
-                        case 1: // 10-19.99 degrees - will move for the 1st intermediate step only
-                            step_size[col][row] = amplitude;
-                            break;
-                        default: // what to do if amplitude is less than min_speed? IDK :(
-                            step_size[col][row] = amplitude;
-                    }
+                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+                else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+                    step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
                 }
+                else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+                 */
+                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
             }
         }
         

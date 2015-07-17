@@ -42,27 +42,34 @@ February 2013
 
 //set angles of the servos:
 int  activegrid::setanglesII(double newangle[14][12]){
-
+    int count = 0;
     //update angle array
     for(int row=0;row<12;row++){
-      for(int col=0;col<14;col++){
-	angle[col][row]=newangle[col][row];
-      }
+        for(int col=0;col<14;col++){
+            angle[col][row]=newangle[col][row];
+            if (fabs(angle[col][row]) > 45) count++; // count how many angles exceed 45 degrees
+        }
+    }
+    
+    // safety check: no more than 80 paddles should have angles in excess of 45 degrees
+    if (count > 80) {
+        error(); // throw error method (below) and open grid
+        return -23; // flee in terror instead of setting potentially dangerous angles
     }
 
     for(int row=11;row>=1;row--){
-      for(int col=1;col<=13;col++){
-	if(servo[col][row]!=0){
-	  if(servo[col][row]>=10000 && servo[col][row]<=20000){
-	    leftboard_orderofangle[(servo[col][row]-10001)]=angle[col][row];
+        for(int col=1;col<=13;col++){
+            if(servo[col][row]!=0){
+                if(servo[col][row]>=10000 && servo[col][row]<=20000){
+                    leftboard_orderofangle[(servo[col][row]-10001)]=angle[col][row];
 
-	  }
-	  else if(servo[col][row]>=20000 && servo[col][row]<=20200){
-	    rightboard_orderofangle[(servo[col][row]-20001)]=angle[col][row];
-	  }
-	}
-      }
-    }    
+                }
+                else if(servo[col][row]>=20000 && servo[col][row]<=20200){
+                    rightboard_orderofangle[(servo[col][row]-20001)]=angle[col][row];
+                }
+            }
+        }
+    }
     leftboard->setangles(1,67,leftboard_orderofangle,high_duty);
     rightboard->setangles(1,62,rightboard_orderofangle,high_duty);
 
