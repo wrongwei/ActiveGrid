@@ -110,7 +110,7 @@ public:
     void truetophat2d(float actpos[], float oldpos[], float actstep[], float correction,
                       float interpos[][11], float sigma, int mrow, int mcol, int i);
     void tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,
-                          float interpos[][11], float sigma, float alpha, float height, int i);
+                          float interpos[][11], float sigma, float alpha, double height, int i);
     void triangle2d(float actpos[], float oldpos[], float actstep[], float correction,
                     float interpos[][11], float sigma, int i);
     void safety_check(float actpos[], float actstep[], float err[], bool isGaussian, int i);

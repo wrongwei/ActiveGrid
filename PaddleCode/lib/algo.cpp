@@ -938,7 +938,7 @@ void algo::truetophat2d(float actpos[], float oldpos[], float actstep[], float c
 
 // modifies arrays to reflect top hat with long tail correlation in 2d
 void algo::tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,
-                            float interpos[][11], float sigma, float alpha, float height, int i) {
+                            float interpos[][11], float sigma, float alpha, double height, int i) {
     double norm1 = 0;
     double norm2 = 0;
     int row = 0; int col = 0;
@@ -1349,357 +1349,46 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // positions where????
 void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
-    //int col=0;
-    //int row=0;
+
     // LOAF READING LOOP GOES HERE
-    /*float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
-    float interstep[13][11][width];
-    
-    for (int t=0;t<width;t++){
-        for(int i=0;i<numberOfServos;i++){
-            //get current positions:
-            if(positions_random[i].at(actualpositioninvector[i])==-100){
-                updateOneWing2(i);
-            }
-            interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-            interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
-            actualpositioninvector[i]++;
-        }
-    }*/
-    
+    float interpos[13][11][numberOfSlices]; // arrays storing the intermediate computed values before convolution
+    float interstep[13][11][numberOfSlices];
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
-    // Gaussian convolution
-    /*if (mode==1){
-        
-        // convolutes
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-                for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-                    
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    
-                    actpos[i]+=correction*(float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma,2)))*interpos[col][row]/norm;
-                    
-                }
-            }
-            actstep[i]= actpos[i]-oldpos[i]+err[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part to avoid angles greater than 90 degrees (in absolute value).
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {
-                err[i]=actstep[i] - 40;
-                actstep[i]=40;} // safety part to avoid speed greater than 42.8 degrees per step
-            else if (actstep[i]<-40) {
-                err[i]=actstep[i] + 40;
-                actstep[i]=-40;}
-        }
-    }
-    
-    // 1/r^2 convolution
-    else if(mode==2){
-        
-        // convolutes
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            for (int j=-10; j<11; j++){
-                for (int k=-10; k<11;k++){
-                    
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    
-                    actpos[i]+=correction/(pow(sqrt(pow((float)j,(int) 2)+ pow((float)k,(int)2))+1,(int)2))*interpos[col][row];
-                    
-                }
-            }
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-        
-    }
-    
-    // 1/|r|^3 convolution
-    else if(mode==3){
-        // convolutes
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            for (int j=-10; j<11; j++){
-                for (int k=-10; k<11;k++){
-                    
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    
-                    actpos[i]+=correction/(pow(sqrt(pow((float)j,(int) 2)+ pow((float)k,(int)2))+1,(int)3))*interpos[col][row];
-                    
-                }
-            }
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-        
-    }
-    
-    // 1/r^4 convolution
-    else if(mode==4){
-        // convolutes
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            for (int j=-10; j<11; j++){
-                for (int k=-10; k<11;k++){
-                    
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    
-                    actpos[i]+=correction/(pow(sqrt(pow((float)j,(int) 2)+ pow((float)k,(int)2))+1,(int)4))*interpos[col][row];
-                    
-                }
-            }
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-        
-    }
-    
-    
-    //top hat convolution
-    else if(mode == 5) {
-        
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            double norm1 = 0;
-            
-            for (int j=-sigma; j<(sigma+1); j++){
-                for (int k=-sigma; k<(sigma+1);k++){
-                    
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    
-                    double dist = sqrt((pow((double)j,2)+pow((double)k,2)));
-                    if (dist <= sigma){
-                        actpos[i]+= correction * interpos[col][row];
-                        norm1++;
-                    }
-                }
-            }
-            
-            // normalization
-            actpos[i] = actpos[i]/norm1;
-            
-            
-            //safety checks
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-    }
-    
-    //true top hat with one main paddle, no wrapping around (fix later?)
-    else if(mode == 6){
-        
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            col = modulo(columns[i],13);
-            row = modulo(rows[i],11);
-            
-            double dist = sqrt((pow((double)(col-mcol),2)+pow((double)(row-mrow),2)));
-            if (dist <= sigma){
-                actpos[i] = correction * interpos[mcol][mrow];
-            } else {
-                actpos[i] = correction * interpos[col][row];
-            }
-            
-            
-            //safety checks
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-    }
-    
-    
-    
-    
-    // true top hat with one randomly chosen main paddle
-    else if(mode == 7){
+    // preliminary computations for special cases
+    bool isGaussian = false;
+    if (mode == 1) isGaussian = true;
+    if (mode == 7) {
         int r = rand() % 143; // generate random paddle
-        mcol = modulo(columns[r],13);
+        mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
-        
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            col = modulo(columns[i],13);
-            row = modulo(rows[i],11);
-            
-            double dist = sqrt((pow((double)(col-mcol),2)+pow((double)(row-mrow),2)));
-            if (dist <= sigma) {
-                actpos[i] = correction * interpos[mcol][mrow];
-            } else {
-                actpos[i] = correction * interpos[col][row];
-            }
-            
-            
-            //safety checks
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
     }
     
-    //top hat with long tail
-    else if(mode == 8) {
+    // Loop through servos and calculate/create correlations, using helper methods (below)
+    for (int i = 0; i < numberOfServos; i++) {
         
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            double norm1 = 0;
-            double norm2 = 0;
-            
-            for (int j=-sigma; j<(sigma+1); j++) {
-                for (int k=-sigma; k<(sigma+1);k++){
-                    
-                    col = modulo (columns[i]+j,13);
-                    row = modulo (rows[i]+k,11);
-                    
-                    double dist = sqrt(pow((float)j,(int)2)+pow((float)k,(int)2));
-                    if (dist <= alpha) {
-                        actpos[i]+= correction * interpos[col][row];
-                        norm1++;
-                    } else {
-                        actpos[i]+= correction * height * interpos[col][row];
-                        norm2++;
-                    }
-                    
-                }
-            }
-            actpos[i] = actpos[i]/(norm1 + height*norm2);
-            
-            //safety checks
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
-    }
-    
-    
-    //triangular function convolution
-    else if(mode == 9) {
+        initialize_pos_step(actpos, actstep, oldpos, oldstep, i); // set up old/act arrays
         
-        for (int i=0; i<numberOfServos; i++){
-            oldpos[i]=actpos[i];
-            oldstep[i]=actstep[i];
-            
-            actpos[i]=0; // clear the output
-            actstep[i]=0; //
-            
-            double norm1 = 0;
-            
-            for (int j=-sigma; j<(sigma+1); j++) {
-                for (int k=-sigma; k<(sigma+1);k++){
-                    
-                    col = modulo (columns[i]+j,13);
-                    row = modulo (rows[i]+k,11);
-                    
-                    double dist = sqrt(pow((float)j,(int)2)+pow((float)k,(int)2));
-                    if (dist <= sigma) {
-                        actpos[i]+= correction * ((-1)/sigma*dist+1) * interpos[col][row];
-                        norm1++;
-                    }
-                    
-                }
-            }
-            
-            //normalization
-            actpos[i] = actpos[i]/(0.5*norm1);
-            
-            
-            //safety checks
-            actstep[i] = actpos[i]-oldpos[i];
-            
-            if (actpos[i]>90) {actpos[i]=90; actstep[i]=0;} // safety part (angles)
-            else if (actpos[i]<-90) {actpos[i]=-90; actstep[i]=0;}
-            
-            if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
-            else if (actstep[i]<-40) {actstep[i]=-40;}
-        }
+        // Gaussian convolution
+        if (mode == 1) gaussian2d(actpos, oldpos, actstep, sigma, correction, norm, interpos, err, i);
+        // 1/r^n convolution (supports n=2, n=3, n=4)
+        else if (mode==2 || mode==3 || mode==4) inverse_r_to_n_2d(actpos, oldpos, actstep, correction, interpos, mode, i);
+        //top hat convolution
+        else if(mode == 5) tophat2d(actpos, oldpos, actstep, correction, interpos, sigma, i);
+        //true top hat with one main paddle, no wrapping around (fix later?)
+        else if(mode == 6) truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
+        // true top hat with one randomly chosen main paddle
+        else if(mode == 7) truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
+        //top hat with long tail
+        else if(mode == 8) tophatlongtail2d(actpos, oldpos, actstep, correction, interpos, sigma, alpha, height, i);
+        //triangular function convolution
+        else if(mode == 9) triangle2d(actpos, oldpos, actstep, correction, interpos, sigma, i);
+        
+        safety_check(actpos, actstep, err, isGaussian, i); // angle-checking function
     }
-    
 
-    */
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
