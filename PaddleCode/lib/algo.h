@@ -93,6 +93,22 @@ public:
     float compute_rmscorr_3D(float sigma, int mode, float alpha, double height,
 			     int mrow, int mcol, int width_of_temporal_kernel);
     
+    // helper methods for correlation procedures
+    void initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i);
+    void gaussian2d(float actpos[], float oldpos[], float actstep[], float sigma, float correction,
+                    float norm, float interpos[][11], float err[], int i);
+    void inverse_r_to_n_2d(float actpos[], float oldpos[], float actstep[], float correction,
+                           float interpos[][11], int n, int i);
+    void tophat2d(float actpos[], float oldpos[], float actstep[], float correction,
+                  float interpos[][11], float sigma, int i);
+    void truetophat2d(float actpos[], float oldpos[], float actstep[], float correction,
+                      float interpos[][11], float sigma, int mrow, int mcol, int i);
+    void tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,
+                          float interpos[][11], float sigma, float alpha, float height, int i);
+    void triangle2d(float actpos[], float oldpos[], float actstep[], float correction,
+                    float interpos[][11], float sigma, int i);
+    void safety_check(float actpos[], float actstep[], float err[], bool isGaussian, int i);
+    
     // to store speeds and positions after random computation and before convolution
     vector<float> * positions_random;
     vector<float> * steps_random;
