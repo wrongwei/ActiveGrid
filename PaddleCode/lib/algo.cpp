@@ -1473,7 +1473,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // positions where????
 void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
-    int col=0;
+    /*    int col=0;
     int row=0;
     
     float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
@@ -1823,7 +1823,7 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
     }
     
 
-    
+    */    
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
