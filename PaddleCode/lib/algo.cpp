@@ -328,21 +328,18 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
 
 // to set differents angles to all servos (without combination between neighbours)
 // light version for correlated motion (less computational time)
-int  algo::setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms){
+int algo::setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms){
     double newangle[14][12];
     double newangleperstep[14][12];
     int count=0;
-    for(int row=1;row<12;row++){
-        for(int col=1;col<14;col++){
-            
-            if(grid.servo[col][row]!=0){
+    for(int row = 1; row < 12; row++) {
+        for(int col = 1; col < 14; col++) {
+            if (grid.servo[col][row]!=0){
                 newangle[col][row]=positions[count];
                 newangleperstep[col][row]=anglesteps[count];
                 count++;
             }
-
-             
-            else{ // for non-existing servos
+            else { // for non-existing servos
                 if (row!=2) {
                     newangle[col][row]=Fictive;
                     newangleperstep[col][row]=0;
@@ -356,17 +353,7 @@ int  algo::setanglestoallservosII(float * positions, float * anglesteps, int con
     grid.setspeeds(newangleperstep);
     grid.setanglesII(newangle);
     
-    // writing-on-file can be commented to save computational time
-    // for plot-output-file
-
-    //write angles for actual servos to file
-    /*for(int row=1;row<12;row++){
-         for(int col=1;col<14;col++){
-             if(grid.servo[col][row]!=0){
-                 anglefile << "    " << newangle[col][row];}
-         }
-     }
-     anglefile << endl;*/
+    // writing-on-file removed for space; see above method for angle-writing code
     
      // write all angles to file
      for(int i = 0; i < 143; i++){
@@ -377,7 +364,45 @@ int  algo::setanglestoallservosII(float * positions, float * anglesteps, int con
     
     return 1;
 }
- 
+
+// to set differents angles to all servos (without combination between neighbours)
+// even lighter version for correlated motion in time (no need for array counter logic)
+int algo::setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms){
+    double newangle[14][12];
+    double newangleperstep[14][12];
+    for(int row = 1; row < 12; row++) {
+        for(int col = 1; col < 14; col++) {
+            if (grid.servo[col][row]!=0){
+                // converting 13x11 array into 14x12 array
+                newangle[col][row]=angles[(col-1)][(row-1)];
+                newangleperstep[col][row]=steps[(col-1)][(row-1)];
+            }
+            else { // for non-existing servos
+                if (row!=2) {
+                    newangle[col][row]=Fictive;
+                    newangleperstep[col][row]=0;
+                }
+            }
+        }
+    }
+    
+    if(constant==1) {area(newangle, rms);}
+    
+    grid.setspeeds(newangleperstep);
+    grid.setanglesII(newangle);
+    
+    // writing-on-file removed for space; see above method for angle-writing code
+    
+    // write all angles to file
+    for(int i = 0; i < 143; i++){
+        anglefile << "    " << positions[i];
+    }
+    anglefile << endl;
+    
+    
+    return 1;
+}
+
 
 // give the same periodic motion to all paddles
 int algo::allperiodic(double angle, double frequency){
@@ -787,7 +812,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     int row=0;
     
     float interpos[13][11]; // arrays storing the intermediate computed values before convolution
-    float interstep[13][11];
+    //float interstep[13][11]; // unused
     
 	for(int i=0;i<numberOfServos;i++){
 		//get current positions:
@@ -795,7 +820,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
 			updateOneWing2(i);
 		}
         interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
-        interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
+        //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
 	}
 
@@ -1471,12 +1496,12 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions where????
-void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, double height, int width, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     cout << "runcorr_3D is under construction" << endl;
-    /*    int col=0;
-    int row=0;
-    
-    float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
+    //int col=0;
+    //int row=0;
+    // LOAF READING LOOP GOES HERE
+    /*float interpos[13][11][width]; // arrays storing the intermediate computed values before convolution
     float interstep[13][11][width];
     
     for (int t=0;t<width;t++){
@@ -1489,14 +1514,14 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]);
             actualpositioninvector[i]++;
         }
-    }
+    }*/
     
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
     // Gaussian convolution
-    if (mode==1){
+    /*if (mode==1){
         
         // convolutes
         for (int i=0; i<numberOfServos; i++){
@@ -1820,10 +1845,14 @@ void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha, doubl
             if (actstep[i]>40) {actstep[i]=40;} // safety part (speed)
             else if (actstep[i]<-40) {actstep[i]=-40;}
         }
+<<<<<<< HEAD
     }
     
 
     */    
+=======
+    }*/
+>>>>>>> d7efe41da3bcab0522431c0031654f87cc95d4ee
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1868,8 +1897,135 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
-    //runcorr_3D(NULL,NULL,0,0,0,0,0,0,0,0,NULL,NULL,NULL);
-    //    compute_rmscorr_3D(1,1,1,1,1,1,width_of_temporal_kernel);
+    
+    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    // create Loaf object using constructor
+    
+    float oldslice[13][11]; // stores the last configuration of paddles that was sent to the grid
+    float newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
+    float step_size[13][11]; // stores the step size needed to get to the next configuration
+    
+    //float rms; // not ready yet
+    //float correction=1;
+    int i = 1; // grid number counter
+    int SPACING = 5; // number of interpolations needed to keep servo speed under its max value, in worst case
+    
+    float amplitude; // for steps/speeds calculations and safety checks, below
+    float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
+    float EPSILON = 1; // error tolerance for double comparisons (just be within a degree)
+    
+    // initialize arrays to zero (to avoid NaN errors)
+    for (int i = 0; i < 13; i++) {
+        for (int j = 0; j < 11; j++) {
+            oldslice[i][j] = 0;
+            newslice[i][j] = 0;
+            step_size[i][j] = 0;
+        }
+    }
+    
+    // compute normalization for gaussian convolution - may need to be converted for 3D (TBD)
+    float norm2 = 0;
+    for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
+        for (int k = -range_of_corr; k <= range_of_corr; k++){// j and k refer to the shift
+            norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)));
+        }
+    }
+    
+    // makes a random correlated sequence of angles, with the same parameters but without correction
+    // computes its mean and rms value of angles. This is done so that the rms correction factor can be
+    // determined before the angles have been produced
+    //rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol); // use compute_rmscorr_3D when it's ready
+    
+    //correction=target_rms/rms; // correction factor
+    
+    //timing:
+    timeval testtime;
+    gettimeofday(&testtime,0);
+    long time_usec=0;
+    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
+    
+    // main loop: give angle orders
+    while(0==0){
+        
+        // shutoff switch
+        /*if (!kbhit()) { // unfortunately, this doesn't work on macs...
+            if (getch()=='x')
+                break;
+        }*/
+        
+        cout << "Grid #" << i << ":"; // print grid number
+        i += 1;
+        
+        //getpositions of each servo: (needs to send pointers to both timeslices and Loaf object as well)
+        //newslice = runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
+        
+        // store necessary servo speeds after carrying out safety checks
+        for (int col = 0; col < 13; col++) {
+            for (int row = 0; row < 11; row++) {
+                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+                if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
+                    cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!";
+                    step_size[col][row] = max_speed;
+                }
+                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+                    // assign speeds based on min number of legal steps it will take to get to the target angle
+                    step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+                }*/
+                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+                else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+                    step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+                }
+                else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+                 */
+                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+            }
+        }
+        
+        // create five timeslices to separate old and new configurations safely, and feed each one to the grid in succession
+        for (int t = 0; t < SPACING; t++) {
+            cout << " " << (t+1); // print interpolation number
+            
+            // compute new intermediate grid position, with steps necessary to attain it
+            for (int col = 0; col < 13; col++) {
+                for (int row = 0; row < 11; row++) {
+                    diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                    if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                    else step_size[col][row] = 0; // paddle has arrived; tell servo not to move
+                }
+            }
+            
+            //setposition of each servo:
+            time_usec += updatetimeinmus;
+            gettimeofday(&testtime,0);
+            if(time_usec>1000000) time_usec-=1000000;
+            if(testtime.tv_usec > time_usec) {
+                cout << "---------------------------------Problem!!!------------------------------" << endl;
+                cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+            }
+            while (testtime.tv_usec <= time_usec){
+                gettimeofday(&testtime,0);
+                if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
+                    break;
+                }
+            }
+            setanglestoallservosIII(oldslice,step_size,constantArea,target_rms); // for motion
+        }
+        // store most recent slice as oldslice for next iteration (should be equal anyway, but just in case)
+        int debugCount = 0;
+        for (int col = 0; col < 13; col++) {
+            for (int row = 0; row < 11; row++) {
+                if (fabs(oldslice[col][row] - newslice[col][row]) < EPSILON) debugCount++; // seeing whether this is really necessary
+                oldslice[col][row] = newslice[col][row];
+            }
+        }
+        if (debugCount == 143) // if each oldslice element is approx. equal to its corresponding element in newslice, then
+            cout << "oldslice/newslice reassignment loop is not necessary since oldslice already equals newslice!";
+        
+        // Loaf.sliceBread (iterate) goes here
+    }
+    cout << endl;
+    anglefile.close();
     // change return
     return 0;
 }
