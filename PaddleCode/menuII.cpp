@@ -21,16 +21,25 @@
  check names of devices in /dev and in activegrid.h
  
  */
+/*--------------------------------------------------------------------*/
 
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <time.h>
+#include "lib/algo.h"
+
+/*--------------------------------------------------------------------*/
+
+//Headers needed for signal handling
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+/*--------------------------------------------------------------------*/
 
 using namespace std;
-
-
-#include "lib/algo.h"
 
 //functions:
 void wait(float seconds);
@@ -45,93 +54,128 @@ void wait(float seconds) {
     while (clock() < endwait) {}
 }
 
+char * myLoaf = NULL;
+
+/*--------------------------------------------------------------------*/
+// Install a signal handler to make sure that when the user types
+// CTRL-C that memory is freed before the program is terminated
+// If you want to terminate the program immediately, type CTRL-backslash
+static void mySignalHandler(int iSignal){
+  // Free any used memory
+  cout << "\nFreeing memory in use\n";
+  if (myLoaf != NULL){
+    free(myLoaf);
+  }
+  
+  // Kill the program
+  cout << "Killing program by sending the signal SIGKILL, which equals 9. ";
+  fflush(NULL);
+  raise(SIGKILL);
+}
+
+/*--------------------------------------------------------------------*/
 
 int main (int argc , char * const argv[]) {
-    //just create an algo object
+    // create an algo object
     algo alg;
     int choice=-1;
     int i=1;
     
+    // Make sure CTRL-C signals are not blocked.
+    void (*pfRet)(int);
+    sigset_t sSet;
+    int iRet;
+    iRet = sigemptyset(&sSet);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    iRet = sigaddset(&sSet, SIGINT);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    iRet = sigprocmask(SIG_UNBLOCK, &sSet, NULL);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+
+    // Install mySignalHandler as the handler for CTRL-C signals.
+    pfRet = signal(SIGINT, mySignalHandler);
+    if (pfRet == SIG_ERR) {perror(argv[0]); exit(EXIT_FAILURE); }
+    
+    // Welcome
+    cout << endl << "Welcome to " << argv[0] << endl;
+    cout << "This is the program to run the software of the activegrid." << endl;
     
     while(i!=0){
+      cout << "Menu:\n"
+	" 1 - see current angle configuration\n"
+	" 2 - see current servo map\n"
+	" 3 - open the grid\n\n"
+	" 4 - set all servos to the same angle\n"
+	" 5 - set one certain servo to one certain angle\n"
+	" 6 - set one col to one certain angle\n"
+	" 7 - set one row to one certain angle\n"
+	" 8 - close row 1-5 and open 6-11\n"
+	" 9 - get angle of one servo\n\n"
+	" 10 - all periodic\n"
+	" 11 - chaotic 1 (piecewise periodic)\n"
+	" 12 - chaotic 2 (random)\n"
+	" 13 - chaotic correlated\n"
+	" 14 - chaotic correlated (2 alternating amplitudes)\n"
+	" 15 - chaotic correlated (periodic pattern)\n\n"
+	" 16 - chaotic correlated in space and correlated in time (coming soon)\n\n"
+	" 17 - test the paddles by opening and closing each row and then each column\n\n"
+	" 18 - set boundary paddles to constant angle\n\n"
+	" 19 - test loaf object\n\n"
+	" 20 - end program\n\n";
+      cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
+      cin >> choice;
+      cout << "your choice is  " << choice << "\n";
+    
+      if((int)choice==1){
+	alg.grid.showallangles();
+      }
+      
+      else if((int)choice==2){
+	alg.grid.showservomap();
+      }
+    
+      else if((int)choice==3){
+	alg.grid.opengrid();
+      }
+    
+      else if((int)choice==4){
+	double angle=0;
+	cout << "Angle? (-90 - 90)";
+	cin >> angle;
+	angle=angle_check(angle);
+	cout << endl;
+	alg.setsameangletoallservos(angle);
+      }
         
-        cout << endl << "Welcome to " << argv[0] << endl;
-        cout << "This is the program to run the software of the activegrid." << endl;
-        cout << "Menu:\n"
-	  " 1 - see current angle configuration\n"
-	  " 2 - see current servo map\n"
-	  " 3 - open the grid\n\n"
-	  " 4 - set all servos to the same angle\n"
-	  " 5 - set one certain servo to one certain angle\n"
-	  " 6 - set one col to one certain angle\n"
-	  " 7 - set one row to one certain angle\n"
-	  " 8 - close row 1-5 and open 6-11\n"
-	  " 9 - get angle of one servo\n\n"
-	  " 10 - all periodic\n"
-	  " 11 - chaotic 1 (piecewise periodic)\n"
-	  " 12 - chaotic 2 (random)\n"
-	  " 13 - chaotic correlated\n"
-	  " 14 - chaotic correlated (2 alternating amplitudes)\n"
-	  " 15 - chaotic correlated (periodic pattern)\n\n"
-	  " 16 - chaotic correlated in space and correlated in time (coming soon)\n\n"
-	  " 17 - test the paddles by opening and closing each row and then each column\n\n"
-	  " 18 - set boundary paddles to constant angle\n\n"
-	  " 19 - test loaf object\n\n"
-	  " 20 - end program\n\n";
-        cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
-        cin >> choice;
-        cout << "your choice is  " << choice << "\n";
+      else if((int)choice==5){
+	int row=0;
+	int col=0;
+	double angle=0;
+	cout << "Col? (1-13)";
+	cin >> col;
+	cout << endl;
+	cout << "Row? (1-11)";
+	cin >> row;
+	cout << endl;
+	cout << "Angle? (-90 - 90)";
+	cin >> angle;
+	angle=angle_check(angle);
+	cout << endl;
+	alg.setangleofoneservo(col,row,angle);
+      }
         
-        if((int)choice==1){
-            alg.grid.showallangles();
-        }
-        
-        else if((int)choice==2){
-            alg.grid.showservomap();
-        }
-        
-        else if((int)choice==3){
-            alg.grid.opengrid();
-        }
-        
-        else if((int)choice==4){
-            double angle=0;
-            cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
-            cout << endl;
-            alg.setsameangletoallservos(angle);
-        }
-        
-        else if((int)choice==5){
-            int row=0;
-            int col=0;
-            double angle=0;
-            cout << "Col? (1-13)";
-            cin >> col;
-            cout << endl;
-            cout << "Row? (1-11)";
-            cin >> row;
-            cout << endl;
-            cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
-            cout << endl;
-            alg.setangleofoneservo(col,row,angle);
-        }
-        
-        else if((int)choice==6){
-            int col=0;
-            double angle=0;
-            cout << "Col? (1-13)";
-            cin >> col;
-            cout << endl;
-            cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
-            cout << endl;
-            alg.setanglesofonecolumn(col,angle);
-        }
+      else if((int)choice==6){
+	int col=0;
+	double angle=0;
+	cout << "Col? (1-13)";
+	cin >> col;
+	cout << endl;
+	cout << "Angle? (-90 - 90)";
+	cin >> angle;
+	angle=angle_check(angle);
+	cout << endl;
+	alg.setanglesofonecolumn(col,angle);
+      }
         
         else if((int)choice==7){
             int row=0;
