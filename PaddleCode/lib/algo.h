@@ -22,6 +22,7 @@
 #include <cmath>
 #include <fstream>
 #include "activegrid.h"
+#include "loaf.h"
 
 #define range_of_corr 7
 
@@ -30,8 +31,14 @@ public:
     algo(); //constructor
     ~algo(){}; //destructor
     
-    // just create an active grid object
+    // create an active grid object
     activegrid grid;
+
+    // create a loaf object
+    //    loaf theLoaf;
+
+    //create a loaf object
+    //    loaf loafObject;
     
     // functions for motion (basic ones)
     int  setsameangletoallservos(double angle);

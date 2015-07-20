@@ -11,8 +11,9 @@
 
 /*------------------------------------------------------------------------*/
 
-#include "algo.h"
 #include <stddef.h>
+#include <iostream>
+using namespace std;
 
 /*------------------------------------------------------------------------*/
 
@@ -31,11 +32,23 @@ typedef float **Loaf_T;
 
 /*------------------------------------------------------------------------*/
 
+class loaf
+{
+ public:
+  //constructor:
+  loaf(int numberOfSlices);
+  // destructor:
+  ~loaf() {};
+
+/*------------------------------------------------------------------------*/
+// functions...
+/*------------------------------------------------------------------------*/
+
 /* Returns a new Loaf_T object that contains numberOfSlices randomized slices
  * Each slice is a 2D array of the angles of all the servos.
  * These 2D arrays are 13 x 11 */
 
-Loaf_T Loaf_bake(int numberOfSlices);
+//Loaf_T Loaf_bake(int numberOfSlices);
 
 /*------------------------------------------------------------------------*/
 
@@ -46,7 +59,7 @@ Loaf_T Loaf_bake(int numberOfSlices);
  * t = 0 for the oldest slice and t = (numberOfSlices - 1) in the newest slice.
  */
 
-float Loaf_access(Loaf_T myLoaf, int i, int j, int t);
+  float Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t);
 
 /*------------------------------------------------------------------------*/
 
@@ -60,27 +73,43 @@ float Loaf_access(Loaf_T myLoaf, int i, int j, int t);
  *       RUNCORR_3D SHOULD NEVER CALL Loaf_set
  */
 
-void Loaf_set(Loaf_T myLoaf, int i, int j, int t, float newAngle);
+void Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle);
 
 /*------------------------------------------------------------------------*/
 
 /* Frees the oldest slice in myLoaf and adds a new slice. The new slice contains
  * random angle positions. Returns nothing */
 
-void Loaf_slice(Loaf_T myLoaf);
+ void Loaf_slice(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
 
 /* Prints out the contents of myLoaf. Returns nothing */
 
-void Loaf_print(Loaf_T myLoaf);
+void Loaf_print(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
 
 /* Loaf_eat frees all memory used by myLoaf and returns nothing */
 
-void Loaf_eat(Loaf_T myLoaf);
+// void Loaf_eat(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
+//  variables...
+/*------------------------------------------------------------------------*/
+ Loaf_T myLoaf;      // a new Loaf_T object
+
+ private:
+
+ // The number of slices is initialized by the constructor
+ int NUMBER_OF_SLICES;
+ 
+ // max and min servo angles
+ //If float values are desired, replace the enum statements with the commented const float ones
+ enum {MAX_ANGLE = 90};
+ // const float MAX_ANGLE = 90.0;
+ enum {MIN_ANGLE = -90};
+ // const float MIN_ANGLE = -90.0;
+};
 
 #endif // LOAF_INCLUDED

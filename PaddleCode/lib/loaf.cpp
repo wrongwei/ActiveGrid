@@ -14,22 +14,8 @@
 
 /*------------------------------------------------------------------------*/
 
-// Maximum servo angle
-const float MAX_ANGLE = 50.0;
-
-// Minimum servo angle
-const float MIN_ANGLE = -50.0;
-
-/*------------------------------------------------------------------------*/
-
 // number of servos
 enum {NUMBER_OF_SERVOS = 143};
-
-/*------------------------------------------------------------------------*/
-
-// use a "private" global variable to keep track of the number of slices
-
-static int NUMBER_OF_SLICES;
 
 /*------------------------------------------------------------------------*/
 
@@ -55,8 +41,8 @@ static int NUMBER_OF_SLICES;
 /* Assumptions:
  * 1D servo array starts with zero and ends with 142
  * Servos in a 2D array are referred to by order pair (column,row)
- * starting with 1,1 in the bottom right (looking upstream of the wind tunnel)
- * 2,1 is immediately to the right of 1,1
+ * starting with 0,0 in the bottom right (looking upstream of the wind tunnel)
+ * 1,0 is immediately to the right of 0,0
  */
 
 /*------------------------------------------------------------------------*/
@@ -64,10 +50,10 @@ static int NUMBER_OF_SLICES;
 /* Returns a new Loaf_T object that contains numberOfSlices randomized slices
  * Each slice is a 2D array of the angles of all the servos.
  * These 2D arrays are 13 x 11 */
-
-Loaf_T Loaf_bake(int numberOfSlices)
+loaf::loaf(int numberOfSlices)
+	  /*Loaf_T loaf::Loaf_bake(int numberOfSlices)*/
 {
-  Loaf_T myLoaf;      // a new Loaf_T object
+  //  Loaf_T myLoaf;      // a new Loaf_T object
   int iSlice;         // counter variable
   int iServo;         // counter variable
   
@@ -87,11 +73,12 @@ Loaf_T Loaf_bake(int numberOfSlices)
       for (iServo = 0; iServo < NUMBER_OF_SERVOS; iServo++)
 	{
 	  myLoaf[iSlice][iServo] = ((float)rand()/RAND_MAX)*
-	    (MAX_ANGLE-MIN_ANGLE) + MIN_ANGLE;
+	    ((float)MAX_ANGLE-(float)MIN_ANGLE) + (float)MIN_ANGLE;
 	}
     }
-  return myLoaf;
+  //  return myLoaf;
 }
+
 
 /*------------------------------------------------------------------------*/
 
@@ -102,7 +89,7 @@ Loaf_T Loaf_bake(int numberOfSlices)
  * t = 0 for the oldest slice and t = (NUMBER_OF_SLICES - 1) in the newest slice.
  */
 
-float Loaf_access(Loaf_T myLoaf, int i, int j, int t)
+float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
 {
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
@@ -129,7 +116,7 @@ float Loaf_access(Loaf_T myLoaf, int i, int j, int t)
  *       RUNCORR_3D SHOULD NEVER CALL Loaf_set
  */
 
-void Loaf_set(Loaf_T myLoaf, int i, int j, int t, float newAngle)
+void loaf::Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle)
 {
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
@@ -149,7 +136,7 @@ void Loaf_set(Loaf_T myLoaf, int i, int j, int t, float newAngle)
 /* Frees the oldest slice in myLoaf and adds a new slice. The new slice contains
  * random angle positions. Returns nothing */
 
-void Loaf_slice(Loaf_T myLoaf)
+void loaf::Loaf_slice(/*Loaf_T myLoaf*/)
 {
   float* newSlice;
   int i;
@@ -160,7 +147,7 @@ void Loaf_slice(Loaf_T myLoaf)
   for (iServo = 0; iServo < NUMBER_OF_SERVOS; iServo++)
     {
       newSlice[iServo] = ((float)rand()/RAND_MAX)*
-	(MAX_ANGLE-MIN_ANGLE) + MIN_ANGLE;
+	((float)MAX_ANGLE-(float)MIN_ANGLE) + (float)MIN_ANGLE;
     }
   
   // Free the memory used by the oldest slice
@@ -181,11 +168,12 @@ void Loaf_slice(Loaf_T myLoaf)
 
 /* Prints out the contents of myLoaf. Returns nothing */
 
-void Loaf_print(Loaf_T myLoaf)
+void loaf::Loaf_print(/*Loaf_T myLoaf*/)
 {
   int iSlice;
   int iRow;
   int iColumn;
+
   for (iSlice = 0; iSlice < NUMBER_OF_SLICES; iSlice ++)
     {
       cout << "Time Slice " << iSlice << endl << endl;
@@ -194,7 +182,7 @@ void Loaf_print(Loaf_T myLoaf)
 	  printf(" %2i| ", iRow);
 	  for (iColumn = 0; iColumn < 13; iColumn++)
 	    {
-	      printf("%6.2f  ", Loaf_access(myLoaf, iColumn, iRow, iSlice));
+	      printf("%6.2f  ", Loaf_access(/*myLoaf, */iColumn, iRow, iSlice));
 	    }
 	  cout << endl;
 	}
@@ -210,11 +198,11 @@ void Loaf_print(Loaf_T myLoaf)
 
 /* Loaf_eat frees all memory used by myLoaf and returns nothing */
 
-void Loaf_eat(Loaf_T myLoaf)
-{
+//loaf::~loaf()
+/*void loaf::Loaf_eat(Loaf_T myLoaf)*/
+/*{
   int iSlice;
   for (iSlice = 0; iSlice < NUMBER_OF_SLICES; iSlice++)
     free(myLoaf[iSlice]);
   free(myLoaf);
-}
-
+}*/
