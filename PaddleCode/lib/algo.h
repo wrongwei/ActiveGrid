@@ -81,7 +81,7 @@ public:
     int updatetimeinmus;//in mu sec
     double * old_angle;
     double * new_angle;
-    float norm1, norm2;
+    float norm, norm1, norm2;
     
     //methods (used for chaotic and correlated movement)
     void updateOneWing(int WingNumber);
@@ -91,12 +91,12 @@ public:
 		 double height, int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
     void runcorr_3D(float newslice[][11], /*Loaf object,*/ int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
-                    double height, int spaceMode, int timeMode, int mrow, int mcol, float correction, float norm);
+                    double height, int spaceMode, int timeMode, int mrow, int mcol, float correction);
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height,
 			  int mrow, int mcol);
-    float compute_rmscorr_3D(float sigma, int mode, float alpha, double height,
-			     int mrow, int mcol, int width_of_temporal_kernel);
+    float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height,
+                             int mrow, int mcol, int halfLoaf, int upperTimeBound);
     
     // helper methods for correlation procedures
     void initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i);

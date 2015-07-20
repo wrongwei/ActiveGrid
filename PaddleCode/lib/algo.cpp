@@ -1349,7 +1349,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
 void algo::runcorr_3D(float newslice[][11], /*Loaf object*/ int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
-                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction, float norm) { // err[] wasn't doing anything?
+                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) { // err[] wasn't doing anything?
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -1379,40 +1379,39 @@ void algo::runcorr_3D(float newslice[][11], /*Loaf object*/ int halfLoaf, int up
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height, int mrow, int mcol, int width_of_temporal_kernel){
-    cout << "compute_rmscorr_3D is under construction" << endl;
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound){
     
-    return 0;
+    // set up test parameters
+    float mean = 0;
+    float rms = 0;
+    int trials = 4000;
+    float slice[13][11] = {0}; // each array begins life stuffed with zeros
+    float slicestorage[13][11][trials] = {0};
+    // new loaf object declared and stored here
     
-    // unedited... will need to create new random loaf and run 4000 tests on it
-    float control_positions[numberOfServos][4000];
-    float mean=0;
-    float rms=10;
-    /*
-    // takes a random correlated sequence of angles, without correction
-    for (int t =0; t<4000;t++){
-        //change to runcorr_3D and change parameters accordingly
-        runcorr(positions,anglesteps,sigma,alpha,height,mode,mrow,mcol,1,norm1,old_positions, old_steps, err);
+    // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
+    for (int t = 0; t < trials; t++) {
+        runcorr_3D(slice, /*loaf reference*/ halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
         
-        for (int i=0; i<numberOfServos;i++){
-            control_positions[i][t]=positions[i];
+        for (int col = 0; col < 13; col++) {
+            for (int row = 0; row < 11; row++) {
+                mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
+                slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
+            }
         }
     }
     
-    // computes mean and rms value of angles in the first sequence
-    for (int i=0; i<numberOfServos;i++){
-        for (int t=0;t<4000;t++){
-            mean+= control_positions[i][t]/(numberOfServos*4000);
-        }
-    }
-    for (int i=0; i<numberOfServos;i++){
-        for (int t=0;t<4000;t++){
-            rms+= pow(control_positions[i][t]-mean, (int)2)/(numberOfServos*4000);
+    // calculate variance from previously-found mean and angle measurements
+    for (int t = 0; t < trials; t++) {
+        for (int col = 0; col < 13; col++) {
+            for (int row = 0; row < 11; row++) {
+                rms += pow(slicestorage[col][row][t] - mean, (int) 2) / (numberOfServos * trials);
+            }
         }
     }
     
-    rms=sqrt (rms); // rms is the sqrt of variance (that we actually computed)
-    */
+    rms = sqrt(rms); // rms is the sqrt of variance
+    
     return rms;
 }
 
@@ -1423,9 +1422,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     // create Loaf object using constructor
     
-    float oldslice[13][11]; // stores the last configuration of paddles that was sent to the grid
-    float newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
-    float step_size[13][11]; // stores the step size needed to get to the next configuration
+    float oldslice[13][11] = {0}; // stores the last configuration of paddles that was sent to the grid
+    float newslice[13][11] = {0}; // stores the configuration of paddles to be sent next to the grid
+    float step_size[13][11] = {0}; // stores the step size needed to get to the next configuration
     
     float rms; // not ready yet
     float correction=1;
@@ -1436,26 +1435,17 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
     float EPSILON = 1; // error tolerance for double comparisons (just be within a degree)
     
-    // initialize arrays to zero (to avoid NaN errors)
-    for (int i = 0; i < 13; i++) {
-        for (int j = 0; j < 11; j++) {
-            oldslice[i][j] = 0;
-            newslice[i][j] = 0;
-            step_size[i][j] = 0;
-        }
-    }
-    
     // logic to compute where to set the halfway point of the time loaf
     int halfLoaf = width_of_temporal_kernel / (int) 2;
     int upperTimeBound = halfLoaf; // how far the loaf goes into the future from the halfway slice
     if (width_of_temporal_kernel % 2 == 0) // even case -> halfLoaf will not represent the true center of the loaf
         upperTimeBound--; // prevent arrayOutOfBounds issues for off-center halfLoaf values
-    // compute normalization for 3D gaussian convolution (when choice is implemented, will need to be refactored)
-    float norm2 = 0;
+    // compute normalization for 3D gaussian convolution (will need to be refactored when choice is implemented)
+    norm = 0;
     for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
-                norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)))
+                norm += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)))
                 *(float)exp(-(pow((float)t,2)/(2* pow(temporal_sigma,2))));
             }
         }
@@ -1464,8 +1454,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
-    rms=compute_rmscorr_3D(spatial_sigma, 1, 2, 4, 1, 1, width_of_temporal_kernel); // use compute_rmscorr_3D when it's ready
-    
+    rms=compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf, upperTimeBound);
     correction=target_rms/rms; // correction factor
     
     //timing:
@@ -1488,7 +1477,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         
         // get new slice of angles
         runcorr_3D(newslice,/*Loaf object*/ halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
-                              height, 1, 1, 0, 0, correction, norm2);
+                              height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
         
         // store necessary servo speeds after carrying out safety checks
         for (int col = 0; col < 13; col++) {
@@ -1540,7 +1529,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     break;
                 }
             }
-            setanglestoallservosIII(oldslice,step_size,constantArea,target_rms); // for motion
+            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
         // store most recent slice as oldslice for next iteration (should be equal anyway, but just in case)
         int debugCount = 0;
