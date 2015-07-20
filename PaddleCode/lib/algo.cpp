@@ -997,17 +997,17 @@ void algo::safety_check(float actpos[], float actstep[], float err[], bool isGau
             err[i]=actstep[i] - max_speed;
             actstep[i] = max_speed;
         }
-        else if (actstep[i] < (-1 * max_speed)) {
+        else if (actstep[i] < -max_speed) {
             err[i]=actstep[i] + max_speed;
-            actstep[i] = (-1 * max_speed);
+            actstep[i] = -max_speed;
         }
     }
     // speed safety (non-Gaussian): same as above, without err array
     else {
         if (actstep[i] > max_speed)
             actstep[i] = max_speed;
-        else if (actstep[i] < (-1 * max_speed))
-            actstep[i] = (-1 * max_speed);
+        else if (actstep[i] < -max_speed)
+            actstep[i] = -max_speed;
     }
 }
 
@@ -1346,49 +1346,35 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 }
 
 // determines the positions of the servos by do a 3D correlation. Stores these
-// positions where????
-void runcorr_3D(float actpos[], float actstep[], int numberOfSlices, float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
-    cout << "runcorr_3D is under construction" << endl;
-
-    // LOAF READING LOOP GOES HERE
-    float interpos[13][11][numberOfSlices]; // arrays storing the intermediate computed values before convolution
-    float interstep[13][11][numberOfSlices];
+// positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
+// Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
+void algo::runcorr_3D(float newslice[][11], /*Loaf object*/ int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
+                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction, float norm) { // err[] wasn't doing anything?
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
-    // preliminary computations for special cases
-    bool isGaussian = false;
-    if (mode == 1) isGaussian = true;
-    if (mode == 7) {
-        int r = rand() % 143; // generate random paddle
-        mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
-        mrow = modulo(rows[r],11);
+    int crumb = 0;
+    // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
+    for (int col = 0; col < 13; col++) {
+        for (int row = 0; row < 11; row++) {
+            for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbours used to compute convolution
+                for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
+                    for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
+                        crumb = 1;//loaf.access(col,row,t);
+                        newslice[col][row]+=correction*(float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spaceSigma,2)))
+                        *(float)exp(-(pow((float)t,2)/(2* pow(timeSigma,2))))*crumb/norm; // Gaussian in 3D
+                    }
+                }
+            }
+            // angle safety: do not exceed amplitude of 90 degrees
+            if (newslice[col][row]>90) newslice[col][row]=90;
+            else if (newslice[col][row]<-90) newslice[col][row]=-90;
+        }
+        // CORRELATION SELECTION NOT YET IMPLEMENTED - method currently only supports Gaussian in all 3 dimensions
+        // Will require a new set of correlation methods, since the data structures for 3D are different
+        // Think about making the correlation formulas alone into functions, and writing out the rest - would make code longer but more modular
     }
-    
-    // Loop through servos and calculate/create correlations, using helper methods (below)
-    for (int i = 0; i < numberOfServos; i++) {
-        
-        initialize_pos_step(actpos, actstep, oldpos, oldstep, i); // set up old/act arrays
-        
-        // Gaussian convolution
-        if (mode == 1) gaussian2d(actpos, oldpos, actstep, sigma, correction, norm, interpos, err, i);
-        // 1/r^n convolution (supports n=2, n=3, n=4)
-        else if (mode==2 || mode==3 || mode==4) inverse_r_to_n_2d(actpos, oldpos, actstep, correction, interpos, mode, i);
-        //top hat convolution
-        else if(mode == 5) tophat2d(actpos, oldpos, actstep, correction, interpos, sigma, i);
-        //true top hat with one main paddle, no wrapping around (fix later?)
-        else if(mode == 6) truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
-        // true top hat with one randomly chosen main paddle
-        else if(mode == 7) truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
-        //top hat with long tail
-        else if(mode == 8) tophatlongtail2d(actpos, oldpos, actstep, correction, interpos, sigma, alpha, height, i);
-        //triangular function convolution
-        else if(mode == 9) triangle2d(actpos, oldpos, actstep, correction, interpos, sigma, i);
-        
-        safety_check(actpos, actstep, err, isGaussian, i); // angle-checking function
-    }
-
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1397,12 +1383,12 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
     cout << "compute_rmscorr_3D is under construction" << endl;
     
     return 0;
-    /*
-    // unedited...
+    
+    // unedited... will need to create new random loaf and run 4000 tests on it
     float control_positions[numberOfServos][4000];
     float mean=0;
-    float rms=0;
-    
+    float rms=10;
+    /*
     // takes a random correlated sequence of angles, without correction
     for (int t =0; t<4000;t++){
         //change to runcorr_3D and change parameters accordingly
@@ -1426,12 +1412,12 @@ float algo::compute_rmscorr_3D(float sigma, int mode, float alpha, double height
     }
     
     rms=sqrt (rms); // rms is the sqrt of variance (that we actually computed)
-    
-    return rms;*/
+    */
+    return rms;
 }
 
 // movement of the paddles that is correlated in space and in time
-int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
+int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel){
     cout << "correlatedMovement_correlatedInTime is under construction" << endl;
     
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
@@ -1441,8 +1427,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float newslice[13][11]; // stores the configuration of paddles to be sent next to the grid
     float step_size[13][11]; // stores the step size needed to get to the next configuration
     
-    //float rms; // not ready yet
-    //float correction=1;
+    float rms; // not ready yet
+    float correction=1;
     int i = 1; // grid number counter
     int SPACING = 5; // number of interpolations needed to keep servo speed under its max value, in worst case
     
@@ -1459,20 +1445,28 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         }
     }
     
-    // compute normalization for gaussian convolution - may need to be converted for 3D (TBD)
+    // logic to compute where to set the halfway point of the time loaf
+    int halfLoaf = width_of_temporal_kernel / (int) 2;
+    int upperTimeBound = halfLoaf; // how far the loaf goes into the future from the halfway slice
+    if (width_of_temporal_kernel % 2 == 0) // even case -> halfLoaf will not represent the true center of the loaf
+        upperTimeBound--; // prevent arrayOutOfBounds issues for off-center halfLoaf values
+    // compute normalization for 3D gaussian convolution (when choice is implemented, will need to be refactored)
     float norm2 = 0;
     for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k = -range_of_corr; k <= range_of_corr; k++){// j and k refer to the shift
-            norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)));
+        for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
+            for (int t = -halfLoaf; t <= upperTimeBound; t++) {
+                norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)))
+                *(float)exp(-(pow((float)t,2)/(2* pow(temporal_sigma,2))));
+            }
         }
     }
     
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
-    //rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol); // use compute_rmscorr_3D when it's ready
+    rms=compute_rmscorr_3D(spatial_sigma, 1, 2, 4, 1, 1, width_of_temporal_kernel); // use compute_rmscorr_3D when it's ready
     
-    //correction=target_rms/rms; // correction factor
+    correction=target_rms/rms; // correction factor
     
     //timing:
     timeval testtime;
@@ -1492,8 +1486,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
         
-        //getpositions of each servo: (needs to send pointers to both timeslices and Loaf object as well)
-        //newslice = runcorr_3d(positions,anglesteps,sigma,alpha,height,width_of_temporal_kernel,mode,mrow,mcol,correction,norm2,old_positions,old_steps,err);
+        // get new slice of angles
+        runcorr_3D(newslice,/*Loaf object*/ halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
+                              height, 1, 1, 0, 0, correction, norm2);
         
         // store necessary servo speeds after carrying out safety checks
         for (int col = 0; col < 13; col++) {

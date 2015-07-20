@@ -53,7 +53,7 @@ public:
     int correlatedMovement (int constant, float sigma, float alpha, double height, int mode, int mrow, int mcol, float target_rms);
     int correlatedMovement_steps (int constant, float sigma1, float sigma2, int mode, float target_rms1, float target_rms2, double period, double duty_cycle);
     int correlatedMovement_periodic (int constant, float sigma, int mode, float target_rms, int numberofsteps);
-    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel);
+    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int width_of_temporal_kernel);
     
     //keeps the projected area constant
     void area(double actpos[14][12], float rms);
@@ -90,9 +90,8 @@ public:
     void runcorr(float actpos[], float actstep[], float sigma, float alpha,
 		 double height, int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
-    void runcorr_3D(float actpos[], float actstep[], float sigma, float alpha,
-		    double height, int mode, int mrow, int mcol, float correction,
-		    float norm, float oldpos[], float oldstep[], float err[]);
+    void runcorr_3D(float newslice[][11], /*Loaf object,*/ int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
+                    double height, int spaceMode, int timeMode, int mrow, int mcol, float correction, float norm);
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height,
 			  int mrow, int mcol);
