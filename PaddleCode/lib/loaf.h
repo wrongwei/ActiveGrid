@@ -59,7 +59,7 @@ class loaf
  * t = 0 for the oldest slice and t = (numberOfSlices - 1) in the newest slice.
  */
 
-  float Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t);
+  float Loaf_access(int i, int j, int t);
 
 /*------------------------------------------------------------------------*/
 

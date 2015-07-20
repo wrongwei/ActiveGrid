@@ -10,7 +10,8 @@ all:  \
 	SD84 \
 	activegrid \
 	algo \
-	loaf
+	loaf \
+	testloaf
 
 #	gbserialdummy \
 #	PosixSignalDispatcher \
@@ -50,3 +51,6 @@ algo: algo.cpp algo.h loaf.h
 
 loaf: loaf.cpp loaf.h
 	$(CPP) $(FLAGS) -c loaf.cpp
+
+testloaf: testloaf.cpp
+	$(CPP) $(FLAGS) -c testloaf.cpp

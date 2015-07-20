@@ -1381,7 +1381,7 @@ void algo::runcorr_3D(float newslice[][11], /*Loaf object*/ int halfLoaf, int up
  coefficent that is needed to give to the output the desired rms value of angles. */
 float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound){
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
-    
+    /*
     // set up test parameters
     float mean = 0;
     float rms = 0;
@@ -1392,7 +1392,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     
     // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
     for (int t = 0; t < trials; t++) {
-        runcorr_3D(slice, /*loaf reference*/ halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
+    runcorr_3D(slice, /*loaf reference*//* halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
         if (t % 100 == 0) cout << (4000 - t) / 100 << endl; // countdown to finish
         for (int col = 0; col < 13; col++) {
             for (int row = 0; row < 11; row++) {
@@ -1412,7 +1412,8 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     }
     
     rms = sqrt(rms); // rms is the sqrt of variance
-    return rms;
+return rms;
+*/ return 0;
 }
 
 // movement of the paddles that is correlated in space and in time
@@ -1553,50 +1554,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     anglefile.close();
     // change return
     
-    loaf myLoaf = loaf(5);
-    cout << "Test client for loaf.cpp is running..." << endl << endl;
-    
-    // Test Loaf_print
-    myLoaf.Loaf_print();
-    
-    // Test Loaf_set and Loaf_print
-    cout << "Testing Loaf_set and Loaf_print..." << endl;
-    myLoaf.Loaf_set( 2, 0, 0,      0);
-    myLoaf.Loaf_set( 2, 1, 0,      1);
-    myLoaf.Loaf_set( 2, 2, 0,      2);
-    myLoaf.Loaf_set( 2, 3, 0,      3);
-    myLoaf.Loaf_set( 0, 0, 2, -88.88);
-    myLoaf.Loaf_set( 0,10, 2,  88.88);
-    myLoaf.Loaf_set(12, 0, 2,  48.84);
-    myLoaf.Loaf_set(12,10, 2, -48.84);
-    myLoaf.Loaf_set(12,10, 4,      3);
-    myLoaf.Loaf_set(12, 9, 4,      2);
-    myLoaf.Loaf_set(12, 8, 4,      1);
-    myLoaf.Loaf_print();
-    
-    //These calls should trigger assert to fail (causing program to abort)
-    //myLoaf.Loaf_set(-1, 1, 1, 30);
-    //myLoaf.Loaf_set(13, 1, 1, 30);
-    //myLoaf.Loaf_set( 1,-1, 4, 30);
-    //myLoaf.Loaf_set( 1,11, 4, 30);
-    //myLoaf.Loaf_set( 1, 1,-1, 30);
-    //myLoaf.Loaf_set( 1, 1, 5, 30);
-    
-    // Testing Loaf_access
-    cout << "Testing Loaf_access..." << endl;
-    cout << "Should print -88.88:   " << myLoaf.Loaf_access(0,0,2) << endl;
-    cout << "Should print  88.88:   " << myLoaf.Loaf_access(0,10,2) << endl;
-    cout << "Should print  48.88:   " << myLoaf.Loaf_access(12,0,2) << endl;
-    cout << "Should print -48.88:   " << myLoaf.Loaf_access(12,10,2) << "\n\n";
-    
-    // Test Loaf_slice
-    cout << "Testing Loaf_slice..." << endl;
-    myLoaf.Loaf_slice();
-    myLoaf.Loaf_print();
-    
-    myLoaf.~loaf();
-    
-    cout << "Done testing client for loaf.cpp!" << endl;
     
     return 0;
 }
