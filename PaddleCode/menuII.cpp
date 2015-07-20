@@ -500,8 +500,8 @@ int main (int argc , char * const argv[]) {
             
                         
 	    cout << "What is the range of correlation in the temporal"
-	      " dimension?\n(In other words, how wide should the temporal"
-	      " kernel be?)" << endl;
+	      " dimension?\nIn other words, how many time-steps should the temporal"
+	      " kernel encompass?\n(Note: one time-step is equal to five grid positions)" << endl;
 	    cin >> width_of_temporal_kernel;
 	    while (width_of_temporal_kernel <= 0){
 	      cout << "Choose an integer greater than zero!" << endl;

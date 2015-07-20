@@ -1380,6 +1380,7 @@ void algo::runcorr_3D(float newslice[][11], /*Loaf object*/ int halfLoaf, int up
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
 float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound){
+    cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     
     // set up test parameters
     float mean = 0;
@@ -1392,7 +1393,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
     for (int t = 0; t < trials; t++) {
         runcorr_3D(slice, /*loaf reference*/ halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
-        
+        if (t % 100 == 0) cout << (4000 - t) / 100 << endl; // countdown to finish
         for (int col = 0; col < 13; col++) {
             for (int row = 0; row < 11; row++) {
                 mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
@@ -1411,7 +1412,6 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     }
     
     rms = sqrt(rms); // rms is the sqrt of variance
-    
     return rms;
 }
 
@@ -1456,13 +1456,15 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // determined before the angles have been produced
     rms=compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf, upperTimeBound);
     correction=target_rms/rms; // correction factor
+    cout << "Done! Correction factor is " << correction << endl << "Setting up timing..." << endl;
     
     //timing:
     timeval testtime;
     gettimeofday(&testtime,0);
     long time_usec=0;
     while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
-    
+    cout << "Done! Starting grid motions" << endl;
+        
     // main loop: give angle orders
     while(0==0){
         
@@ -1484,7 +1486,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             for (int row = 0; row < 11; row++) {
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
-                    cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!";
+                    cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
                     step_size[col][row] = max_speed;
                 }
                 /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
@@ -1502,7 +1504,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
         }
         
-        // create five timeslices to separate old and new configurations safely, and feed each one to the grid in succession
+        /* create five timeslices to separate old and new configurations, and feed each one to the grid in succession
+         * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
+         * runcorr_3D method once every five grid configurations */
         for (int t = 0; t < SPACING; t++) {
             cout << " " << (t+1); // print interpolation number
             
@@ -1531,8 +1535,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
-        // store most recent slice as oldslice for next iteration (should be equal anyway, but just in case)
-        int debugCount = 0;
+        // store most recent slice as oldslice for next iteration (debugging)
+        /*int debugCount = 0;
         for (int col = 0; col < 13; col++) {
             for (int row = 0; row < 11; row++) {
                 if (fabs(oldslice[col][row] - newslice[col][row]) < EPSILON) debugCount++; // seeing whether this is really necessary
@@ -1541,10 +1545,10 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         }
         if (debugCount == 143) // if each oldslice element is approx. equal to its corresponding element in newslice, then
             cout << "oldslice/newslice reassignment loop is not necessary since oldslice already equals newslice!";
-        
+        */
         // Loaf.sliceBread (iterate) goes here
+        cout << endl;
     }
-    cout << endl;
     anglefile.close();
     // change return
     return 0;
