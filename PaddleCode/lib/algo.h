@@ -26,6 +26,9 @@
 
 #define range_of_corr 7
 
+//declare the testloaf function
+void testloaf(void);
+
 class algo{
 public:
     algo(); //constructor

@@ -58,25 +58,26 @@ int main (int argc , char * const argv[]) {
         cout << endl << "Welcome to " << argv[0] << endl;
         cout << "This is the program to run the software of the activegrid." << endl;
         cout << "Menu:\n"
-        " 1 - see current angle configuration\n"
-        " 2 - see current servo map\n"
-        " 3 - open the grid\n\n"
-        " 4 - set all servos to the same angle\n"
-        " 5 - set one certain servo to one certain angle\n"
-        " 6 - set one col to one certain angle\n"
-        " 7 - set one row to one certain angle\n"
-        " 8 - close row 1-5 and open 6-11\n"
-        " 9 - get angle of one servo\n\n"
-        " 10 - all periodic\n"
-        " 11 - chaotic 1 (piecewise periodic)\n"
-        " 12 - chaotic 2 (random)\n"
-        " 13 - chaotic correlated\n"
-        " 14 - chaotic correlated (2 alternating amplitudes)\n"
-        " 15 - chaotic correlated (periodic pattern)\n\n"
-        " 16 - chaotic correlated in space and correlated in time (coming soon)\n\n"
-        " 17 - test the paddles by opening and closing each row and then each column\n\n"
-        " 18 - set boundary paddles to constant angle\n\n"
-        " 19 - end program" << endl;
+	  " 1 - see current angle configuration\n"
+	  " 2 - see current servo map\n"
+	  " 3 - open the grid\n\n"
+	  " 4 - set all servos to the same angle\n"
+	  " 5 - set one certain servo to one certain angle\n"
+	  " 6 - set one col to one certain angle\n"
+	  " 7 - set one row to one certain angle\n"
+	  " 8 - close row 1-5 and open 6-11\n"
+	  " 9 - get angle of one servo\n\n"
+	  " 10 - all periodic\n"
+	  " 11 - chaotic 1 (piecewise periodic)\n"
+	  " 12 - chaotic 2 (random)\n"
+	  " 13 - chaotic correlated\n"
+	  " 14 - chaotic correlated (2 alternating amplitudes)\n"
+	  " 15 - chaotic correlated (periodic pattern)\n\n"
+	  " 16 - chaotic correlated in space and correlated in time (coming soon)\n\n"
+	  " 17 - test the paddles by opening and closing each row and then each column\n\n"
+	  " 18 - set boundary paddles to constant angle\n\n"
+	  " 19 - test loaf object\n\n"
+	  " 20 - end program\n\n";
         cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
         cin >> choice;
         cout << "your choice is  " << choice << "\n";
@@ -563,8 +564,13 @@ int main (int argc , char * const argv[]) {
             alg.setanglesofonerow(topRow,topAngle);
             alg.setanglesofonerow(bottomRow,bottomAngle);   
         }
+
+	else if((int)choice==19){
+	  testloaf();
+	  i = 0;
+	}
         
-        else if((int)choice>=19 || choice<=0) i=0;
+        else if((int)choice>=20 || choice<=0) i=0;
     }
     return 0;
     
