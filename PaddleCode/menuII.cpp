@@ -444,7 +444,7 @@ int main (int argc , char * const argv[]) {
             int typeOfSpatialCorr;
             int typeOfTemporalCorr;
             float target_rms;
-	    int width_of_temporal_kernel;
+            int width_of_temporal_kernel;
             
             cout << "Choose the spatial correlation function: \n"
             " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n";
@@ -460,7 +460,7 @@ int main (int argc , char * const argv[]) {
                 cout << "Spatial Sigma? ";
                 cin >> spatial_sigma;
             }
-            else spatial_sigma =0;
+            else spatial_sigma = 0;
             
             cout << "Choose the temporal correlation function: \n"
             " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n";
@@ -500,8 +500,8 @@ int main (int argc , char * const argv[]) {
             
                         
 	    cout << "What is the range of correlation in the temporal"
-	      " dimension?\n(In other words, how wide should the temporal"
-	      " kernel be?)" << endl;
+	      " dimension?\nIn other words, how many time-steps should the temporal"
+	      " kernel encompass?\n(Note: one time-step is equal to five grid positions)" << endl;
 	    cin >> width_of_temporal_kernel;
 	    while (width_of_temporal_kernel <= 0){
 	      cout << "Choose an integer greater than zero!" << endl;
@@ -511,7 +511,7 @@ int main (int argc , char * const argv[]) {
 	    cout << "\nPreliminary computations in progress,"
 	      " the grid will move soon." << endl;
 
-	    alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms, width_of_temporal_kernel);
+	    alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, 1.9, 2.0, (int) typeOfTemporalCorr, (int) typeOfTemporalCorr, target_rms, width_of_temporal_kernel);
         } 
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
