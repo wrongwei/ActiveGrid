@@ -15,7 +15,9 @@
 /*------------------------------------------------------------------------*/
 
 // number of servos
-enum {NUMBER_OF_SERVOS = 143};
+enum {NUMBER_OF_SERVOS = 27*25};
+
+
 
 /*------------------------------------------------------------------------*/
 
@@ -49,7 +51,7 @@ enum {NUMBER_OF_SERVOS = 143};
 
 /* Returns a new Loaf_T object that contains numberOfSlices randomized slices
  * Each slice is a 2D array of the angles of all the servos.
- * These 2D arrays are 13 x 11 */
+ * These 2D arrays are 27 x 25 */
 loaf::loaf(int numberOfSlices)
 	  /*Loaf_T loaf::Loaf_bake(int numberOfSlices)*/
 {
@@ -87,6 +89,8 @@ loaf::loaf(int numberOfSlices)
  * i goes from 0 to 12
  * j goes from 0 to 10
  * t = 0 for the oldest slice and t = (NUMBER_OF_SLICES - 1) in the newest slice.
+ * If the user attempts to access an element outside of the loaf, then
+ * Refelecting boundary conditions are 
  */
 
 float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
@@ -94,14 +98,14 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
   // may speed up the code consideraby
-  assert(i <= 12);
+  assert(i <= 26);
   assert(i >= 0);
-  assert(j <= 10);
+  assert(j <= 24);
   assert(j >= 0);
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
-
-  return myLoaf[t][j*13 + i];
+  
+  return myLoaf[t][(j+7)*13 + (i+7)];
 }
 
 /*------------------------------------------------------------------------*/
@@ -121,14 +125,14 @@ void loaf::Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle)
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
   // may speed up the code consideraby
-  assert(i <= 12);
+  assert(i <= 26);
   assert(i >= 0);
-  assert(j <= 10);
+  assert(j <= 24);
   assert(j >= 0);
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
-
-  myLoaf[t][j*13 + i] = newAngle;
+  
+  myLoaf[t][(j+7)*13 + (i+7)] = newAngle;
 }
 
 /*------------------------------------------------------------------------*/
@@ -177,19 +181,19 @@ void loaf::Loaf_print(/*Loaf_T myLoaf*/)
   for (iSlice = 0; iSlice < NUMBER_OF_SLICES; iSlice ++)
     {
       cout << "Time Slice " << iSlice << endl << endl;
-      for (iRow = 10; iRow >= 0; iRow--)
+      for (iRow = 24; iRow >= 0; iRow--)
 	{
 	  printf(" %2i| ", iRow);
-	  for (iColumn = 0; iColumn < 13; iColumn++)
+	  for (iColumn = 0; iColumn < 27; iColumn++)
 	    {
-	      printf("%6.2f  ", Loaf_access(/*myLoaf, */iColumn, iRow, iSlice));
+	      printf("%5.1f  ", Loaf_access(/*myLoaf, */iColumn, iRow, iSlice));
 	    }
 	  cout << endl;
 	}
       cout << "    --------------------------------------------------"
 	   << "-----------------------------------------------------\n";
-      for (iColumn = 0; iColumn < 13; iColumn++)
-	printf("%8i", iColumn);
+      for (iColumn = 0; iColumn < 27; iColumn++)
+	printf("%7i", iColumn);
       cout << endl;
     }
 }
