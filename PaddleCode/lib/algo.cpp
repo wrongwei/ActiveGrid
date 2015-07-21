@@ -1353,22 +1353,21 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
-    
-    int crumb = 0;
+    bool isError = false; // debugging
+    float crumb = 0;
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
             for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbours used to compute convolution
                 for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
-                    for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
-                        crumb = myLoaf.Loaf_access(col, row, (t + halfLoaf));
-                        newslice[col][row]+=correction*(float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spaceSigma,2)))
-                        *(float)exp(-(pow((float)t,2)/(2* pow(timeSigma,2))))*crumb/norm; // Gaussian in 3D
-                    }
+                    //for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
+                        crumb = myLoaf.Loaf_access(j, k, t);
+                        newslice[col][row] += correction * (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2)))/* * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2))))*/ * crumb / norm; // Gaussian in 3D
+                    //}
                 }
             }
             // angle safety: do not exceed amplitude of 90 degrees
-            if (fabs(newslice[col][row]) > 90) 
+            if (fabs(newslice[col][row]) > 90) isError = true;
             if (newslice[col][row]>90) newslice[col][row]=90;
             else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
@@ -1376,6 +1375,7 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
         // Will require a new set of correlation methods, since the data structures for 3D are different
         // Think about making the correlation formulas alone into functions, and writing out the rest - would make code longer but more modular
     }
+    if (isError) cout << "Angles greater than 90 degrees found and corrected\n";
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1410,10 +1410,9 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
             }
         }
     }
-    
+    cout << "Normalization: " << norm << "\nRaw Variance: " << rms << endl;
     rms = sqrt(rms); // rms is the sqrt of variance
     return rms;
-    return 0;
 }
 
 // movement of the paddles that is correlated in space and in time
@@ -1448,8 +1447,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
-                norm += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)))
-                *(float)exp(-(pow((float)t,2)/(2* pow(temporal_sigma,2))));
+                norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) //* (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
             }
         }
     }
@@ -1476,7 +1474,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             if (getch()=='x')
                 break;
         }*/
-        
+        //freshLoaf.Loaf_print(); // debugging
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
         
@@ -1516,12 +1514,14 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             // compute new intermediate grid position, with steps necessary to attain it
             for (int col = 0; col < 13; col++) {
                 for (int row = 0; row < 11; row++) {
-                    diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
-                    if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
-                    else step_size[col][row] = 0; // paddle has arrived; tell servo not to move
+                    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
+                        diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                        if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                        else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
+                    }
                 }
             }
-            
+        
             //setposition of each servo:
             time_usec += updatetimeinmus;
             gettimeofday(&testtime,0);
@@ -1539,7 +1539,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
         // store most recent slice as oldslice for next iteration (debugging)
-        /*int debugCount = 0;
+        int debugCount = 0;
         for (int col = 0; col < 13; col++) {
             for (int row = 0; row < 11; row++) {
                 if (fabs(oldslice[col][row] - newslice[col][row]) < EPSILON) debugCount++; // seeing whether this is really necessary
@@ -1549,7 +1549,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         if (debugCount == 143) // if each oldslice element is approx. equal to its corresponding element in newslice, then
             cout << "oldslice/newslice reassignment loop is not necessary since oldslice already equals newslice!";
 
-        */
         freshLoaf.Loaf_slice(); // eat oldest time-slice, and add new time-slice to future end of loaf
         cout << endl;
     }
