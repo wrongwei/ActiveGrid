@@ -22,18 +22,23 @@ time = size(1);
 norm = 0;
 a = zeros(11,13); % "a" is the row*col matrix. a(i,j) is the correlation of that paddle with the (padrow, padcol) paddle.
 padangle = zeros(time,1); % stores angle at each timeslice for chosen paddle
+inst_corr = zeros(11,13,time); % stores correlation of each paddle with chosen paddle, over time
+avgangle = zeros(time,1); % stores average angle of each timeslice
+rmsd = zeros(time,1); % stores rmsd of each timeslice
 
 for t = 1 : time
     timeslice = A(t,:);
     agrid = reshape(timeslice,13,11);
     agrid = transpose(agrid); %convert timeslice to 11*13 matrix
-    norm = norm + agrid(padcol,padrow)*agrid(padcol,padrow); %normalization
-    padangle(t) = agrid(padcol,padrow);
+    norm = norm + agrid(padrow,padcol)*agrid(padrow,padcol); %normalization
+    padangle(t) = agrid(padrow,padcol);
     
 %calculate correlation
     for i = 1 : 11
         for j = 1 : 13
             a(i,j) = a(i,j) + agrid(i,j)*agrid(padrow,padcol);
+            inst_corr(i,j,t) = (agrid(i,j)*agrid(padrow,padcol))/(agrid(padrow,padcol)*agrid(padrow,padcol));
+            avgangle(t) = avgangle(t) + (agrid(i,j) / 143);
         end
     end
 end
@@ -65,6 +70,16 @@ for i = 1 : 11
     for j = 1 : 13
         dist(i,j) = sqrt((i-padrow)^2+(j-padcol)^2);
     end
+end
+
+for t = 1 : time
+    agrid = transpose(reshape(A(t,:),13,11));
+    for i = 1 : 11
+        for j = 1 : 13
+            rmsd(t) = rmsd(t) + (agrid(i,j)-avgangle(t))^2 / 143;
+        end
+    end
+    rmsd(t) = sqrt(rmsd(t));
 end
 
 %plot mesh
@@ -110,18 +125,29 @@ xlabel('Time units'); % temporal spacing between timeslices
 ystring = sprintf('Correlation of Paddle (%d,%d)',padcol,padrow);
 ylabel(ystring);
 
+% plot average angle of grid over time
+figure(5);
+plot(rmsd);
+xlabel('Time units');
+ylabel('Angle (degrees)');
+
 % Angle visualizer (shows changes over time and saves result as movie)
 % More informative if we do this for correlations over time? TRY ON TUESDAY
 for i = 1 : time;
-    figure(5);
+    figure(6);
     disp(i);
+    %title('Correlation with chosen paddle over time');
+    title('Paddle angles over time');
     set(gca, 'fontsize', 45)
-    m5 = meshc(reshape(A(i,:),13,11));
+    m5 = meshc(transpose(reshape(A(i,:),13,11)));
+    %m5 = meshc(inst_corr(:,:,i));
     set(m5, 'LineWidth', .3)
     xlabel('Columns');
     ylabel('Rows');
     zlim([-90 90]);
+    %zlim([-2 2]);
     caxis([-90 90]);
+    %caxis([-2 2]);
     colorbar;
     F(i) = getframe;
     drawnow
