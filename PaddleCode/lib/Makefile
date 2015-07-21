@@ -1,5 +1,6 @@
 CPP = g++
 FLAGS = -g -Wall -I./ -DBINARY -O3
+PADDLEDIR = ..
 #LNK_OPTIONS = \
 		-framework CoreFoundation\
 		-framework IOKit\
@@ -54,3 +55,18 @@ loaf: loaf.cpp loaf.h
 
 testloaf: testloaf.cpp
 	$(CPP) $(FLAGS) -c testloaf.cpp
+
+## type make cleaner to delete all temp files, .o files, and executable binary files in your working directory and in PaddleCode
+cleaner: clean
+	rm -f *~ 
+	rm -f \#*\# 
+	rm -rf *.dSYM
+	rm -f $(PADDLEDIR)/*~
+	rm -f $(PADDLEDIR)/\#*\#
+	rm -rf $(PADDLEDIR)/*.dSYM
+
+## type make clean to delete all .o files and executible files in your working directory and in PaddleCode
+clean:
+	rm -f *.o
+	rm -f $(PADDLEDIR)/*.o 
+	rm -f $(PADDLEDIR)/menuII $(PADDLEDIR)/temp $(PADDLEDIR)/Printing
