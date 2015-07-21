@@ -1368,6 +1368,7 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
                 }
             }
             // angle safety: do not exceed amplitude of 90 degrees
+            if (fabs(newslice[col][row]) > 90) 
             if (newslice[col][row]>90) newslice[col][row]=90;
             else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
