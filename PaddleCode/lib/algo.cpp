@@ -1360,10 +1360,10 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
         for (int row = 0; row < 11; row++) {
             for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbours used to compute convolution
                 for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
-                    //for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
-                        crumb = myLoaf.Loaf_access(j, k, t);
-                        newslice[col][row] += correction * (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2)))/* * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2))))*/ * crumb / norm; // Gaussian in 3D
-                    //}
+                    for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
+                        crumb = myLoaf.Loaf_access(j, k, (t + halfLoaf)); // angle at (col, row) is function of surrounding angles within the correlation kernel
+                        newslice[col][row] += correction * (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2))) * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2)))) * crumb / norm; // Gaussian in 3D
+                    }
                 }
             }
             // angle safety: do not exceed amplitude of 90 degrees
@@ -1380,7 +1380,7 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound){
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
@@ -1447,7 +1447,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
-                norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) //* (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
+                norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) * (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
             }
         }
     }

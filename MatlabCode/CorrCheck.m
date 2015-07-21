@@ -127,6 +127,7 @@ ylabel(ystring);
 
 % plot average angle of grid over time
 figure(5);
+title('Average angle of grid vs. time');
 plot(rmsd);
 xlabel('Time units');
 ylabel('Angle (degrees)');
