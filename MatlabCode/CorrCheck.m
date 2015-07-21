@@ -112,8 +112,8 @@ ylabel(ystring);
 
 % Angle visualizer (shows changes over time and saves result as movie)
 % More informative if we do this for correlations over time? TRY ON TUESDAY
-figure(5);
 for i = 1 : time;
+    figure(5);
     disp(i);
     set(gca, 'fontsize', 45)
     m5 = meshc(reshape(A(i,:),13,11));
@@ -134,7 +134,7 @@ writerObj = VideoWriter('test', 'MPEG-4'); % create VideoWriter object
 writerObj.FrameRate = 30; % set frame rate (default = 30)
 open(writerObj); % open VideoWriter object for editing
 for i = 1 : length(F);
-    writeVideo(writerObj, F(i)); % write in frames one by one
+    %writeVideo(writerObj, F(i)); % write in frames one by one
 end
 close(writerObj); % close VideoWriter object (finishes movie-making)
 disp('Saved test.mp4!');
