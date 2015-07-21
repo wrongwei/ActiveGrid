@@ -98,6 +98,8 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
   // may speed up the code consideraby
+  i = (i+7);
+  j = (j+7);
   assert(i <= 26);
   assert(i >= 0);
   assert(j <= 24);
@@ -105,7 +107,7 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
   
-  return myLoaf[t][(j+7)*13 + (i+7)];
+  return myLoaf[t][(j)*13 + (i)];
 }
 
 /*------------------------------------------------------------------------*/
@@ -125,6 +127,8 @@ void loaf::Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle)
   // validate parameters
   // validation of parameters is slow, so commenting out the assert statements
   // may speed up the code consideraby
+  i = (i+7);
+  j = (j+7);
   assert(i <= 26);
   assert(i >= 0);
   assert(j <= 24);
@@ -132,7 +136,7 @@ void loaf::Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle)
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
   
-  myLoaf[t][(j+7)*13 + (i+7)] = newAngle;
+  myLoaf[t][(j)*13 + (i)] = newAngle;
 }
 
 /*------------------------------------------------------------------------*/
