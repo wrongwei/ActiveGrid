@@ -106,9 +106,9 @@ void Loaf_print(/*Loaf_T myLoaf*/);
  
  // max and min servo angles
  //If float values are desired, replace the enum statements with the commented const float ones
- enum {MAX_ANGLE = 90};
+ enum {MAX_ANGLE = 50};
  // const float MAX_ANGLE = 90.0;
- enum {MIN_ANGLE = -90};
+ enum {MIN_ANGLE = -50};
  // const float MIN_ANGLE = -90.0;
 };
 

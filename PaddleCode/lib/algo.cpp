@@ -1353,8 +1353,8 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
-    
-    int crumb = 0;
+    bool isError = false; // debugging
+    float crumb = 0;
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
@@ -1368,7 +1368,7 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
                 }
             }
             // angle safety: do not exceed amplitude of 90 degrees
-            if (fabs(newslice[col][row]) > 90) 
+            if (fabs(newslice[col][row]) > 90) isError = true;
             if (newslice[col][row]>90) newslice[col][row]=90;
             else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
@@ -1376,6 +1376,7 @@ void algo::runcorr_3D(float newslice[][11], loaf& myLoaf, int halfLoaf, int uppe
         // Will require a new set of correlation methods, since the data structures for 3D are different
         // Think about making the correlation formulas alone into functions, and writing out the rest - would make code longer but more modular
     }
+    if (isError) cout << "Angles greater than 90 degrees found and corrected\n";
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1476,7 +1477,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             if (getch()=='x')
                 break;
         }*/
-        
+        freshLoaf.Loaf_print(); // debugging
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
         

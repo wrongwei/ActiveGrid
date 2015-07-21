@@ -11,7 +11,7 @@
 % MODIFY THIS ------------------------------------------------------------------
 pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
 addpath(pathname)
-A = load('cMcIT_angles_sigmas2-10_length20.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angleservo_cM_cIT.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
@@ -117,7 +117,7 @@ for i = 1 : time;
     disp(i);
     set(gca, 'fontsize', 45)
     m5 = meshc(reshape(A(i,:),13,11));
-    set(m5, 'LineWidth', 2)
+    set(m5, 'LineWidth', .3)
     xlabel('Columns');
     ylabel('Rows');
     zlim([-90 90]);
@@ -134,7 +134,7 @@ writerObj = VideoWriter('test', 'MPEG-4'); % create VideoWriter object
 writerObj.FrameRate = 30; % set frame rate (default = 30)
 open(writerObj); % open VideoWriter object for editing
 for i = 1 : length(F);
-    %writeVideo(writerObj, F(i)); % write in frames one by one
+    writeVideo(writerObj, F(i)); % write in frames one by one
 end
 close(writerObj); % close VideoWriter object (finishes movie-making)
 disp('Saved test.mp4!');
