@@ -127,13 +127,15 @@ ylabel(ystring);
 
 % plot average angle of grid over time
 figure(5);
-plot(avgangle);
-title('Average angle of grid vs. time');
+plot(rmsd);
+%plot(avgangle);
+%title('Average angle of grid vs. time');
+title('RMSD of grid vs. time');
 xlabel('Time units');
 ylabel('Angle (degrees)');
 
 % Angle visualizer (shows changes over time and saves result as movie)
-% More informative if we do this for correlations over time? TRY ON TUESDAY
+disp(time);
 for i = 1 : time;
     figure(6);
     disp(i);
@@ -154,7 +156,7 @@ for i = 1 : time;
     drawnow
 end
 % Play movie (frames array, number of times, frame rate)
-movie(F, 2)
+%movie(F, 2)
 
 % Save movie
 writerObj = VideoWriter('test', 'MPEG-4'); % create VideoWriter object
