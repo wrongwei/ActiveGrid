@@ -883,6 +883,7 @@ void algo::gaussian2d(float actpos[], float oldpos[], float actstep[], float sig
         }
     }
     actstep[i]= actpos[i]-oldpos[i]+err[i];
+
 }
 
 // modifies actpos and actstep arrays to reflect 1/r^n correlation in 2 dimensions
@@ -1360,14 +1361,11 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
             for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbours used to compute convolution
                 for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
-                        crumb = myLoaf->Loaf_access(j, k, (t + halfLoaf)); // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        newslice[col][row] += correction * (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2))) * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2)))) * crumb / norm; // Gaussian in 3D
+                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf); // angle at (col, row) is function of surrounding angles within the correlation kernel
+                        newslice[col][row] += (float)(correction * exp(-(j*j) + (k*k) / (2 * spaceSigma*spaceSigma)) * exp(-(t*t) / (2 * timeSigma*timeSigma)) * crumb / norm); // Gaussian in 3D
                     }
                 }
             }
-            // angle safety: do not exceed amplitude of 90 degrees
-            if (newslice[col][row]>90) newslice[col][row]=90;
-            else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
         // CORRELATION SELECTION NOT YET IMPLEMENTED - method currently only supports Gaussian in all 3 dimensions
         // Will require a new set of correlation methods, since the data structures for 3D are different
@@ -1399,7 +1397,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
             }
         }
     }
-    cout << "Test mean = " << mean << endl; // debugging
+    //cout << "Test mean = " << mean << endl; // debugging
     // calculate variance from previously-found mean and angle measurements
     for (int t = 0; t < trials; t++) {
         for (int col = 0; col < 13; col++) {
@@ -1409,7 +1407,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
-    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
+    //cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
 
     return rms;
 }
@@ -1434,7 +1432,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     float amplitude; // for steps/speeds calculations and safety checks, below
     float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
-    float EPSILON = 1; // error tolerance for double comparisons (just be within a degree)
+    float EPSILON = 0.1; // error tolerance for double comparisons (just be within a tenth of a degree)
     
     // logic to compute where to set the halfway point of the time loaf
     int halfLoaf = numberOfSlices / (int) 2;
@@ -1472,14 +1470,17 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         //freshLoaf.Loaf_print(); // debugging
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
-        cout << newslice[3][3] << " "; // debugging
         // get new slice of angles
         runcorr_3D(newslice, &freshLoaf, halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
                               height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
-        cout << newslice[3][3] << endl; // debugging
         // store necessary servo speeds after carrying out safety checks
         for (int col = 0; col < 13; col++) {
             for (int row = 0; row < 11; row++) {
+                // angle safety processing: do not exceed angle of 90 degrees
+                //if (fabs(newslice[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
+                if (newslice[col][row]>90) newslice[col][row]=90;
+                else if (newslice[col][row]<-90) newslice[col][row]=-90;
+                
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
                     cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
