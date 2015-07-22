@@ -1368,9 +1368,9 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
                     }
                 }
             }
-            if (correction == 1) cout << "Paddle (" << col << ", " << row << ") = " << newslice[col][row] << endl; // debugging
+            if (correction != 1) cout << "Paddle (" << col << ", " << row << ") = " << newslice[col][row] << endl; // debugging
             // angle safety: do not exceed amplitude of 90 degrees
-            if (fabs(newslice[col][row]) > 90) isError = true;
+            //if (fabs(newslice[col][row]) > 90) isError = true;
             if (newslice[col][row]>90) newslice[col][row]=90;
             else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
