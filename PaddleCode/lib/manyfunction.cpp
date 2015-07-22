@@ -18,8 +18,8 @@ int main(){
   int spaceSigma = 25;
   int correction = 9;
   enum {range_of_corr = 7};
-  enum {halfLoaf = 7};
-  loaf myLoaf(15);
+  enum {halfLoaf = 5000};
+  loaf myLoaf(10001);
   for (int col = 0; col < 13; col++) {
     for (int row = 0; row < 11; row++) {
       newslice[col][row] = 0;
@@ -33,6 +33,6 @@ int main(){
       }
     }
   }
-  myLoaf.Loaf_print();
+  //+  myLoaf.Loaf_print();
   return 0;
 }
