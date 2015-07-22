@@ -127,8 +127,8 @@ ylabel(ystring);
 
 % plot average angle of grid over time
 figure(5);
+plot(avgangle);
 title('Average angle of grid vs. time');
-plot(rmsd);
 xlabel('Time units');
 ylabel('Angle (degrees)');
 
@@ -137,12 +137,12 @@ ylabel('Angle (degrees)');
 for i = 1 : time;
     figure(6);
     disp(i);
-    %title('Correlation with chosen paddle over time');
-    title('Paddle angles over time');
     set(gca, 'fontsize', 45)
     m5 = meshc(transpose(reshape(A(i,:),13,11)));
     %m5 = meshc(inst_corr(:,:,i));
     set(m5, 'LineWidth', .3)
+    %title('Correlation with chosen paddle over time');
+    title('Paddle angles over time');
     xlabel('Columns');
     ylabel('Rows');
     zlim([-90 90]);

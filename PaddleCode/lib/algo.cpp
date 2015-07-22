@@ -798,7 +798,6 @@ float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, i
     }
     
     rms=sqrt (rms); // rms is the sqrt of variance (that we actually computed)
-
     return rms;
     
 }
@@ -1353,7 +1352,6 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
-    //bool isError = false; // debugging
     float crumb = 0;
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
@@ -1363,14 +1361,11 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
                 for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
                         crumb = myLoaf->Loaf_access(j, k, (t + halfLoaf)); // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        //if (correction != 1) cout << "conversion = " << (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2))) * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2)))) << ", original angle = " << crumb << ", norm = " << norm << endl; // debugging
                         newslice[col][row] += correction * (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spaceSigma, 2))) * (float)exp( -(pow((float) t, 2) / (2 * pow(timeSigma, 2)))) * crumb / norm; // Gaussian in 3D
                     }
                 }
             }
-            if (correction != 1) cout << "Paddle (" << col << ", " << row << ") = " << newslice[col][row] << endl; // debugging
             // angle safety: do not exceed amplitude of 90 degrees
-            //if (fabs(newslice[col][row]) > 90) isError = true;
             if (newslice[col][row]>90) newslice[col][row]=90;
             else if (newslice[col][row]<-90) newslice[col][row]=-90;
         }
@@ -1378,7 +1373,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
         // Will require a new set of correlation methods, since the data structures for 3D are different
         // Think about making the correlation formulas alone into functions, and writing out the rest - would make code longer but more modular
     }
-    //if (isError) cout << "Angles greater than 90 degrees found and corrected\n";
+    myLoaf->Loaf_slice(); // remove oldest slice and add new slice
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
@@ -1414,7 +1409,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
-    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl;
+    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
 
     return rms;
 }
@@ -1453,7 +1448,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
                 norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) * (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
-                cout << (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) * (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2)))) << endl;
             }
         }
     }
@@ -1539,8 +1533,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
-
-        freshLoaf.Loaf_slice(); // eat oldest time-slice, and add new time-slice to future end of loaf
         cout << endl;
     }
     anglefile.close();
