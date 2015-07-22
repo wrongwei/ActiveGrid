@@ -239,7 +239,7 @@ void loaf::Loaf_printFullArray(/*Loaf_T myLoaf*/)
       for (iRow = NUMBER_OF_GRID_ROWS + HALF_OF_KERNEL - 1;
 	   iRow >= -HALF_OF_KERNEL; iRow--)
 	{
-	  if(iRow == NUMBER_OF_GRID_ROWS - 1 || iRow == -1){
+	  if(iRow == 10 || iRow == -1){
 	    cout << "                                                      "
 		 << "------------------------------------------------------"
 		 << "--------------------------------------                "
@@ -250,8 +250,8 @@ void loaf::Loaf_printFullArray(/*Loaf_T myLoaf*/)
 	  for (iColumn = -HALF_OF_KERNEL;
 	       iColumn < NUMBER_OF_GRID_COLUMNS + HALF_OF_KERNEL; iColumn++)
 	    {
-	      if(iColumn == 0 || iColumn == NUMBER_OF_GRID_COLUMNS){
-		if (iRow < NUMBER_OF_GRID_ROWS && iRow >=0)
+	      if(iColumn == 0 || iColumn == 13){
+		if (iRow < 11 && iRow >=0)
 		  cout << "|";
 		else
 		  cout << " ";
@@ -265,8 +265,8 @@ void loaf::Loaf_printFullArray(/*Loaf_T myLoaf*/)
 	   << "------------------------------------------------------"
 	   << "------------------------------------------------------"
 	   << "--------------------------------\n ";
-      for (iColumn = -HALF_OF_KERNEL; iColumn < NUMBER_OF_GRID_COLUMNS + HALF_OF_KERNEL; iColumn++){
-	if(iColumn == 0 || iColumn == NUMBER_OF_GRID_COLUMNS)
+      for (iColumn = -7; iColumn < 20; iColumn++){
+	if(iColumn == 0 || iColumn == 13)
 	  cout << " ";
 	printf("%7i", iColumn);
       }

@@ -23,17 +23,17 @@ void testloaf(void)
   
   // Test Loaf_set and Loaf_print
   cout << "Testing Loaf_set and Loaf_print..." << endl;
-  myLoaf.Loaf_set( 2, 0, 0,  77.7);
-  myLoaf.Loaf_set( 2, 1, 0,  77.7);
-  myLoaf.Loaf_set( 2, 2, 0,  77.7);
-  myLoaf.Loaf_set( 2, 3, 0,     3);
+  myLoaf.Loaf_set( 2, 0, 0,      0);
+  myLoaf.Loaf_set( 2, 1, 0,      1);
+  myLoaf.Loaf_set( 2, 2, 0,      2);
+  myLoaf.Loaf_set( 2, 3, 0,      3);
   myLoaf.Loaf_set( 0, 0, 2, -12.3);
   myLoaf.Loaf_set( 0,10, 2,  12.3);
   myLoaf.Loaf_set(12, 0, 2,  32.1);
   myLoaf.Loaf_set(12,10, 2, -32.1);
-  myLoaf.Loaf_set(12,10, 4,     3);
-  myLoaf.Loaf_set(12, 9, 4,     2);
-  myLoaf.Loaf_set(12, 8, 4,     1);
+  myLoaf.Loaf_set(12,10, 4,      3);
+  myLoaf.Loaf_set(12, 9, 4,      2);
+  myLoaf.Loaf_set(12, 8, 4,      1);
   myLoaf.Loaf_print();
   
   //These calls should trigger assert to fail (causing program to abort)
@@ -63,12 +63,8 @@ void testloaf(void)
   cout << "Should print  32.1:   " << myLoaf.Loaf_access(12,0,1) << endl;
   cout << "Should print -32.1:   " << myLoaf.Loaf_access(12,10,1) << "\n\n";
     
-  // Testing Loaf_set and Loaf_printFullArray
-  cout << "Testing Loaf_set and Loaf_printFullArray..." << endl;
-  myLoaf.Loaf_set(-7, -7, 1, -12.3);
-  myLoaf.Loaf_set(-7, 17, 1,  12.3);
-  myLoaf.Loaf_set(19, -7, 1,  32.1);
-  myLoaf.Loaf_set(19, 17, 1, -32.1);
+  // Testing Loaf_printFullArray
+  cout << "Testing Loaf_printFullArray..." << endl;
   myLoaf.Loaf_printFullArray();
 
   myLoaf.~loaf();

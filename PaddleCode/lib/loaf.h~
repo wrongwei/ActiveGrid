@@ -86,13 +86,13 @@ void Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle);
 
 /* Prints out the contents of myLoaf. Returns nothing */
 
-void Loaf_print(/*Loaf_T myLoaf*/);
+void Loaf_printFullArray(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
 
 /* Prints out the contents of myLoaf. Returns nothing */
 
-void Loaf_printFullArray(/*Loaf_T myLoaf*/);
+void Loaf_print(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
 

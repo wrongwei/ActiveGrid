@@ -28,7 +28,6 @@ cleaner: clean
 	rm -f $(LIBDIR)/*~
 	rm -f $(LIBDIR)/\#*\#
 	rm -rf $(LIBDIR)/*.dSYM
-	rm -f ../MatlabCode/*~
 
 ## type make clean to delete all .o files and executible files in your working directory and in lib
 clean:

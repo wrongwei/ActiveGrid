@@ -64,7 +64,6 @@ cleaner: clean
 	rm -f $(PADDLEDIR)/*~
 	rm -f $(PADDLEDIR)/\#*\#
 	rm -rf $(PADDLEDIR)/*.dSYM
-	rm -f ../../MatlabCode/*~
 
 ## type make clean to delete all .o files and executible files in your working directory and in PaddleCode
 clean:
