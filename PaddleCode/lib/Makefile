@@ -71,3 +71,4 @@ clean:
 	rm -f *.o
 	rm -f $(PADDLEDIR)/*.o 
 	rm -f $(PADDLEDIR)/menuII $(PADDLEDIR)/temp $(PADDLEDIR)/Printing
+	rm -f testloaf testloaf2 manyfunction testPickCorrelation
