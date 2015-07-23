@@ -23,6 +23,7 @@
 #include <fstream>
 #include "activegrid.h"
 #include "loaf.h"
+#include "pickCorrelations.h"
 
 #define range_of_corr 7
 

@@ -711,7 +711,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     norm1=0;
     for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
         for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm1 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma,2)));
+            norm1 += (float)(exp(-((j*j)+ (k*k))/(2*sigma*sigma)));
         }
     }
 
@@ -820,7 +820,8 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
 	}
-
+    // Declare function pointers for the spacial and temporal correlation functions
+    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float sigma);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -846,7 +847,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
                 for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
                     col = modulo(columns[i]+j,13);
                     row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * gaussian2d(j, k, sigma, norm) * interpos[col][row];
+                    actpos[i] += correction * gaussian2d(j, k, sigma, &norm) * interpos[col][row];
                 }
             }
         }
@@ -1357,6 +1358,9 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     float crumb = 0;
+    // Declare function pointers for the spacial and temporal correlation functions
+    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float spatial_sigma);
+    float (*pfTemporalCorr)(int t, float *ptr_to_norm, float temporal_sigma);
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
