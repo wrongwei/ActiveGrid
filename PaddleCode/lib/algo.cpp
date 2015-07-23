@@ -821,7 +821,8 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         actualpositioninvector[i]++;
 	}
     // Declare function pointers for the spacial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float sigma);
+    float (*pfCorr)(int j, int k, float *ptr_to_norm, float sigma);
+    pfCorr = pickTemporalCorr(mode);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -847,7 +848,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
                 for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
                     col = modulo(columns[i]+j,13);
                     row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * gaussian2d(j, k, sigma, &norm) * interpos[col][row];
+                    actpos[i] += correction * pfCorr(j, k, &norm, sigma) * interpos[col][row];
                 }
             }
         }
@@ -857,7 +858,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
                 for (int k=-10; k<11;k++){
                     col = modulo(columns[i]+j,13);
                     row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * interpos[col][row] * inverse_r_to_n_2d(j, k, n);
+                    actpos[i] += correction * interpos[col][row] * pfCorr(j, k, &norm, sigma);
                 }
             }
         }
