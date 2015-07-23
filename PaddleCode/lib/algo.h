@@ -104,12 +104,9 @@ public:
     
     // helper methods for correlation procedures
     void initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i);
-    void gaussian2d(float actpos[], float oldpos[], float actstep[], float sigma, float correction,
-                    float norm, float interpos[][11], float err[], int i);
-    void inverse_r_to_n_2d(float actpos[], float oldpos[], float actstep[], float correction,
-                           float interpos[][11], int n, int i);
-    void tophat2d(float actpos[], float oldpos[], float actstep[], float correction,
-                  float interpos[][11], float sigma, int i);
+    float gaussian2d(int j, int k, float sigma, float norm);
+    float inverse_r_to_n_2d(int j, int k, int n);
+    float tophat2d(int j, int k, float sigma, double* norm);
     void truetophat2d(float actpos[], float oldpos[], float actstep[], float correction,
                       float interpos[][11], float sigma, int mrow, int mcol, int i);
     void tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,

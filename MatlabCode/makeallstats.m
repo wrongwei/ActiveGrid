@@ -30,8 +30,8 @@ pathname = fileparts('/Users/nathan/Documents/Data/14072015data/');
 addpath(pathname)
 
 %extract velocity
-u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4_14-07-15_gaussian_sigma4_rms10.dat', 'calib7_14.m', 1, 1);
-u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4_14-07-15_gaussian_sigma4_rms10.dat', 'calib7_14.m', 1, 1);
+u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4_14-07-15_gaussian_sigma4_rms30.dat', 'calib7_14.m', 1, 1);
+u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4_14-07-15_gaussian_sigma4_rms30.dat', 'calib7_14.m', 1, 1);
 %u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch1.dat', 'Calib7_28.m', 1, 1);
 %u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch1.dat', 'Calib7_28.m', 1, 1);
 %stitch together the file 
@@ -140,7 +140,7 @@ loglog(sepval,MASC,'o');
 
 %}
 
-matfile = fullfile(pathname, 'statscorr_14-07-15_gaussian_sigma4_rms10.mat');
+matfile = fullfile(pathname, 'statscorr_14-07-15_gaussian_sigma4_rms30.mat');
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
@@ -159,6 +159,7 @@ save(matfile);
 %save('rms.txt','rmsvelocity','-append','-ascii');
 
 rmpath(pathname); 
+fprintf('  Done. \n');
 %close all; 
 
 
