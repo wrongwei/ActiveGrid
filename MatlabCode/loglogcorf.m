@@ -10,7 +10,7 @@ addpath(pathname);
 
 % which workspace stats do you want to load?/?????????
 % -----------------------------------------------------------------------
-load statscorr_14-07-15_gaussian_sigma4_rms10.mat
+load statscorr_14-07-15_gaussian_sigma4_rms30.mat
 % -------------------------------------------------------------------
 
 %sepval = [1:12e6]/(20000)*mean(u); 
