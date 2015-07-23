@@ -9,12 +9,12 @@
 #include <cmath>
 /*------------------------------------------------------------------------*/
 
-float gaussianSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
-  return (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(spatial_sigma,2)));
+float gaussianSpatialCorr(int j, int k, double dist, float spatial_sigma){
+  return (float)(exp(-((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
 }
 
-float gaussianTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
-  return (float)exp(-(pow((float)t,(int) 2))/(2* pow(temporal_sigma,2)));
+float gaussianTemporalCorr(int t, double dist, float temporal_sigma){
+  return (float)(exp(-(t*t)/(2*temporal_sigma*temporal_sigma));
 }
 
 float inverseSquareSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
