@@ -35,3 +35,4 @@ clean:
 	rm -f *.o
 	rm -f $(LIBDIR)/*.o
 	rm -f menuII temp Printing
+	rm -f $(LIBDIR)/testloaf $(LIBDIR)/testloaf2 $(LIBDIR)/testPickCorrelation $(LIBDIR)/manyfunction
