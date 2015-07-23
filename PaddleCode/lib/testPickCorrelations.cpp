@@ -22,11 +22,12 @@ int main(){
   int t = 10;
   int spatial_sigma = 5;
   int temporal_sigma = 5;
-  double dist = 2.0;
+  float norm = 1.2;
+  float *ptr_to_norm = &norm;
 
   // Decalre function pointers for the spacial and temporal correlation functions
-  float (*pfSpatialCorr)(int j, int k, double dist, float spatial_sigma);
-  float (*pfTemporalCorr)(int t, double dist, float temporal_sigma);
+  float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float spatial_sigma);
+  float (*pfTemporalCorr)(int t, float *ptr_to_norm, float temporal_sigma);
   
   cout << endl << "Testing Temporal Correlations..." << endl;
 
@@ -37,7 +38,7 @@ int main(){
   
     //Call the correlation functions using the previously initialized function pointers
     cout << "Type of temporal correlation = " << typeOfTemporalCorr;
-    cout << "   Value of the correlation = " << pfTemporalCorr(t, dist, temporal_sigma) << endl;
+    cout << "   Value of the correlation = " << pfTemporalCorr(t, ptr_to_norm, temporal_sigma) << endl;
   }
 
   cout << endl << "Testing Spatial Correlations..." << endl;
@@ -49,7 +50,7 @@ int main(){
   
     //Call the correlation functions using the previously initialized function pointers
     cout << "Type of spatial correlation = " << typeOfSpatialCorr;
-    cout << "   Value of the correlation = " << pfSpatialCorr(j, k, dist, spatial_sigma) << endl;
+    cout << "   Value of the correlation = " << pfSpatialCorr(j, k, ptr_to_norm, spatial_sigma) << endl;
   }
   
   cout << endl;

@@ -17,73 +17,73 @@ float gaussianTemporalCorr(int t, double dist, float temporal_sigma){
   return (float)(exp(-(t*t)/(2*temporal_sigma*temporal_sigma));
 }
 
-float inverseSquareSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float inverseSquareSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return pow( (sqrt(j*j + k*k) + 1) , -2);
 }
 
-float inverseSquareTemporalCorr(int t, double dist, float temporal_sigma){
+float inverseSquareTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return pow( (abs(t) + 1) , -2);
 }
 
-float inverseCubeSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float inverseCubeSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return pow( (sqrt(j*j + k*k) + 1) , -3);
 }
 
-float inverseCubeTemporalCorr(int t, double dist, float temporal_sigma){
+float inverseCubeTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return pow( (abs(t) + 1) , -3);
 }
 
-float inverseQuarticSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float inverseQuarticSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return pow( (sqrt(j*j + k*k) + 1) , -4);
 }
 
-float inverseQuarticTemporalCorr(int t, double dist, float temporal_sigma){
+float inverseQuarticTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return pow( (abs(t) + 1) , -4);
 }
 
-float topHatSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float topHatSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return 0;
 }
 
-float topHatTemporalCorr(int t, double dist, float temporal_sigma){
+float topHatTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return 0;
 }
 
-float trueTopHatSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float trueTopHatSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return 0;
 }
 
-float trueTopHatTemporalCorr(int t, double dist, float temporal_sigma){
+float trueTopHatTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return 0;
 }
 
-float trueTopHatRandomSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float trueTopHatRandomSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return 0;
 }
 
-float trueTopHatRandomTemporalCorr(int t, double dist, float temporal_sigma){
+float trueTopHatRandomTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return 0;
 }
 
-float topHatLongTailSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float topHatLongTailSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return 0;
 }
 
-float topHatLongTailTemporalCorr(int t, double dist, float temporal_sigma){
+float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return 0;
 }
 
-float triangleSpatialCorr(int j, int k, double dist, float spatial_sigma){
+float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
   return 0;
 }
 
-float triangleTemporalCorr(int t, double dist, float temporal_sigma){
+float triangleTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
   return 0;
 }
 
 /*------------------------------------------------------------------------*/
 
-float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, double dist, float spatial_sigma){
+float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float *ptr_to_norm, float spatial_sigma){
   // validate parameters
   assert (typeOfSpatialCorr > 0 && typeOfSpatialCorr <= 9);
   
@@ -113,7 +113,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, double dist, floa
 
 /*------------------------------------------------------------------------*/
 
-float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, double dist, float temporal_sigma){
+float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float *ptr_to_norm, float temporal_sigma){
   // validate parameters
   assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 9);
   
