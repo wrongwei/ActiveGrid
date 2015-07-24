@@ -818,7 +818,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
 	}
-    // Declare function pointers for the spacial and temporal correlation functions
+    // Declare function pointers for the spatial correlation functions
     float (*pfCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float sigma, float height);
     pfCorr = pickSpatialCorr(mode);
     

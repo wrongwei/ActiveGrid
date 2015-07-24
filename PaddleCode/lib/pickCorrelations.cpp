@@ -60,18 +60,20 @@ float inverseQuarticTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1,
 float topHatSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
     double dist = sqrt((j*j) + (k*k));
     if (dist <= spatial_sigma){
-        *ptr_to_norm1++;
-        return 1.0;
+      (*ptr_to_norm1)++;
+      return 1.0;
     }
-    else return 0;
+    else 
+      return 0;
 }
 
-float topHatTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float *ptr_to_norm1float temporal_sigma, float height){
-    if (fabs(t) <= temporal_sigma){
-        *ptr_to_norm1++;
-        return 1.0;
+float topHatTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
+    if (abs(t) <= temporal_sigma){
+      (*ptr_to_norm1)++;
+      return 1.0;
     }
-    else return 0;
+    else 
+      return 0;
 }
 
 // true top hat with one main paddle, no wrapping around
@@ -93,41 +95,43 @@ float trueTopHatRandomTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm
 }
 
 float topHatLongTailSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float alpha, float height){
-    double dist = sqrt((j*j))+(k*k));
+    double dist = sqrt((j*j)+(k*k));
     if (dist <= alpha) {
-        *ptr_to_norm++;
-        return 1.0;
+      (*ptr_to_norm)++;
+      return 1.0;
     }
     else {
-        *ptr_to_norm1++;
-        return height;
+      (*ptr_to_norm1)++;
+      return height;
     }
 }
 
 float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float alpha, float height){
-    if (fabs(t) <= alpha) {
-        *ptr_to_norm++;
-        return 1.0;
+    if (abs(t) <= alpha) {
+      (*ptr_to_norm)++;
+      return 1.0;
     }
     else {
-        *ptr_to_norm1++;
-        return height;
+      (*ptr_to_norm1)++;
+      return height;
     }
 }
 
 float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
-    double dist = sqrt((j*j))+(k*k));
+    double dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_sigma) {
-        *ptr_to_norm1++;
-        return (-1) / spatial_sigma * dist + 1;
+      (*ptr_to_norm1)++;
+      return (-1) / spatial_sigma * dist + 1;
     }
+    return 0;
 }
 
 float triangleTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
-    if (fabs(t) <= temporal_sigma) {
-        *ptr_to_norm1++;
-        return (-1) / temporal_sigma * fabs(t) + 1;
-    }
+  if (abs(t) <= temporal_sigma) {
+    (*ptr_to_norm1)++;
+    return (-1) / temporal_sigma * abs(t) + 1;
+  }
+  return 0;
 }
 
 /*------------------------------------------------------------------------*/

@@ -56,6 +56,9 @@ loaf: loaf.cpp loaf.h
 testloaf: testloaf.cpp
 	$(CPP) $(FLAGS) -c testloaf.cpp
 
+pickCorrelations: pickCorrelations.cpp pickCorrelations.h
+	$(CPP) $(FLAGS) -c pickCorrelations.cpp
+
 ## type make cleaner to delete all temp files, .o files, and executable binary files in your working directory and in PaddleCode
 cleaner: clean
 	rm -f *~ 
