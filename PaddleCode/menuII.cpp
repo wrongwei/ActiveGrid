@@ -494,18 +494,23 @@ int main (int argc , char * const argv[]) {
             int numberOfSlices = 0;
             
             cout << "Choose the spatial correlation function: \n"
-	      " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-	      " 5 - Top hat \n 6 - True top hat with a fixed main paddle \n"
-	      " 7 - True top hat with a random main paddle \n"
-	      " 8 - Top hat with a long tail \n 9 - Triangle\n";
+		" 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+		" 5 - Top hat \n"
+		//" 6 - True top hat with a fixed main paddle \n"
+		//" 7 - True top hat with a random main paddle \n"
+		" 8 - Top hat with a long tail \n"
+		" 9 - Triangle\n";
             cin >> typeOfSpatialCorr;
-            while (typeOfSpatialCorr > 9 || typeOfSpatialCorr < 1){
+            while (typeOfSpatialCorr > 9 || typeOfSpatialCorr < 1 ||
+		   typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the spatial correlation function: \n"
-		  " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		  " 5 - Top hat \n 6 - True top hat with a fixed main paddle \n"
-		  " 7 - True top hat with a random main paddle \n"
-		  " 8 - Top hat with a long tail \n 9 - Triangle\n";
+		    " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+		    " 5 - Top hat \n"
+		    //" 6 - True top hat with a fixed main paddle \n"
+		    //" 7 - True top hat with a random main paddle \n"
+		    " 8 - Top hat with a long tail \n"
+		    " 9 - Triangle\n";
 		cin >> typeOfSpatialCorr;
             }
             
@@ -519,25 +524,30 @@ int main (int argc , char * const argv[]) {
                 cin >> spatial_sigma;
             }
             if (typeOfSpatialCorr == 8){
-	      cout << "Alpha? "; //Rename?
-	      cin >> alpha;
-	      cout << "Height? "; //Rename?
-	      cin >> height;
+		cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
+		cin >> alpha;
+		cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
+		cin >> height;
 	    }
             
             cout << "Choose the temporal correlation function: \n"
-	      " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-	      " 5 - Top hat \n 6 - True top hat with a fixed main paddle \n"
-	      " 7 - True top hat with a random main paddle \n"
-	      " 8 - Top hat with a long tail \n 9 - Triangle\n";
+		" 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+		" 5 - Top hat \n"
+		//" 6 - True top hat with a fixed main paddle \n"
+		//" 7 - True top hat with a random main paddle \n"
+		" 8 - Top hat with a long tail \n"
+		" 9 - Triangle\n";
             cin >> typeOfTemporalCorr;
-            while (typeOfTemporalCorr > 9 || typeOfTemporalCorr < 1){
+            while (typeOfTemporalCorr > 9 || typeOfTemporalCorr < 1 ||
+		   typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the temporal correlation function: \n"
-		  " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		  " 5 - Top hat \n 6 - True top hat with a fixed main paddle \n"
-		  " 7 - True top hat with a random main paddle \n"
-		  " 8 - Top hat with a long tail \n 9 - Triangle\n";
+		    " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+		    " 5 - Top hat \n"
+		    //" 6 - True top hat with a fixed main paddle \n"
+		    //" 7 - True top hat with a random main paddle \n"
+		    " 8 - Top hat with a long tail \n"
+		    " 9 - Triangle\n";
                 cin >> typeOfTemporalCorr;
             }
             
@@ -552,10 +562,10 @@ int main (int argc , char * const argv[]) {
             }
 
 	    if (typeOfTemporalCorr == 8){
-	      cout << "Alpha? "; //Rename?
-	      cin >> alpha;
-	      cout << "Height? "; //Rename?
-	      cin >> height;
+		cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
+		cin >> alpha;
+		cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
+		cin >> height;
 	    }
             
             cout << "rms of angles? (0->36 degrees) ";
