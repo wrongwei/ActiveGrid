@@ -9,6 +9,7 @@
 #include <cmath>
 /*------------------------------------------------------------------------*/
 
+// Gaussian convolution function
 float gaussianSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return (float)(exp(-((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)) / *ptr_to_norm);
 }
@@ -17,6 +18,7 @@ float gaussianTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float
   return (float)(exp(-(t*t)/(2*temporal_sigma*temporal_sigma)) / *ptr_to_norm);
 }
 
+// 1/r^2 convolution function
 float inverseSquareSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -2);
 }
@@ -25,6 +27,7 @@ float inverseSquareTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, 
   return pow( (abs(t) + 1) , -2);
 }
 
+// 1/r^3 convolution function
 float inverseCubeSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -3);
 }
@@ -33,6 +36,7 @@ float inverseCubeTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, fl
   return pow( (abs(t) + 1) , -3);
 }
 
+// 1/r^4 convolution function
 float inverseQuarticSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -4);
 }
@@ -41,6 +45,7 @@ float inverseQuarticTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1,
   return pow( (abs(t) + 1) , -4);
 }
 
+// top hat convolution function
 float topHatSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
     double dist = sqrt((j*j) + (k*k));
     if (dist <= spatial_sigma){
@@ -81,26 +86,37 @@ float topHatLongTailSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_
     if (dist <= alpha) {
         *ptr_to_norm++;
         return 1.0;
-    } else {
+    }
+    else {
         *ptr_to_norm1++;
         return height;
     }
 }
 
-float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
-  return 0;
+float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float alpha, float height){
+    if (fabs(t) <= alpha) {
+        *ptr_to_norm++;
+        return 1.0;
+    }
+    else {
+        *ptr_to_norm1++;
+        return height;
+    }
 }
 
 float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
     double dist = sqrt((j*j))+(k*k));
-    if (dist <= sigma) {
+    if (dist <= spatial_sigma) {
         *ptr_to_norm1++;
         return (-1) / spatial_sigma * dist + 1;
     }
 }
 
 float triangleTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
-  return 0;
+    if (fabs(t) <= temporal_sigma) {
+        *ptr_to_norm1++;
+        return (-1) / temporal_sigma * fabs(t) + 1;
+    }
 }
 
 /*------------------------------------------------------------------------*/
