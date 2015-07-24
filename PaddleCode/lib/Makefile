@@ -12,7 +12,8 @@ all:  \
 	activegrid \
 	algo \
 	loaf \
-	testloaf
+	testloaf \
+	pickCorrelations
 
 #	gbserialdummy \
 #	PosixSignalDispatcher \
