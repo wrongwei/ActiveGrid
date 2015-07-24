@@ -707,11 +707,20 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     }
     anglefile << endl;*/
     
-    // compute normalization for gaussian convolution
-    norm1=0;
-    for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm1 += (float)(exp(-((j*j)+ (k*k))/(2*sigma*sigma)));
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
+    
+    // compute normalization for any convolution formula
+    norm1 = 0;
+    float bound;
+    if (mode <= 4) bound = range_of_corr;
+    else bound = sigma;
+    if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    // Note: this is different from the previous implementation, which had mysteriously different logic for each function
+    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+            norm1 += pfCorr(j, k, sigma, height);
         }
     }
 
@@ -819,14 +828,13 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         actualpositioninvector[i]++;
 	}
     // Declare function pointers for the spatial correlation functions
-    float (*pfCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float sigma, float height);
+    float (*pfCorr)(int j, int k, float sigma, float height);
     pfCorr = pickSpatialCorr(mode);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
     // preliminary computations for special cases
-    float norm1; // for top hat and triangle functions
     float bound; // determine bounds of iteration for for loops
     bool isGaussian = false;
     if (mode == 1) isGaussian = true;
@@ -852,18 +860,15 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         }
         // master loop for modular functions (can remove else once we get true top hat modularized)
         else {
-            norm1 = 0;
             if (mode == 8) norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     col = modulo(columns[i] + j, 13);
                     row = modulo(rows[i] + k, 11);
-                    actpos[i] += correction * pfCorr(j, k, &norm, &norm1, sigma, height) * interpos[col][row];
+                    actpos[i] += correction * pfCorr(j, k, sigma, height) * interpos[col][row];
                 }
             }
-            if (mode == 5) actpos[i] = actpos[i] / norm1; // normalize top hat function
-            else if (mode == 8) actpos[i] = actpos[i]/(norm + height*norm1); // normalize top hat long tail function
-            else if (mode == 9) actpos[i] = actpos[i] / (0.5 * norm1); // normalize triangle function
+            actpos[i] = actpos[i] / norm; // normalize by pre-calculated coefficient
         }
         
         if (mode == 1) actstep[i]= actpos[i]-oldpos[i]+err[i];
@@ -1049,21 +1054,31 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
         anglefile << "   Angle(" << numero << ")";}
     anglefile << endl;*/
     
-    // compute normalization for gaussian convolution
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
+    
+    // compute normalization for any convolution formula
     norm1=0;
-    for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm1 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma1,2)));
+    float bound;
+    if (mode <= 4) bound = range_of_corr;
+    else bound = sigma1;
+    // Note: this is different from the previous implementation (but I'm not sure whether it works like the other one either)
+    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+            norm1 += pfCorr(j, k, sigma1, 0);
         }
     }
     
     norm2=0;
-    for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm2 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma2,2)));
+    if (mode <= 4) bound = range_of_corr;
+    else bound = sigma2;
+    // Note: this is different from the previous implementation, which had mysteriously different logic for each function
+    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+            norm1 += pfCorr(j, k, sigma2, 0);
         }
     }
-    
     
     // takes a first random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles
@@ -1151,11 +1166,18 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
         anglefile << "   Angle(" << numero << ")";}
     anglefile << endl;*/
     
-    // compute normalization for gaussian convolution (necessary, even with the correction)
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
+    
+    // compute normalization for any convolution function (necessary, even with the correction)
     norm1=0;
-    for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm1 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma,2)));
+    float bound;
+    if (mode <= 4) bound = range_of_corr;
+    else bound = sigma;
+    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+            norm1 += pfCorr(j, k, sigma, 0);
         }
     }
     
@@ -1271,15 +1293,15 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     float crumb = 0;
-    float norm1; float norm3; // norm/norm1 for spatial, norm2/norm3 for temporal
     float bound;
     if (spaceMode <= 4) bound = range_of_corr;
-    else bound = sigma;
-    if (spaceMode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    else bound = spaceSigma;
+    if (spaceMode == 8) spaceSigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (timeMode == 8) timeSigma = alpha; // same rationale as above
     
     // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
-    float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
+    float (*pfSpatialCorr)(int j, int k, float spaceSigma, float height);
+    float (*pfTemporalCorr)(int t, float timeSigma, float height);
     pfSpatialCorr = pickSpatialCorr(spaceMode);
     pfTemporalCorr = pickTemporalCorr(timeMode);
     
@@ -1287,26 +1309,17 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
             newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
-            norm1 = 0; norm3 = 0;
-            if (spaceMode == 8) norm = 0;
-            if (timeMode == 8) norm2 = 0;
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += correction * crumb * pfSpatialCorr(j, k, &norm, &norm1, sigma, height) * pfTemporalCorr(t, &norm2, &norm3, sigma, height);
+                        newslice[col][row] += correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height);
                     }
                 }
             }
-            // post-processing normalizations
-            if (spaceMode == 5) newslice[col][row] = newslice[col][row] / norm1; // normalize spatial top hat function
-            else if (spaceMode == 8) newslice[col][row] = newslice[col][row]/(norm + height*norm1); // normalize spatial top hat long tail function
-            else if (spaceMode == 9) newslice[col][row] = newslice[col][row] / (0.5 * norm1); // normalize spatial triangle function
-            if (timeMode == 5) newslice[col][row] = newslice[col][row] / norm2; // normalize spatial top hat function
-            else if (timeMode == 8) newslice[col][row] = newslice[col][row]/(norm + height*norm2); // normalize spatial top hat long tail function
-            else if (timeMode == 9) newslice[col][row] = newslice[col][row] / (0.5 * norm2); // normalize spatial triangle function
+            newslice[col][row] = newslice[col][row] / norm; // normalization by pre-calculated coefficient
         }
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
@@ -1352,7 +1365,6 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
-    cout << "correlatedMovement_correlatedInTime is under construction" << endl;
     
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
@@ -1378,22 +1390,25 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     if (numberOfSlices % 2 == 0) // even case -> halfLoaf will not represent the true center of the loaf
         upperTimeBound--; // prevent arrayOutOfBounds issues for off-center halfLoaf values
     
-    // Normalization calculations
-    norm = 0;
+    // Normalization calculations (complicated because different correlation functions have different methods for normalization)
+    norm = 0; // master norm parameter that's accessible/used from runcorr_3D
     float bound;
-    if (spaceMode <= 4) bound = range_of_corr;
-    else bound = sigma;
-    if (spaceMode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (typeOfSpatialCorr <= 4) bound = range_of_corr;
+    else bound = spatial_sigma;
+    if (typeOfSpatialCorr == 8) spatial_sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (typeOfTemporalCorr == 8) temporal_sigma = alpha; // same rationale as above
     // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
-    float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
-    pfSpatialCorr = pickSpatialCorr(spaceMode);
-    pfTemporalCorr = pickTemporalCorr(timeMode);
-    
-    for (int j = -bound; j <= bound; j++) {// range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) {// j and k refer to the shift
+    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float height);
+    float (*pfTemporalCorr)(int t, float temporal_sigma, float height);
+    pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
+    pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
+
+    // Correlation function work for finding normalization
+    // Note: this is different from the previous implementation, which had mysteriously different logic for each function
+    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
-                norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) * (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
+                norm += (pfSpatialCorr(j, k, spatial_sigma, height) * pfTemporalCorr(t, temporal_sigma, height));
             }
         }
     }

@@ -12,7 +12,7 @@
 % MODIFY THIS ------------------------------------------------------------------
 pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
 addpath(pathname);
-A = load('angleservo_tri_5-new3.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angleservo_cMp.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
@@ -141,17 +141,17 @@ for i = 1 : time;
     figure(6);
     disp(i);
     set(gca, 'fontsize', 45)
-    m5 = meshc(transpose(reshape(A(i,:),13,11)));
-    %m5 = meshc(inst_corr(:,:,i));
+    %m5 = meshc(transpose(reshape(A(i,:),13,11)));
+    m5 = meshc(inst_corr(:,:,i));
     set(m5, 'LineWidth', .3)
-    %title('Correlation with chosen paddle over time');
-    title('Paddle angles over time');
+    title('Correlation with chosen paddle over time');
+    %title('Paddle angles over time');
     xlabel('Columns');
     ylabel('Rows');
-    zlim([-90 90]);
-    %zlim([-2 2]);
-    caxis([-90 90]);
-    %caxis([-2 2]);
+    %zlim([-90 90]);
+    zlim([-2 2]);
+    %caxis([-90 90]);
+    caxis([-2 2]);
     colorbar;
     F(i) = getframe;
     drawnow
