@@ -7,11 +7,12 @@
 
 % requires a blank .txt file: "res.txt" to be in the path
  clear all;
+ close all;
 
 % MODIFY THIS ------------------------------------------------------------------
 pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
-addpath(pathname)
-A = load('angleservo_cM_cIT.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+addpath(pathname);
+A = load('angleservo_cM_test2.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;

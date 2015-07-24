@@ -828,6 +828,8 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     // preliminary computations for special cases
     float norm1 = 0; // for top hat and triangle functions
     float bound; // determine bounds of iteration for for loops
+    bool isGaussian = false;
+    if (mode == 1) isGaussian = true;
     if (mode <= 4) bound = range_of_corr;
     else bound = sigma;
     int col = 0; int row = 0;
@@ -847,7 +849,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         initialize_pos_step(actpos, actstep, oldpos, oldstep, i); // set up old/act arrays
         
         // true top hat (not modular yet)
-        if(mode == 6 || mode == 7) {
+        if (mode == 6 || mode == 7) {
             actpos[i] = 0; // keep it functional for now
             truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
         }
@@ -868,7 +870,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         if (mode == 1) actstep[i]= actpos[i]-oldpos[i]+err[i];
         else actstep[i] = actpos[i]-oldpos[i];
         
-        safety_check(actpos, actstep, err, mode==1, i); // angle-checking function
+        safety_check(actpos, actstep, err, isGaussian, i); // angle-checking function
     }
 }
 

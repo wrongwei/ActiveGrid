@@ -7,7 +7,8 @@
 
 #ifndef PICK_CORRELATIONS_INCLUDED
 #define PICK_CORRELATIONS_INCLUDED
-
+#include <iostream>
+using namespace std;
 /*------------------------------------------------------------------------*/
 
 /* For details of how to use this module, please see testPickCorrelations.cpp
@@ -18,7 +19,7 @@
  * pickSpatialCorr will return a ptr to the function gaussianSpatialCorrelation.
  * pcikTemporalCorr works in the same way but returns a ptr to the appropriate
  * temporal correlation function. So, which the argument 1, it returns a ptr to
- * guassian TemporalCorr.
+ * gaussian TemporalCorr.
  */
 
 // The spatial correlation fuctions. pickSpatialCorr returns
