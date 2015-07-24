@@ -1060,22 +1060,17 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     
     // compute normalization for any convolution formula
     norm1=0;
-    float bound;
-    if (mode <= 4) bound = range_of_corr;
-    else bound = sigma1;
     // Note: this is different from the previous implementation (but I'm not sure whether it works like the other one either)
-    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+    for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
             norm1 += pfCorr(j, k, sigma1, 0);
         }
     }
     
     norm2=0;
-    if (mode <= 4) bound = range_of_corr;
-    else bound = sigma2;
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
-    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+    for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
             norm1 += pfCorr(j, k, sigma2, 0);
         }
     }
@@ -1172,11 +1167,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     
     // compute normalization for any convolution function (necessary, even with the correction)
     norm1=0;
-    float bound;
-    if (mode <= 4) bound = range_of_corr;
-    else bound = sigma;
-    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+    for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
+        for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
             norm1 += pfCorr(j, k, sigma, 0);
         }
     }
@@ -1319,7 +1311,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
                     }
                 }
             }
-            newslice[col][row] = newslice[col][row] / norm; // normalization by pre-calculated coefficient
+            newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
         }
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
