@@ -14,7 +14,7 @@ menuII: menuII.cpp
 	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/testloaf.o $(LIBDIR)/pickCorrelations.o -o menuII menuII.cpp
 
 ##temp: temp.cpp
-	##$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o temp temp.cpp
+##$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o temp temp.cpp
 
 Printing: Printing.cpp
 	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o Printing Printing.cpp
