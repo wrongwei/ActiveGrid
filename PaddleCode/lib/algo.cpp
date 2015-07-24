@@ -826,7 +826,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     // periodic boundary conditions are used
     
     // preliminary computations for special cases
-    float norm1 = 0; // for top hat and triangle functions
+    float norm1; // for top hat and triangle functions
     float bound; // determine bounds of iteration for for loops
     bool isGaussian = false;
     if (mode == 1) isGaussian = true;
@@ -838,10 +838,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
     }
-    else if (mode == 8) {
-        norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
-        sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
-    }
+    else if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     
     // Loop through servos and calculate/create correlations, using helper methods (below)
     for (int i = 0; i < numberOfServos; i++) {
@@ -855,6 +852,8 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         }
         // master loop for modular functions (can remove else once we get true top hat modularized)
         else {
+            norm1 = 0;
+            if (mode == 8) norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     col = modulo(columns[i] + j, 13);

@@ -138,7 +138,7 @@ float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1,
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_sigma) {
         (*ptr_to_norm1)++;
-        return (-1) / spatial_sigma * dist + 1;
+        return ((-1) / spatial_sigma * dist + 1);
     }
     return 0;
 }
@@ -147,7 +147,7 @@ float triangleTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float
     //cout << "9t" << endl; // debugging
     if (abs(t) <= temporal_sigma) {
         (*ptr_to_norm1)++;
-        return (-1) / temporal_sigma * abs(t) + 1;
+        return ((-1) / temporal_sigma * abs(t) + 1);
   }
     return 0;
 }
