@@ -40,6 +40,9 @@ all:  \
 #	$(CPP) $(FLAGS) -c gbserial.cpp
 
 gbserialFlo: gbserialFlo.cpp gbserialFlo.h
+	@echo "==============================================================================================="
+	@echo "Compiling low level files: gbserialFlo.cpp SD84.cpp activegrid.cpp"
+	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c gbserialFlo.cpp
 
 SD84: SD84.cpp SD84.h
@@ -49,9 +52,15 @@ activegrid: activegrid.cpp activegrid.h
 	$(CPP) $(FLAGS) -c activegrid.cpp
 
 algo: algo.cpp algo.h loaf.h 
+	@echo "==============================================================================================="
+	@echo "Compiling algo.cpp"
+	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c algo.cpp
 
 loaf: loaf.cpp loaf.h
+	@echo "==============================================================================================="
+	@echo "Compiling supporting modules: loaf.cpp testloaf.cpp pickCorrelations.cpp"
+	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c loaf.cpp
 
 testloaf: testloaf.cpp
@@ -75,4 +84,4 @@ clean:
 	rm -f *.o
 	rm -f $(PADDLEDIR)/*.o 
 	rm -f $(PADDLEDIR)/menuII $(PADDLEDIR)/temp $(PADDLEDIR)/Printing
-	rm -f testloaf testloaf2 manyfunction testPickCorrelation
+	rm -f testloaf testloaf2 manyfunction testPickCorrelations
