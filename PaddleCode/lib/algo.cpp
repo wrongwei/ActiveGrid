@@ -1266,30 +1266,48 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
 void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
-                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) { // err[] wasn't doing anything?
+                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     float crumb = 0;
+    float norm1; float norm3; // norm/norm1 for spatial, norm2/norm3 for temporal
+    float bound;
+    if (spaceMode <= 4) bound = range_of_corr;
+    else bound = sigma;
+    if (spaceMode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    
     // Declare function pointers for the spacial and temporal correlation functions
     float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
     float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
+    pfSpatialCorr = pickSpatialCorr(mode);
+    pfTemporalCorr = pickTemporalCorr(mode);
+    
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
             newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
-            for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbours used to compute convolution
-                for (int k = -range_of_corr; k <= range_of_corr;k++) { // j and k refer to the shift
+            norm1 = 0; norm3 = 0;
+            if (spaceMode == 8) norm = 0;
+            if (timeMode == 8) norm2 = 0;
+            for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
+                for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
-                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf); // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        newslice[col][row] += (float)(correction * exp(-(j*j) + (k*k) / (2 * spaceSigma*spaceSigma)) * exp(-(t*t) / (2 * timeSigma*timeSigma)) * crumb / norm); // Gaussian in 3D
+                        // angle at (col, row) is function of surrounding angles within the correlation kernel
+                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
+                        newslice[col][row] += correction * crumb * pfSpatialCorr(j, k, &norm, &norm1, sigma, height) * pfTemporalCorr(t, &norm2, &norm3, sigma, height);
                     }
                 }
             }
+            // post-processing normalizations
+            if (spaceMode == 5) newslice[col][row] = newslice[col][row] / norm1; // normalize spatial top hat function
+            else if (spaceMode == 8) newslice[col][row] = newslice[col][row]/(norm + height*norm1); // normalize spatial top hat long tail function
+            else if (spaceMode == 9) newslice[col][row] = newslice[col][row] / (0.5 * norm1); // normalize spatial triangle function
+            if (timeMode == 5) newslice[col][row] = newslice[col][row] / norm2; // normalize spatial top hat function
+            else if (timeMode == 8) newslice[col][row] = newslice[col][row]/(norm + height*norm2); // normalize spatial top hat long tail function
+            else if (timeMode == 9) newslice[col][row] = newslice[col][row] / (0.5 * norm2); // normalize spatial triangle function
         }
-        // CORRELATION SELECTION NOT YET IMPLEMENTED - method currently only supports Gaussian in all 3 dimensions
-        // Will require a new set of correlation methods, since the data structures for 3D are different
-        // Think about making the correlation formulas alone into functions, and writing out the rest - would make code longer but more modular
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
 }
