@@ -802,8 +802,6 @@ float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, i
     
 }
 
-
-
 // reads the contents of positions and steps, put the value stored at actualposition in vector in actpos and actstep, and actualpositioninvector++
 // then creates correlation between paddles
 void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
@@ -822,7 +820,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
 	}
     // Declare function pointers for the spacial and temporal correlation functions
     float (*pfCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float sigma, float height);
-    pfCorr = pickTemporalCorr(mode);
+    pfCorr = pickSpatialCorr(mode);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
