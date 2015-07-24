@@ -1277,11 +1277,11 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     else bound = sigma;
     if (spaceMode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     
-    // Declare function pointers for the spacial and temporal correlation functions
+    // Declare function pointers for the spatial and temporal correlation functions
     float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
     float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
-    pfSpatialCorr = pickSpatialCorr(mode);
-    pfTemporalCorr = pickTemporalCorr(mode);
+    pfSpatialCorr = pickSpatialCorr(spaceMode);
+    pfTemporalCorr = pickTemporalCorr(timeMode);
     
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
@@ -1378,10 +1378,20 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     if (numberOfSlices % 2 == 0) // even case -> halfLoaf will not represent the true center of the loaf
         upperTimeBound--; // prevent arrayOutOfBounds issues for off-center halfLoaf values
     
-    // compute normalization for 3D gaussian convolution (will need to be refactored when choice is implemented)
+    // Normalization calculations
     norm = 0;
-    for (int j = -range_of_corr; j <= range_of_corr; j++) {// range of neighbours used to compute convolution
-        for (int k = -range_of_corr; k <= range_of_corr; k++) {// j and k refer to the shift
+    float bound;
+    if (spaceMode <= 4) bound = range_of_corr;
+    else bound = sigma;
+    if (spaceMode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    // Declare function pointers for the spatial and temporal correlation functions
+    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
+    float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
+    pfSpatialCorr = pickSpatialCorr(spaceMode);
+    pfTemporalCorr = pickTemporalCorr(timeMode);
+    
+    for (int j = -bound; j <= bound; j++) {// range of neighbors used to compute normalization/convolution
+        for (int k = -bound; k <= bound; k++) {// j and k refer to the shift
             for (int t = -halfLoaf; t <= upperTimeBound; t++) {
                 norm += (float) exp( -(pow((float) j, (int) 2) + pow((float) k, (int) 2)) / (2 * pow(spatial_sigma, 2))) * (float) exp( -(pow((float) t, 2) / (2 * pow(temporal_sigma, 2))));
             }
