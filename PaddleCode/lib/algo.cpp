@@ -711,7 +711,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     norm1=0;
     for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
         for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-            norm1 += (float)exp(-(pow((float)j,(int) 2)+ pow((float)k,(int)2))/(2* pow(sigma,2)));
+            norm1 += (float)(exp(-((j*j)+ (k*k))/(2*sigma*sigma)));
         }
     }
 
@@ -820,19 +820,27 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
 	}
-
+    // Declare function pointers for the spacial and temporal correlation functions
+    float (*pfCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float sigma, float height);
+    pfCorr = pickTemporalCorr(mode);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     
     // preliminary computations for special cases
-    bool isGaussian = false;
+    float norm1 = 0; // for top hat and triangle functions
+    float bound; // determine bounds of iteration for for loops
+    if (mode <= 4) bound = range_of_corr;
+    else bound = sigma;
     int col = 0; int row = 0;
-    if (mode == 1) isGaussian = true;
     if (mode == 7) {
         int r = rand() % 143; // generate random paddle
         mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
+    }
+    else if (mode == 8) {
+        norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
+        sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     }
     
     // Loop through servos and calculate/create correlations, using helper methods (below)
@@ -840,60 +848,29 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         
         initialize_pos_step(actpos, actstep, oldpos, oldstep, i); // set up old/act arrays
         
-        // Gaussian convolution
-        if (mode == 1) {
-            for (int j=-range_of_corr; j<=range_of_corr; j++) {// range of neighbours used to compute convolution
-                for (int k=-range_of_corr; k<=range_of_corr;k++){// j and k refer to the shift
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * gaussian2d(j, k, sigma, norm) * interpos[col][row];
-                }
-            }
-        }
-        // 1/r^n convolution (supports n=2, n=3, n=4)
-        else if (mode==2 || mode==3 || mode==4) {
-            for (int j=-10; j<11; j++){
-                for (int k=-10; k<11;k++){
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * interpos[col][row] * inverse_r_to_n_2d(j, k, n);
-                }
-            }
-        }
-        //top hat convolution
-        else if(mode == 5) {
-            double norm1 = 0; // will live outside for loops in runcorr_3D
-            for (int j=-sigma; j<(sigma+1); j++){
-                for (int k=-sigma; k<(sigma+1);k++){
-                    col = modulo(columns[i]+j,13);
-                    row = modulo(rows[i]+k,11);
-                    actpos[i] += correction * interpos[col][row] * tophat2d(j, k, sigma, norm1);
-                }
-            }
-            // normalization
-            actpos[i] = actpos[i]/norm1;
-        }
-        //true top hat with one main paddle, no wrapping around (fix later?)
-        else if(mode == 6) {
+        // true top hat (not modular yet)
+        if(mode == 6 || mode == 7) {
+            actpos[i] = 0; // keep it functional for now
             truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
         }
-        // true top hat with one randomly chosen main paddle
-        else if(mode == 7) {
-            truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
-        }
-        //top hat with long tail
-        else if(mode == 8) {
-            tophatlongtail2d(actpos, oldpos, actstep, correction, interpos, sigma, alpha, height, i);
-        }
-        //triangular function convolution
-        else if(mode == 9) {
-            triangle2d(actpos, oldpos, actstep, correction, interpos, sigma, i);
+        // master loop for modular functions (can remove else once we get true top hat modularized)
+        else {
+            for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
+                for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+                    col = modulo(columns[i] + j, 13);
+                    row = modulo(rows[i] + k, 11);
+                    actpos[i] += correction * pfCorr(j, k, &norm, &norm1, sigma, height) * interpos[col][row];
+                }
+            }
+            if (mode == 5) actpos[i] = actpos[i] / norm1; // normalize top hat function
+            else if (mode == 8) actpos[i] = actpos[i]/(norm + height*norm1); // normalize top hat long tail function
+            else if (mode == 9) actpos[i] = actpos[i] / (0.5 * norm1); // normalize triangle function
         }
         
-        if (isGaussian) actstep[i]= actpos[i]-oldpos[i]+err[i];
+        if (mode == 1) actstep[i]= actpos[i]-oldpos[i]+err[i];
         else actstep[i] = actpos[i]-oldpos[i];
         
-        safety_check(actpos, actstep, err, isGaussian, i); // angle-checking function
+        safety_check(actpos, actstep, err, mode==1, i); // angle-checking function
     }
 }
 
@@ -905,26 +882,6 @@ void algo::initialize_pos_step(float actpos[], float actstep[], float oldpos[], 
     oldstep[i]=actstep[i]; // oldstep is currently not used
     actpos[i]=0; // clear the output
     actstep[i]=0;
-}
-
-// basic formula for Gaussian correlation in 2 dimensions
-float algo::gaussian2d(int j, int k, float sigma, float norm) {
-    return (float)(exp(-((j*j) + (k*k)) / (2 * sigma*sigma)));
-}
-
-// basic formula for 1/r^n correlation in 2 dimensions
-float algo::inverse_r_to_n_2d(int j, int k, int n) {
-    return (float)(1. / (pow(sqrt(j*j)+ pow(k*k) + 1, n)));
-}
-    
-// basic logic for top hat correlation in 2 dimensions (note: requires normalization after external computations have run)
-float algo::tophat2d(int j, int k, float sigma, double* norm) {
-    double dist = sqrt((j*j) + (k*k));
-    if (dist <= sigma){
-        norm++;
-        return 1.0;
-    }
-    else return 0;
 }
 
 // modifies arrays to reflect true top hat correlation (random or user-specified) in 2d
@@ -939,48 +896,6 @@ void algo::truetophat2d(float actpos[], float oldpos[], float actstep[], float c
     } else {
         actpos[i] = correction * interpos[col][row];
     }
-}
-
-// modifies arrays to reflect top hat with long tail correlation in 2d
-void algo::tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,
-                            float interpos[][11], float sigma, float alpha, double height, int i) {
-    double norm1 = 0;
-    double norm2 = 0;
-    int row = 0; int col = 0;
-    for (int j=-sigma; j<(sigma+1); j++) {
-        for (int k=-sigma; k<(sigma+1);k++){
-            col = modulo (columns[i]+j,13);
-            row = modulo (rows[i]+k,11);
-            double dist = sqrt(pow((float)j,(int)2)+pow((float)k,(int)2));
-            if (dist <= alpha) {
-                actpos[i]+= correction * interpos[col][row];
-                norm1++;
-            } else {
-                actpos[i]+= correction * height * interpos[col][row];
-                norm2++;
-            }
-        }
-    }
-    actpos[i] = actpos[i]/(norm1 + height*norm2);
-}
-    
-// modifies arrays to reflect triangular correlation
-void algo::triangle2d(float actpos[], float oldpos[], float actstep[], float correction, float interpos[][11], float sigma, int i) {
-    double norm1 = 0;
-    int row = 0; int col = 0;
-    for (int j=-sigma; j<(sigma+1); j++) {
-        for (int k=-sigma; k<(sigma+1);k++){
-            col = modulo (columns[i]+j,13);
-            row = modulo (rows[i]+k,11);
-            double dist = sqrt(pow((float)j,(int)2)+pow((float)k,(int)2));
-            if (dist <= sigma) {
-                actpos[i]+= correction * ((-1)/sigma*dist+1) * interpos[col][row];
-                norm1++;
-            }
-        }
-    }
-    //normalization
-    actpos[i] = actpos[i]/(0.5*norm1);
 }
 
 // Makes sure angles and speeds are not out of the range of servo motor capabilities
@@ -1357,6 +1272,9 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
     float crumb = 0;
+    // Declare function pointers for the spacial and temporal correlation functions
+    float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height);
+    float (*pfTemporalCorr)(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height);
     // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {

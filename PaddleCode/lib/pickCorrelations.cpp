@@ -20,103 +20,119 @@
  */
 /*------------------------------------------------------------------------*/
 
-// gaussian correlation function in the spatial dimensions
-float gaussianSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
-  return (float)(exp(-((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
+// Gaussian convolution function
+float gaussianSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
+  return (float)(exp(-((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)) / *ptr_to_norm);
 }
 
-// gaussian correlation function in the temporal dimension
-float gaussianTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
-  return (float)(exp(-(t*t)/(2*temporal_sigma*temporal_sigma)));
+float gaussianTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
+  return (float)(exp(-(t*t)/(2*temporal_sigma*temporal_sigma)) / *ptr_to_norm);
 }
 
-// correlation function in the spatial dimensions
-float inverseSquareSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
+// 1/r^2 convolution function
+float inverseSquareSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -2);
 }
 
-// correlation function in the temporal dimension
-float inverseSquareTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
+float inverseSquareTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   return pow( (abs(t) + 1) , -2);
 }
 
-// correlation function in the spatial dimensions
-float inverseCubeSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
+// 1/r^3 convolution function
+float inverseCubeSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -3);
 }
 
-// correlation function in the temporal dimension
-float inverseCubeTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
+float inverseCubeTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   return pow( (abs(t) + 1) , -3);
 }
 
-// correlation function in the spatial dimensions
-float inverseQuarticSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
+// 1/r^4 convolution function
+float inverseQuarticSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return pow( (sqrt(j*j + k*k) + 1) , -4);
 }
 
-// correlation function in the temporal dimension
-float inverseQuarticTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
+float inverseQuarticTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   return pow( (abs(t) + 1) , -4);
 }
 
-// correlation function in the spatial dimensions
-float topHatSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
+// top hat convolution function
+float topHatSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
+    double dist = sqrt((j*j) + (k*k));
+    if (dist <= spatial_sigma){
+        *ptr_to_norm1++;
+        return 1.0;
+    }
+    else return 0;
+}
+
+float topHatTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float *ptr_to_norm1float temporal_sigma, float height){
+    if (fabs(t) <= temporal_sigma){
+        *ptr_to_norm1++;
+        return 1.0;
+    }
+    else return 0;
+}
+
+// true top hat with one main paddle, no wrapping around
+float trueTopHatSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return 0;
 }
 
-// correlation function in the temporal dimension
-float topHatTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
+float trueTopHatTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   return 0;
 }
 
-// correlation function in the spatial dimensions
-float trueTopHatSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
+// true top hat with one randomly chosen paddle
+float trueTopHatRandomSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   return 0;
 }
 
-// correlation function in the temporal dimension
-float trueTopHatTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
+float trueTopHatRandomTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   return 0;
 }
 
-// correlation function in the spatial dimensions
-float trueTopHatRandomSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
-  return 0;
+float topHatLongTailSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float alpha, float height){
+    double dist = sqrt((j*j))+(k*k));
+    if (dist <= alpha) {
+        *ptr_to_norm++;
+        return 1.0;
+    }
+    else {
+        *ptr_to_norm1++;
+        return height;
+    }
 }
 
-// correlation function in the temporal dimension
-float trueTopHatRandomTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
-  return 0;
+float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float alpha, float height){
+    if (fabs(t) <= alpha) {
+        *ptr_to_norm++;
+        return 1.0;
+    }
+    else {
+        *ptr_to_norm1++;
+        return height;
+    }
 }
 
-// correlation function in the spatial dimensions
-float topHatLongTailSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
-  return 0;
+float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
+    double dist = sqrt((j*j))+(k*k));
+    if (dist <= spatial_sigma) {
+        *ptr_to_norm1++;
+        return (-1) / spatial_sigma * dist + 1;
+    }
 }
 
-// correlation function in the temporal dimension
-float topHatLongTailTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
-  return 0;
-}
-
-// correlation function in the spatial dimensions
-float triangleSpatialCorr(int j, int k, float *ptr_to_norm, float spatial_sigma){
-  return 0;
-}
-
-// correlation function in the temporal dimension
-float triangleTemporalCorr(int t, float *ptr_to_norm, float temporal_sigma){
-  return 0;
+float triangleTemporalCorr(int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
+    if (fabs(t) <= temporal_sigma) {
+        *ptr_to_norm1++;
+        return (-1) / temporal_sigma * fabs(t) + 1;
+    }
 }
 
 /*------------------------------------------------------------------------*/
-/* The function pickSpatialCorr accepts an integer named typeOfSpatialCorr
- * and returns a pointer to a function (which accepts an int, int, float*,float as parameters
- * and returns a float)
- * In other words, this function returns a correlation function.
- */
-float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float *ptr_to_norm, float spatial_sigma){
+
+float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
   // validate parameters
   assert (typeOfSpatialCorr > 0 && typeOfSpatialCorr <= 9);
   
@@ -145,12 +161,13 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float *ptr_to_nor
 }
 
 /*------------------------------------------------------------------------*/
+
 /* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr
  * and returns a pointer to a function (which accepts an int, int, float*,float as parameters
  * and returns a float)
  * In other words, this function returns a correlation function.
  */
-float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float *ptr_to_norm, float temporal_sigma){
+float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   // validate parameters
   assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 9);
   

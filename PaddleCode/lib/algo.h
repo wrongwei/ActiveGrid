@@ -23,6 +23,7 @@
 #include <fstream>
 #include "activegrid.h"
 #include "loaf.h"
+#include "pickCorrelations.h"
 
 #define range_of_corr 7
 
@@ -104,15 +105,8 @@ public:
     
     // helper methods for correlation procedures
     void initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i);
-    float gaussian2d(int j, int k, float sigma, float norm);
-    float inverse_r_to_n_2d(int j, int k, int n);
-    float tophat2d(int j, int k, float sigma, double* norm);
     void truetophat2d(float actpos[], float oldpos[], float actstep[], float correction,
                       float interpos[][11], float sigma, int mrow, int mcol, int i);
-    void tophatlongtail2d(float actpos[], float oldpos[], float actstep[], float correction,
-                          float interpos[][11], float sigma, float alpha, double height, int i);
-    void triangle2d(float actpos[], float oldpos[], float actstep[], float correction,
-                    float interpos[][11], float sigma, int i);
     void safety_check(float actpos[], float actstep[], float err[], bool isGaussian, int i);
     
     // to store speeds and positions after random computation and before convolution
