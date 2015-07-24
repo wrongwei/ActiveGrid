@@ -16,19 +16,41 @@
 #include "pickCorrelations.h"
 using namespace std;
 /*------------------------------------------------------------------------*/
+/* For the details of what the functions in pickCorrelations.cpp do, see the comments in that file.
+ * This file will help you test those functions and teach you how to use them 
+ */
+/*------------------------------------------------------------------------*/
 int main(){
+  // Declaring some variables that will be used as arguments of the correlation functions
   int j = 2;
   int k = 3;
   int t = 10;
   int spatial_sigma = 5;
   int temporal_sigma = 5;
   float norm = 1.2;
-  float *ptr_to_norm = &norm;
+  // Declare a pointer to norm because we want the correlation functions to be
+  // able to incrment norm if they need to (I think some top hat functions need
+  // this feature
+  float *ptr_to_norm = &norm; // NOTE: ptr_to_norm and &norm are both float pointers to the same float (named norm)
 
   // Decalre function pointers for the spacial and temporal correlation functions
-  float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float spatial_sigma);
-  float (*pfTemporalCorr)(int t, float *ptr_to_norm, float temporal_sigma);
+  // These are variables that you will use to store the name of a function that
+  // pickTemporalCorr or pickSpatialCorr returns.
+  float (*pfSpatialCorr)(int j, int k, float *ptr_to_norm, float spatial_sigma); // a function pointer named pfSpatialCorr
+  float (*pfTemporalCorr)(int t, float *ptr_to_norm, float temporal_sigma); // a function pointer named pfTemporalCorr
   
+  // Now let's assign values to these functions pointers so that they actually point somewhere
+  pfSpatialCorr = pickSpatialCorr(1);
+  // I have picked 1(which corresponds to gaussian), so now pfSpatialCorr = the name of the function gaussianSpatialCorr
+  // So I can use pfSpatialCorr in the same way that I can use gaussianSpatialCorr
+  // For example,
+  cout << "Test if the pointers are working..." << endl;
+  cout << "This value: " << gaussianSpatialCorr(j, k, ptr_to_norm, spatial_sigma) << endl;
+  cout << "Should be equivalent to this value: " << pfSpatialCorr(j, k, ptr_to_norm, spatial_sigma) << endl;
+
+  // If you understand the above example, then you are ready to use this module!
+
+  // The loops below just allow us to test that all the correlation functions are working properly
   cout << endl << "Testing Temporal Correlations..." << endl;
 
   for (int typeOfTemporalCorr = 1; typeOfTemporalCorr <= 9; typeOfTemporalCorr++){

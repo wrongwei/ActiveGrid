@@ -8,6 +8,17 @@
 #include <assert.h>
 #include <cmath>
 /*------------------------------------------------------------------------*/
+/* For details of how to use this module, please see testPickCorrelations.cpp
+ * The basic idea is that you have an int that specifies which type of correlation
+ * you want to perform in the spatial dimension. You call pickSpatialCorr and
+ * accepts that int as an arg and retruns you a ptr to the appropriate correlation
+ * for that integer. For example, let's say you pass pickSpatialCorr the integer 1.
+ * pickSpatialCorr will return a ptr to the function gaussianSpatialCorrelation.
+ * pcikTemporalCorr works in the same way but returns a ptr to the appropriate
+ * temporal correlation function. So, which the argument 1, it returns a ptr to
+ * guassian TemporalCorr. 
+ */
+/*------------------------------------------------------------------------*/
 
 // Gaussian convolution function
 float gaussianSpatialCorr(int j, int k, float *ptr_to_norm, float *ptr_to_norm1, float spatial_sigma, float height){
@@ -151,6 +162,11 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float *ptr_to_nor
 
 /*------------------------------------------------------------------------*/
 
+/* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr
+ * and returns a pointer to a function (which accepts an int, int, float*,float as parameters
+ * and returns a float)
+ * In other words, this function returns a correlation function.
+ */
 float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float *ptr_to_norm, float *ptr_to_norm1, float temporal_sigma, float height){
   // validate parameters
   assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 9);
