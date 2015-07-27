@@ -1439,7 +1439,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
                     cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
-                    step_size[col][row] = max_speed;
+                    step_size[col][row] = 0;
                 }
                 /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
                     // assign speeds based on min number of legal steps it will take to get to the target angle
