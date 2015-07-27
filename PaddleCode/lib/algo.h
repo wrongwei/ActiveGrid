@@ -30,6 +30,16 @@
 //declare the testloaf function
 void testloaf(void);
 
+// declare a structure for holding the parameters of the correlation
+struct CorrParameters {
+    int typeOfCorrelation;
+    float sigma;	    
+    int power;
+    float alpha;
+    float height;
+};
+
+// declare the algo class
 class algo{
 public:
     algo(); //constructor
