@@ -18,7 +18,7 @@ There are a lot of functions, but also a lot of possible motions.
 #include <curses.h>
 
 // modulo function with NON NEGATIVE remainder
-inline int algo::modulo (int numerator, int denominator){
+inline int algo::modulo(int numerator, int denominator){
     int remainder;
     if (numerator*denominator<0){
         remainder = numerator%denominator - denominator*(floor(numerator/denominator)-1);
@@ -334,7 +334,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
     double newangle[14][12];
     double newangleperstep[14][12];
     int count=0;
-    /*for(int row = 1; row < 12; row++) {
+    for(int row = 1; row < 12; row++) {
         for(int col = 1; col < 14; col++) {
             if (grid.servo[col][row]!=0){
                 newangle[col][row]=positions[count];
@@ -353,7 +353,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
     if(constant==1) {area(newangle, rms);}
 
     grid.setspeeds(newangleperstep);
-    grid.setanglesII(newangle);*/
+    grid.setanglesII(newangle);
     
     // writing-on-file removed for space; see above method for angle-writing code
     
@@ -371,7 +371,7 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
 int algo::setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms){
     double newangle[14][12];
     double newangleperstep[14][12];
-    /*for(int row = 1; row < 12; row++) {
+    for(int row = 1; row < 12; row++) {
         for(int col = 1; col < 14; col++) {
             if (grid.servo[col][row]!=0){
                 // converting 13x11 array into 14x12 array
@@ -390,7 +390,7 @@ int algo::setanglestoallservosIII(float angles[13][11], float steps[13][11], int
     if(constant==1) {area(newangle, rms);}
     
     grid.setspeeds(newangleperstep);
-    grid.setanglesII(newangle);*/
+    grid.setanglesII(newangle);
     
     // writing-on-file removed for space; see above method for angle-writing code
     
@@ -863,7 +863,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
             if (mode == 8) norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-                    col = modulo(columns[i] + j, 13);
+                    col = modulo(columns[i] + j, 13); // controls periodic boundary conditions
                     row = modulo(rows[i] + k, 11);
                     actpos[i] += correction * pfCorr(j, k, sigma, height) * interpos[col][row];
                 }
@@ -1296,6 +1296,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     float (*pfTemporalCorr)(int t, float timeSigma, float height);
     pfSpatialCorr = pickSpatialCorr(spaceMode);
     pfTemporalCorr = pickTemporalCorr(timeMode);
+    //myLoaf->Loaf_printFullArray(); // debugging
     
     // Loop through servos and calculate/create correlations, using helper methods
     for (int col = 0; col < 13; col++) {
@@ -1306,8 +1307,9 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height);
+                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
                     }
                 }
             }
@@ -1422,7 +1424,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // main loop: give angle orders
     while(0==0){
         
-        //freshLoaf.Loaf_print(); // debugging
+        //freshLoaf.Loaf_printFullArray(); // debugging
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
         // get new slice of angles

@@ -33,10 +33,10 @@ enum {NUMBER_OF_COLUMNS = NUMBER_OF_GRID_COLUMNS + 2*HALF_OF_KERNEL};
 enum {NUMBER_OF_SERVOS = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS};
 
 // minimum random angle. used for initializing the slices
-enum {MIN_ANGLE = -50};
+enum {MIN_ANGLE = -30};
 
 // minimum random angle. used for initializing the slices
-enum {MAX_ANGLE = 50};
+enum {MAX_ANGLE = 30};
 
 /*------------------------------------------------------------------------*/
 
