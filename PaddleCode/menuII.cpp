@@ -492,7 +492,10 @@ int main (int argc , char * const argv[]) {
             int typeOfTemporalCorr = 0;
             float target_rms = 0;
             int numberOfSlices = 0;
-            
+
+	    // CorrParameters temporalCorrParam;
+	    // CorrParameters spatialCorrParam;
+
             cout << "Choose the spatial correlation function: \n"
 		" 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
 		" 5 - Top hat \n"
