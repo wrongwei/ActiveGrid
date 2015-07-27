@@ -22,11 +22,11 @@
 
 // Gaussian convolution function
 float gaussianSpatialCorr(int j, int k, float spatial_sigma, float height){
-    return (float)exp(-((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma));
+    return expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
 }
 
 float gaussianTemporalCorr(int t, float temporal_sigma, float height){
-    return (float)exp(-(t*t)/(2*temporal_sigma*temporal_sigma));
+    return expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
 }
 
 // 1/r^2 convolution function

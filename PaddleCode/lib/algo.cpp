@@ -1297,7 +1297,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     pfSpatialCorr = pickSpatialCorr(spaceMode);
     pfTemporalCorr = pickTemporalCorr(timeMode);
     
-    // Loop through servos and calculate/create correlations, using helper methods (currently nonexistent)
+    // Loop through servos and calculate/create correlations, using helper methods
     for (int col = 0; col < 13; col++) {
         for (int row = 0; row < 11; row++) {
             newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
