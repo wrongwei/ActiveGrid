@@ -1071,7 +1071,7 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigma2, 0);
+            norm2 += pfCorr(j, k, sigma2, 0);
         }
     }
     
