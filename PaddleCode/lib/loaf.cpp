@@ -14,7 +14,7 @@
 
 /*------------------------------------------------------------------------*/
 
-// size of half of the temporal kernel
+// size of half of the spatial kernel
 enum {HALF_OF_KERNEL = 7};
 
 // number of rows in the actual grid
@@ -126,7 +126,6 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
   assert(j >= 0);
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
-  
   return myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)];
 }
 
