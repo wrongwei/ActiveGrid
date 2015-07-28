@@ -127,7 +127,7 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
   
-  return myLoaf[t][(j)*NUMBER_OF_GRID_COLUMNS + (i)];
+  return myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)];
 }
 
 /*------------------------------------------------------------------------*/
@@ -157,7 +157,7 @@ void loaf::Loaf_set(/*Loaf_T myLoaf, */int i, int j, int t, float newAngle)
   assert(t < NUMBER_OF_SLICES);
   assert(t >= 0);
   
-  myLoaf[t][(j)*NUMBER_OF_GRID_COLUMNS + (i)] = newAngle;
+  myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)] = newAngle;
 }
 
 /*------------------------------------------------------------------------*/
