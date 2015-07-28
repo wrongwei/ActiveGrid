@@ -218,6 +218,7 @@ void loaf::Loaf_print(/*Loaf_T myLoaf*/)
       for (iColumn = 0; iColumn < NUMBER_OF_GRID_COLUMNS; iColumn++)
 	printf("%7i", iColumn);
       cout << endl;
+      cout << " NUMBER_OF_COLUMNS = " << NUMBER_OF_COLUMNS << endl << endl;
     }
 }
 
