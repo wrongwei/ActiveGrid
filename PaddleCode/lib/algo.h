@@ -37,6 +37,8 @@ struct CorrParameters {
     int power;
     float alpha;
     float height;
+    int mcol;
+    int mrow;
 };
 
 // declare the algo class
