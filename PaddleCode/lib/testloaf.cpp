@@ -69,7 +69,9 @@ void testloaf(void)
   myLoaf.Loaf_set(-7, 17, 1,  12.3);
   myLoaf.Loaf_set(19, -7, 1,  32.1);
   myLoaf.Loaf_set(19, 17, 1, -32.1);
+
   myLoaf.Loaf_printFullArray();
+  myLoaf.Loaf_printLowLevelMirror();
 
   myLoaf.~loaf();
   

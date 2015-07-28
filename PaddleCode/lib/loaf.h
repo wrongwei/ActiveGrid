@@ -95,6 +95,12 @@ void Loaf_print(/*Loaf_T myLoaf*/);
 void Loaf_printFullArray(/*Loaf_T myLoaf*/);
 
 /*------------------------------------------------------------------------*/
+/* Low level print in mirrored order, compare to print full array 
+   to test if access is working */
+
+void Loaf_printLowLevelMirror(/*Loaf_T myLoaf*/);
+
+/*------------------------------------------------------------------------*/
 
 /* Loaf_eat frees all memory used by myLoaf and returns nothing */
 

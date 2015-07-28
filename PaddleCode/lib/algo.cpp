@@ -1282,8 +1282,19 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
                 double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
+    //For debugging this will let you use a random array instead of loaf
+    /*float randslice[27][25] = {0};
+    int randI;//debugging
+    int randJ;//debugging
+    for (randI = 0; randI < 27; randI++){
+	for (randJ=0; randJ < 25; randJ++){
+	    randslice[randJ][randI] = (((float)rand()/RAND_MAX)*(max_angle-min_angle))+min_angle;
+	}
+    }*/
+    
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
+    
     float crumb = 0;
     float bound;
     if (spaceMode <= 4) bound = range_of_corr;
@@ -1307,7 +1318,8 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
-                        //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
+                        //crumb = randslice[j+col+7][k+row+7];
+			//cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
                         newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
                     }
@@ -1327,7 +1339,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     float mean = 0;
     float rms = 0;
     int trials = 4000;
-    float slice[13][11] = {0}; // this array begins life stuffed with zeros
+    float slice[13][11] = {{0}}; // this array begins life stuffed with zeros
     float slicestorage[13][11][trials];
     loaf testLoaf = loaf(halfLoaf + upperTimeBound + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf and upperTimeBound)
     
@@ -1365,9 +1377,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // create (bake) Loaf object using constructor
     loaf freshLoaf = loaf(numberOfSlices);
     
-    float oldslice[13][11] = {0}; // stores the last configuration of paddles that was sent to the grid
-    float newslice[13][11] = {0}; // stores the configuration of paddles to be sent next to the grid
-    float step_size[13][11] = {0}; // stores the step size needed to get to the next configuration
+    float oldslice[13][11] = {{0}}; // stores the last configuration of paddles that was sent to the grid
+    float newslice[13][11] = {{0}}; // stores the configuration of paddles to be sent next to the grid
+    float step_size[13][11] = {{0}}; // stores the step size needed to get to the next configuration
     
     float rms;
     float correction=1;

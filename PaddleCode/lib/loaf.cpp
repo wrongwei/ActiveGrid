@@ -114,19 +114,19 @@ loaf::loaf(int numberOfSlices)
 
 float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
 {
-  i = (i + HALF_OF_KERNEL);
-  j = (j + HALF_OF_KERNEL);
-
-  // validate parameters
-  // validation of parameters is slow, so commenting out the assert statements
-  // may speed up the code consideraby
-  assert(i <= NUMBER_OF_COLUMNS-1);
-  assert(i >= 0);
-  assert(j <= NUMBER_OF_ROWS -1);
-  assert(j >= 0);
-  assert(t < NUMBER_OF_SLICES);
-  assert(t >= 0);
-  return myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)];
+    i = (i + HALF_OF_KERNEL);
+    j = (j + HALF_OF_KERNEL);
+  
+    // validate parameters
+    // validation of parameters is slow, so commenting out the assert statements
+    // may speed up the code consideraby
+    assert(i <= NUMBER_OF_COLUMNS-1);
+    assert(i >= 0);
+    assert(j <= NUMBER_OF_ROWS -1);
+    assert(j >= 0);
+    assert(t < NUMBER_OF_SLICES);
+    assert(t >= 0);
+    return myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)];
 }
 
 /*------------------------------------------------------------------------*/
@@ -190,6 +190,7 @@ void loaf::Loaf_slice(/*Loaf_T myLoaf*/)
   
   // Add the new slice to the loaf
   myLoaf[NUMBER_OF_SLICES - 1] = newSlice;
+  
 }
 
 /*------------------------------------------------------------------------*/
@@ -273,6 +274,28 @@ void loaf::Loaf_printFullArray(/*Loaf_T myLoaf*/)
       cout << endl;
     }
 }
+/*------------------------------------------------------------------------*/
+/* Low level print in mirrored order, compare to print full array 
+   to test if access is working */
+
+void loaf::Loaf_printLowLevelMirror(void)
+{
+    int i;
+    int t;
+    for (t =0; t < NUMBER_OF_SLICES; t++)
+	{
+	    printf("\nTime Slice: %i\n   ", t);
+	    for (i = 0; i < NUMBER_OF_SERVOS; i++)
+		{
+		    printf("%7.1f", myLoaf[t][i]);
+		    if ((i+1) % NUMBER_OF_COLUMNS == 0)
+			printf("\n   ");
+		}
+	    cout << endl;
+	}
+    cout << endl;
+}
+
 /*------------------------------------------------------------------------*/
 
 /* Loaf_eat frees all memory used by myLoaf and returns nothing */
