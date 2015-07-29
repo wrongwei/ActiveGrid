@@ -1389,7 +1389,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float rms;
     float correction=1;
     int i = 1; // grid number counter
-    int SPACING = 5; // number of interpolations needed to keep servo speed under its max value, in worst case
+    int SPACING = 2; // number of interpolations needed to keep servo speed under its max value, in worst case
     
     float amplitude; // for steps/speeds calculations and safety checks, below
     float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
@@ -1468,7 +1468,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 amplitude = newslice1D[count] - oldslice1D[count]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
                     cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
-                    step_size1D[count] = 0;
+                    if (amplitude > 0) step_size1D[count] = max_speed;
+                    else if (amplitude < 0) step_size1D[count] = -max_speed;
                 }
                 /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
                     // assign speeds based on min number of legal steps it will take to get to the target angle
