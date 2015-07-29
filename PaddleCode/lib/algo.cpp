@@ -1442,7 +1442,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     while(0==0){
         
         //freshLoaf.Loaf_printFullArray(); // debugging
-        cout << "Grid #" << i << ":"; // print grid number
+        cout << "Grid #" << i; // print grid number
         i += 1;
         // get new slice of angles
         runcorr_3D(newslice1D, &freshLoaf, halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
@@ -1460,47 +1460,45 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         // store necessary servo speeds after carrying out safety checks
         for (int count = 0; count < (11*13); count++) {
 
-                // angle safety processing: do not exceed angle of 90 degrees
-                //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-                if (newslice1D[count]>90) newslice1D[count]=90;
-                else if (newslice1D[count]<-90) newslice1D[count]=-90;
+            // angle safety processing: do not exceed angle of 90 degrees
+            //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
+            if (newslice1D[count]>90) newslice1D[count]=90;
+            else if (newslice1D[count]<-90) newslice1D[count]=-90;
                 
-                amplitude = newslice1D[count] - oldslice1D[count]; // calculate the amplitude between the old and the new angles
-                if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
-                    cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
-                    if (amplitude > 0) step_size1D[count] = max_speed;
-                    else if (amplitude < 0) step_size1D[count] = -max_speed;
-                }
-                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
-                    // assign speeds based on min number of legal steps it will take to get to the target angle
-                    step_size1D[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
-                }*/
-                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size1D[col][row] = amplitude/(SPACING); // move in 5 steps
-                else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-                    step_size1D[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
-                }
-                else step_size1D[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
-                 */
-                else step_size1D[count] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
-
+            amplitude = newslice1D[count] - oldslice1D[count]; // calculate the amplitude between the old and the new angles
+            if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
+                cout << " Constraining " << count << " ";
+                if (amplitude > 0) step_size1D[count] = max_speed;
+                else if (amplitude < 0) step_size1D[count] = -max_speed;
+            }
+            /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+                // assign speeds based on min number of legal steps it will take to get to the target angle
+                step_size1D[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+            }*/
+            // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+            /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size1D[col][row] = amplitude/(SPACING); // move in 5 steps
+            else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+                step_size1D[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+            }
+            else step_size1D[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+                */
+            else step_size1D[count] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
         }
         
         /* create five timeslices to separate old and new configurations, and feed each one to the grid in succession
          * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
          * runcorr_3D method once every five grid configurations */
         for (int t = 0; t < SPACING; t++) {
-            cout << " " << (t+1); // print interpolation number
+            //cout << " " << (t+1); // print interpolation number
             
             // compute new intermediate grid position, with steps necessary to attain it
             for (int count = 0; count < (13*11); count++) {
 
-                    if (step_size1D[count] != 0) { // don't bother checking servos that have already arrived
-                        diff = fabs(newslice1D[count] - oldslice1D[count]); // determination of approximate equality for doubles
-                        if (diff > EPSILON) oldslice1D[count] += step_size1D[count]; // not equal -> add another step
-                        else step_size1D[count] = 0; // paddle has arrived; tell servo not to move any more
-                    }
-
+                if (step_size1D[count] != 0) { // don't bother checking servos that have already arrived
+                    diff = fabs(newslice1D[count] - oldslice1D[count]); // determination of approximate equality for doubles
+                    if (diff > EPSILON) oldslice1D[count] += step_size1D[count]; // not equal -> add another step
+                    else step_size1D[count] = 0; // paddle has arrived; tell servo not to move any more
+                }
             }
         
             //setposition of each servo:
@@ -1517,21 +1515,21 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     break;
                 }
             }
-	    /* debugging going between 1 and 2 dimensions to use setanglestoallservosIII
-	    int count = 0;
-	    for (int row = 0; row < 11; row ++){
-		for (int col = 0; col < 13; col++){
-		    oldslice[col][row] = oldslice1D[count];
-		    count++;
-		}
-	    }
-	    count = 0;
-	    for (int row = 0; row < 11; row ++){
-		for (int col = 0; col < 13; col++){
-		    step_size[col][row] = step_size1D[count];
-		    count++;
-		}
-	    }
+            /* debugging going between 1 and 2 dimensions to use setanglestoallservosIII
+            int count = 0;
+             for (int row = 0; row < 11; row ++){
+                for (int col = 0; col < 13; col++){
+                    oldslice[col][row] = oldslice1D[count];
+                    count++;
+                }
+             }
+             count = 0;
+             for (int row = 0; row < 11; row ++){
+                for (int col = 0; col < 13; col++){
+                    step_size[col][row] = step_size1D[count];
+                    count++;
+                }
+             }
 	    */
             setanglestoallservosII(oldslice1D, step_size1D, constantArea, target_rms); // for motion
         }
