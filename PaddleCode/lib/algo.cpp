@@ -1320,7 +1320,8 @@ void algo::runcorr_3D(float newslice[], loaf* myLoaf, int halfLoaf, int upperTim
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
                         col = count % 13;
 			row = count / 13;
-			crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+			crumb = myLoaf[t][(j+7)*NUMBER_OF_COLUMNS + (i+7)];
+			//crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
                         //crumb = randslice[j+col+7][k+row+7];
 			//cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
