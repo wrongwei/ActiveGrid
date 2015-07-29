@@ -120,12 +120,12 @@ float loaf::Loaf_access(/*Loaf_T myLoaf, */int i, int j, int t)
     // validate parameters
     // validation of parameters is slow, so commenting out the assert statements
     // may speed up the code consideraby
-    assert(i <= NUMBER_OF_COLUMNS-1);
-    assert(i >= 0);
-    assert(j <= NUMBER_OF_ROWS -1);
-    assert(j >= 0);
-    assert(t < NUMBER_OF_SLICES);
-    assert(t >= 0);
+    //assert(i <= NUMBER_OF_COLUMNS-1);
+    //assert(i >= 0);
+    //assert(j <= NUMBER_OF_ROWS -1);
+    //assert(j >= 0);
+    //assert(t < NUMBER_OF_SLICES);
+    //assert(t >= 0);
     return myLoaf[t][(j)*NUMBER_OF_COLUMNS + (i)];
 }
 
