@@ -1279,7 +1279,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
+void algo::runcorr_3D(float newslice[], loaf* myLoaf, int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
                 double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
@@ -1308,25 +1308,28 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     pfSpatialCorr = pickSpatialCorr(spaceMode);
     pfTemporalCorr = pickTemporalCorr(timeMode);
     //myLoaf->Loaf_printFullArray(); // debugging
-    
+    int row = 0;
+    int col = 0;
     // Loop through servos and calculate/create correlations, using helper methods
-    for (int col = 0; col < 13; col++) {
-        for (int row = 0; row < 11; row++) {
-            newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
+    for (int count = 0; count < (13*11); count++) {
+
+            newslice[count] = 0; // start each angle at zero, then add in results of correlation
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        col = count % 13;
+			row = count / 13;
+			crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
                         //crumb = randslice[j+col+7][k+row+7];
 			//cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
+                        newslice[count] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
                     }
                 }
             }
-            newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
-        }
+            newslice[count] = newslice[count] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
+
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
 }
@@ -1339,28 +1342,24 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     float mean = 0;
     float rms = 0;
     int trials = 4000;
-    float slice[13][11] = {{0}}; // this array begins life stuffed with zeros
-    float slicestorage[13][11][trials];
+    float slice[13 * 11] = {0}; // this array begins life stuffed with zeros
+    float slicestorage[13 * 11][trials];
     loaf testLoaf = loaf(halfLoaf + upperTimeBound + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf and upperTimeBound)
     
     // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
     for (int t = 0; t < trials; t++) {
         runcorr_3D(slice, &testLoaf, halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
         if (t % 100 == 0) cout << (4000 - t) / 100 << endl; // countdown to finish
-        for (int col = 0; col < 13; col++) {
-            for (int row = 0; row < 11; row++) {
-                mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
-                slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
-            }
+        for (int count = 0; count < (13*11); count++) {
+	    mean += slice[count] / (numberOfServos * trials); // calculate mean as we go
+	    slicestorage[count][t] = slice[count]; // store angle values for future use in rms calculation
         }
     }
     //cout << "Test mean = " << mean << endl; // debugging
     // calculate variance from previously-found mean and angle measurements
     for (int t = 0; t < trials; t++) {
-        for (int col = 0; col < 13; col++) {
-            for (int row = 0; row < 11; row++) {
-                rms += pow(slicestorage[col][row][t] - mean, (int) 2) / (numberOfServos * trials);
-            }
+        for (int count = 0; count < (13*11); count++) {
+                rms += pow(slicestorage[count][t] - mean, (int) 2) / (numberOfServos * trials);
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
@@ -1372,14 +1371,20 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
-    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    anglefile.open("angleservo_cM_cIT_check.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
     loaf freshLoaf = loaf(numberOfSlices);
     
-    float oldslice[13][11] = {{0}}; // stores the last configuration of paddles that was sent to the grid
-    float newslice[13][11] = {{0}}; // stores the configuration of paddles to be sent next to the grid
-    float step_size[13][11] = {{0}}; // stores the step size needed to get to the next configuration
+
+    float oldslice1D[13 * 11] = {0}; // stores the configuration of paddles to be sent next to the grid
+    float newslice1D[13 * 11] = {0}; // stores the configuration of paddles to be sent next to the grid
+    float step_size1D[13 * 11] = {0}; // stores the configuration of paddles to be sent next to the grid
+
+    // degbugging trying to use 2D arrays
+    //float oldslice[13][11] = {{0}}; // stores the last configuration of paddles that was sent to the grid
+    //float step_size[13][11] = {{0}}; // stores the step size needed to get to the next configuration
+
     
     float rms;
     float correction=1;
@@ -1440,34 +1445,44 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         cout << "Grid #" << i << ":"; // print grid number
         i += 1;
         // get new slice of angles
-        runcorr_3D(newslice, &freshLoaf, halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
+        runcorr_3D(newslice1D, &freshLoaf, halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
                               height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
+
+	// convert newlice1D into a 2D array named newslice1D
+	/*	int count = 0;
+	for (int row = 0; row < 13; row ++){
+	    for (int col = 0; col < 11; col++){
+		newslice1D[col][row] = newslice1D1D[count];
+		count++;
+	    }
+	    }*/
+
         // store necessary servo speeds after carrying out safety checks
-        for (int col = 0; col < 13; col++) {
-            for (int row = 0; row < 11; row++) {
+        for (int count = 0; count < (11*13); count++) {
+
                 // angle safety processing: do not exceed angle of 90 degrees
-                //if (fabs(newslice[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-                if (newslice[col][row]>90) newslice[col][row]=90;
-                else if (newslice[col][row]<-90) newslice[col][row]=-90;
+                //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
+                if (newslice1D[count]>90) newslice1D[count]=90;
+                else if (newslice1D[count]<-90) newslice1D[count]=-90;
                 
-                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+                amplitude = newslice1D[count] - oldslice1D[count]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
                     cout << "ERROR: Max servo speed exceeded. Somebody give that guy a speeding ticket!\n";
-                    step_size[col][row] = 0;
+                    step_size1D[count] = 0;
                 }
                 /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
                     // assign speeds based on min number of legal steps it will take to get to the target angle
-                    step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+                    step_size1D[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
                 }*/
                 // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size1D[col][row] = amplitude/(SPACING); // move in 5 steps
                 else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-                    step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+                    step_size1D[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
                 }
-                else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+                else step_size1D[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
                  */
-                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
-            }
+                else step_size1D[count] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+
         }
         
         /* create five timeslices to separate old and new configurations, and feed each one to the grid in succession
@@ -1477,14 +1492,14 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             cout << " " << (t+1); // print interpolation number
             
             // compute new intermediate grid position, with steps necessary to attain it
-            for (int col = 0; col < 13; col++) {
-                for (int row = 0; row < 11; row++) {
-                    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
-                        diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
-                        if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
-                        else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
+            for (int count = 0; count < (13*11); count++) {
+
+                    if (step_size1D[count] != 0) { // don't bother checking servos that have already arrived
+                        diff = fabs(newslice1D[count] - oldslice1D[count]); // determination of approximate equality for doubles
+                        if (diff > EPSILON) oldslice1D[count] += step_size1D[count]; // not equal -> add another step
+                        else step_size1D[count] = 0; // paddle has arrived; tell servo not to move any more
                     }
-                }
+
             }
         
             //setposition of each servo:
@@ -1501,7 +1516,23 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     break;
                 }
             }
-            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+	    /* debugging going between 1 and 2 dimensions to use setanglestoallservosIII
+	    int count = 0;
+	    for (int row = 0; row < 11; row ++){
+		for (int col = 0; col < 13; col++){
+		    oldslice[col][row] = oldslice1D[count];
+		    count++;
+		}
+	    }
+	    count = 0;
+	    for (int row = 0; row < 11; row ++){
+		for (int col = 0; col < 13; col++){
+		    step_size[col][row] = step_size1D[count];
+		    count++;
+		}
+	    }
+	    */
+            setanglestoallservosII(oldslice1D, step_size1D, constantArea, target_rms); // for motion
         }
         cout << endl;
     }
