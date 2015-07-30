@@ -5,14 +5,15 @@
 % Horace Zhang + Jessie Liu Summer 2014
 % Modified by Nathan Wei, Summer 2015
 
-% requires a blank .txt file: "res.txt" to be in the path
  clear all;
  close all;
+ clc;
 
 % MODIFY THIS ------------------------------------------------------------------
-pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+%pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
 addpath(pathname);
-A = load('angleservo_cM_cIT_check.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angles_g2g1_0729_08.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;

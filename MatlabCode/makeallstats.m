@@ -26,17 +26,16 @@ if (~exist('highorder')), highorder = 1; end
 
 %get the directory of your input files:
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-pathname = fileparts('/Users/nathan/Documents/Data/14072015data/');
+pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
 addpath(pathname)
 
 %extract velocity
-u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4_14-07-15_gaussian_sigma4_rms30.dat', 'calib7_14.m', 1, 1);
-u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4_14-07-15_gaussian_sigma4_rms30.dat', 'calib7_14.m', 1, 1);
-%u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch1.dat', 'Calib7_28.m', 1, 1);
-%u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch1.dat', 'Calib7_28.m', 1, 1);
+u1 = loadvelocityff('g2g1_0729_00_1.dat', 'calib7_29.m', 1, 1);
+u2 = loadvelocityff('g2g1_0729_00_2.dat', 'calib7_29.m', 1, 1);
+u3 = loadvelocityff('g2g1_0729_00_3.dat', 'calib7_29.m', 1, 1);
+u4 = loadvelocityff('g2g1_0729_00_4.dat', 'calib7_29.m', 1, 1);
 %stitch together the file 
-%u = [u1;u2;u3;u4];
-u = [u1;u2];
+u = [u1;u2;u3;u4];
 fprintf('velocity extracted \n');
 
 %this is 1/ the sampling frequency
@@ -139,8 +138,9 @@ loglog(sepval,MASC,'o');
 %save
 
 %}
-
-matfile = fullfile(pathname, 'statscorr_14-07-15_gaussian_sigma4_rms30.mat');
+fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
+tic;
+matfile = fullfile(pathname, 'statscorr_g2g1_0729_00.mat');
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
@@ -159,7 +159,7 @@ save(matfile);
 %save('rms.txt','rmsvelocity','-append','-ascii');
 
 rmpath(pathname); 
-fprintf('  Done. \n');
+fprintf('  done in %.1f seconds.\n', round(10*toc)/10);
 %close all; 
 
 
