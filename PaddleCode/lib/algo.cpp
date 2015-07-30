@@ -1433,18 +1433,11 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << "Done! Starting grid motions" << endl;
 
     //timing:
-    timeval startTime;
-    timeval currentTime;
-    long usecElapsed;
-    gettimeofday(&startTime,0);
-    /*
-    timeval testtime; // declare a structure for holding the absolute time. This struct has a feild for seconds and a feild for the remaining microseconds. Update this struct (to represent the current time) by calling gettimeofday. Note: every second, the seconds feild increments and the microseconds feild is set to zero.
-    gettimeofday(&testtime,0); // initialize the testtime structure to hold the absolute time since January 1st 1970.
-    // note that if the microseconds feild of this timer reaches 1,000,000 then it resets because the seconds feild is incremented
-    long time_usec=0;          // initialize a time counter to 0. This counter will be used to go from 0 to 1 sec by .1 sec intervals
-    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0); */
-    // while the mircoseconds feild of the absolute time > 0.1sec, update the absolute time
-    // In otherwords, exit this loop once the absolute time has a number of usec less then 100,000
+    // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
+    timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
+    timeval currentTime; // declare a structure for holding the current time
+    long usecElapsed; // a varaible for holding the difference between currentTime and startTime
+    gettimeofday(&startTime,0); // initialize startTime with the current time
             
     // main loop: give angle orders
     while(0==0){
@@ -1505,9 +1498,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         
             //setposition of each servo:
 	    
-	    gettimeofday(&currentTime,0); // update the absolute time
-	    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
-	    if (usecElapsed > updatetimeinmus){
+	    gettimeofday(&currentTime,0); // set currentTime to hold the current time
+	    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec); // useconds elapsed since startTime
+	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
 		cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed << endl;
 		cout << "---Did not wait---------------------------------------------------------------\n\n\n";	       
 	    }
@@ -1515,13 +1508,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
 		assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
 	    }
 	    else {
-		while (usecElapsed < updatetimeinmus){
+		while (usecElapsed < updatetimeinmus){ // we need to wait
 		    gettimeofday(&currentTime,0);
 		    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
-		    /* This safety is not really necessary
-		       if (usecElapsed < 0)
-		       assert(0); // assert because timer overflowed
-		    */
 	   	}
 	    }
 	    
