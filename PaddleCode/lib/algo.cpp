@@ -316,13 +316,13 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
     
     // writing-on-file can be commented to save computational time
     // for plot-output-file
-    /*for(int row=1;row<12;row++){
+    for(int row=1;row<12;row++){
         for(int col=1;col<14;col++){
             if(grid.servo[col][row]!=0){
                 anglefile << "    " << newangle[col][row];}
         }
     }
-    anglefile << endl;*/
+    anglefile << endl;
     
     return 1;
 }
@@ -482,9 +482,9 @@ int algo::chaoticMovement(int combine, int constant, int option){
     float rms =0;
     
     anglefile.open("angleservo2.txt", ios::out | ios::trunc); // file to plot angles in function of time
-    for (int numero=0; numero < 129; numero++){
+    /*for (int numero=0; numero < 129; numero++){
         anglefile << "   Angle(" << numero << ")";}
-    anglefile << endl;
+    anglefile << endl;*/
     
     // takes a first random correlated sequence of angles with the same parameters
     // compute its rms value of angles, which will be used to keep the area constant
