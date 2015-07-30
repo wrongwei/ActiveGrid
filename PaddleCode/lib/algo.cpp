@@ -317,13 +317,13 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
     
     // writing-on-file can be commented to save computational time
     // for plot-output-file
-    for(int row=1;row<12;row++){
+    /*for(int row=1;row<12;row++){
         for(int col=1;col<14;col++){
             if(grid.servo[col][row]!=0){
                 anglefile << "    " << newangle[col][row];}
         }
     }
-    anglefile << endl;
+    anglefile << endl;*/
     
     return 1;
 }
@@ -483,9 +483,9 @@ int algo::chaoticMovement(int combine, int constant, int option){
     float rms =0;
     
     anglefile.open("angleservo2.txt", ios::out | ios::trunc); // file to plot angles in function of time
-    /*for (int numero=0; numero < 129; numero++){
+    for (int numero=0; numero < 129; numero++){
         anglefile << "   Angle(" << numero << ")";}
-    anglefile << endl;*/
+    anglefile << endl;
     
     // takes a first random correlated sequence of angles with the same parameters
     // compute its rms value of angles, which will be used to keep the area constant
@@ -1430,22 +1430,22 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     rms = compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf, upperTimeBound);
     correction = target_rms / rms; // correction factor
     cout << "Done! Correction factor is " << correction << endl << "Setting up timing..." << endl;
-    
+    cout << "Done! Starting grid motions" << endl;
+
     //timing:
     timeval startTime;
     timeval currentTime;
     long usecElapsed;
     gettimeofday(&startTime,0);
+    /*
     timeval testtime; // declare a structure for holding the absolute time. This struct has a feild for seconds and a feild for the remaining microseconds. Update this struct (to represent the current time) by calling gettimeofday. Note: every second, the seconds feild increments and the microseconds feild is set to zero.
     gettimeofday(&testtime,0); // initialize the testtime structure to hold the absolute time since January 1st 1970.
     // note that if the microseconds feild of this timer reaches 1,000,000 then it resets because the seconds feild is incremented
     long time_usec=0;          // initialize a time counter to 0. This counter will be used to go from 0 to 1 sec by .1 sec intervals
-    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0); 
+    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0); */
     // while the mircoseconds feild of the absolute time > 0.1sec, update the absolute time
     // In otherwords, exit this loop once the absolute time has a number of usec less then 100,000
-    
-    cout << "Done! Starting grid motions" << endl;
-        
+            
     // main loop: give angle orders
     while(0==0){
 
