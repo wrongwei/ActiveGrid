@@ -1,35 +1,46 @@
 % Client program for using Edecfit
 % This program takes data from multiple .mat workspaces, and extracts
 % necessary parameters for the Edecfit.m energy decay fit function
-% Written by Nathan Wei, 29 July 2015
+% Written by Nathan Wei, summer 2015
 % Dependencies: Edecfit.m
+
+% CAN WE JUST USE THE AVERAGE VOLTAGES GIVEN BY THE TXT FILES???
+
 clear all;
 close all;
 clc;
 
 % Where is the path?-----------------------------------------------------
-pathname = fileparts('/Users/nathan/Documents/Data/data28_07_15/');
+pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
 addpath(pathname); 
 tic;
 fprintf('Loading data from .mat files...');
 % which workspace stats do you want to load?
 % -----------------------------------------------------------------------
-files(1) = load('statscorr_28-07-15_g2corr_04ft.mat','MASvsm','u');
-files(2) = load('statscorr_28-07-15_g2corr_12ft.mat','MASvsm','u');
-files(3) = load('statscorr_28-07-15_g2corr_16ft.mat','MASvsm','u');
-files(4) = load('statscorr_28-07-15_g2corr_18ft.mat','MASvsm','u');
-files(5) = load('statscorr_28-07-15_g2corr_19ft.mat','MASvsm','u');
-files(6) = load('statscorr_28-07-15_g2corr_20ft.mat','MASvsm','u');
+files(1) = load('statscorr_g2g1_0729_00.mat','MASvsm','u');
+files(2) = load('statscorr_g2g1_0729_01.mat','MASvsm','u');
+files(3) = load('statscorr_g2g1_0729_02.mat','MASvsm','u');
+files(4) = load('statscorr_g2g1_0729_03.mat','MASvsm','u');
+files(5) = load('statscorr_g2g1_0729_04.mat','MASvsm','u');
+files(6) = load('statscorr_g2g1_0729_05.mat','MASvsm','u');
+files(7) = load('statscorr_g2g1_0729_06.mat','MASvsm','u');
+files(8) = load('statscorr_g2g1_0729_07.mat','MASvsm','u');
+files(9) = load('statscorr_g2g1_0729_08.mat','MASvsm','u');
+files(10) = load('statscorr_g2g1_0729_09.mat','MASvsm','u');
 % -----------------------------------------------------------------------
 
-% record distances (in meters) from active grid for each data set
+% record distances from active grid (in meters) for each data set
 % -----------------------------------------------------------------------
-dist(1) = 9.4 - 6.854;
-dist(2) = 9.4 - 6.5492;
-dist(3) = 9.4 - 6.2444;
-dist(4) = 9.4 - 5.6348;
-dist(5) = 9.4 - 4.4156;
-dist(6) = 9.4 - 1.9772;
+dist(1) = 1.6356;
+dist(2) = 1.764634032;
+dist(3) = 1.948293331;
+dist(4) = 2.209702958;
+dist(5) = 2.581777736;
+dist(6) = 3.111366651;
+dist(7) = 3.865151737;
+dist(8) = 4.938044201;
+dist(9) = 6.465134961;
+dist(10) = 8.638704324;
 % -----------------------------------------------------------------------
 
 % enter initial parameters for curve fit (suggested: 1 3 -1)

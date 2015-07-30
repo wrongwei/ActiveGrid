@@ -8,7 +8,7 @@
 pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
 addpath(pathname); 
 
-% which workspace stats do you want to load?/?????????
+% which workspace stats do you want to load??????????
 % -----------------------------------------------------------------------
 load statscorr_g2g1_0729_00.mat
 % -------------------------------------------------------------------

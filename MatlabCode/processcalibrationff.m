@@ -65,7 +65,7 @@ if (length(calibdata.T(channel, :)) > 1)
 end
 calibdata.E(channel, :) = calibdata.E(channel, I); 
 
-  % the relavant data: 
+  % the relevant data: 
 thisE = calibdata.E(channel, :); 
 
   % ---- apply temperature correction, if requested: 

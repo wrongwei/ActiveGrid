@@ -53,8 +53,8 @@ int  activegrid::setanglesII(double newangle[14][12]){
     
     // safety check: no more than 80 paddles should have angles in excess of 45 degrees
     if (count > 80) {
-        error(); // throw error method (below) and open grid
-        return -23; // flee in terror instead of setting potentially dangerous angles
+        error(); // throw error method (below)
+        return -23; // flee in terror rather than set potentially dangerous angles
     }
 
     for(int row=11;row>=1;row--){
@@ -174,6 +174,6 @@ void activegrid::showservomap(){
 int activegrid::error(){
     const char * header = "activegrid::error: ";
     cout << header << "Cannot set the required angles for safety reasons." << endl;
-    opengrid();
+    //opengrid();
     return -1;
 }
