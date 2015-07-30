@@ -1494,41 +1494,40 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             
             // compute new intermediate grid position, with steps necessary to attain it
             for (int row = 0; row < 11; row++) {
-		for(int col = 0; col < 13; col++){
-		    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
-			diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
-			if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
-			else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
-		    }
-		}
+                for(int col = 0; col < 13; col++){
+                    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
+                        diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                        if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                        else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
+                    }
+                }
             }
         
             //setposition of each servo:
 	    
-	    gettimeofday(&currentTime,0); // update the absolute time
-	    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
-	    if (usecElapsed > updatetimeinmus){
-		cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed << endl;
-		cout << "---Did not wait---------------------------------------------------------------\n\n\n";	       
-	    }
-	    else if (usecElapsed < 0){
-		assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
-	    }
-	    else {
-		while (usecElapsed < updatetimeinmus){
-		    gettimeofday(&currentTime,0);
-		    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
-		    /* This safety is not really necessary
-		       if (usecElapsed < 0)
-		       assert(0); // assert because timer overflowed
-		    */
-	   	}
-	    }
-	    
+            gettimeofday(&currentTime,0); // update the absolute time
+            usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
+            if (usecElapsed > updatetimeinmus){
+                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed << endl;
+                cout << "---Did not wait---------------------------------------------------------------\n\n\n";
+            }
+            else if (usecElapsed < 0){
+                assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
+            }
+            else {
+                while (usecElapsed < updatetimeinmus){
+                    gettimeofday(&currentTime,0);
+                    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
+                    /* This safety is not really necessary
+                     if (usecElapsed < 0)
+                     assert(0); // assert because timer overflowed
+                     */
+                }
+            }
+            // record the time when the loop started (for timing purposes)
+            gettimeofday(&startTime,0);
+            
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
-
-	    // record the time when the loop started (for timing purposes)
-	    gettimeofday(&startTime,0);
         }
         cout << endl;
     }
