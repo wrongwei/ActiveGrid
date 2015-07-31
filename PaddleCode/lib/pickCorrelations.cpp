@@ -142,24 +142,28 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
   // validate parameters
   assert (typeOfSpatialCorr > 0 && typeOfSpatialCorr <= 9);
   
-  if(typeOfSpatialCorr == 1)
-    return gaussianSpatialCorr;
+  if(typeOfSpatialCorr == 0)
+      return randomSpatialCorr; 
+  else if(typeOfSpatialCorr == 1)
+      return &gaussianSpatialCorr;
   else if(typeOfSpatialCorr == 2)
-    return &inverseSquareSpatialCorr;
+      return &inverseSquareSpatialCorr;
   else if(typeOfSpatialCorr == 3)
-    return &inverseCubeSpatialCorr;
+      return &inverseCubeSpatialCorr;
   else if(typeOfSpatialCorr == 4)
-    return &inverseQuarticSpatialCorr;
+      return &inverseQuarticSpatialCorr;
   else if(typeOfSpatialCorr == 5)
-    return &topHatSpatialCorr;
+      return &topHatSpatialCorr;
   else if(typeOfSpatialCorr == 6)
-    return &trueTopHatSpatialCorr;
+      return &trueTopHatSpatialCorr;
   else if(typeOfSpatialCorr == 7)
-    return &trueTopHatSpatialCorr;
+      return &trueTopHatSpatialCorr;
   else if(typeOfSpatialCorr == 8)
-  return &topHatLongTailSpatialCorr;
-  else
+      return &topHatLongTailSpatialCorr;
+  else if(typeOfSpatialCorr == 9)
     return &triangleSpatialCorr;
+  else if(typeOfSpatialCorr == 10)
+    return &unsharpSpatialCorr;
   
   // should never reach this point
   assert(1);
@@ -193,8 +197,10 @@ float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, 
     return &trueTopHatRandomTemporalCorr;
   else if(typeOfTemporalCorr == 8)
     return &topHatLongTailTemporalCorr;
-  else
+  else if(typeOfTemporalCorr == 9)
     return &triangleTemporalCorr;
+  else if(typeOfTemporalCorr == 10)
+    return &unsharpTemporalCorr;
   
   // should never reach this point
   assert(1);
