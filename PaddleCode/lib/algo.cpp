@@ -18,6 +18,9 @@
 #include <time.h>
 #include <curses.h>
 
+int outOfBoundsCount = 0; // for info messages in menuII
+int numberOfAnglesSet = 0;
+
 // modulo function with NON NEGATIVE remainder
 inline int algo::modulo(int numerator, int denominator){
     int remainder;
@@ -1399,7 +1402,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // Normalization calculations (complicated because different correlation functions have different methods for normalization)
     norm = 0; // master norm parameter that's accessible/used from runcorr_3D
     float bound;
-    if (typeOfSpatialCorr <= 4) bound = range_of_corr;
+    if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
     if (typeOfSpatialCorr == 8) spatial_sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     if (typeOfTemporalCorr == 8) temporal_sigma = alpha; // same rationale as above
@@ -1447,14 +1450,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         // store necessary servo speeds after carrying out safety checks
         for (int row = 0; row < 11; row++) {
             for (int col = 0; col < 13; col++){
+                numberOfAnglesSet++; // total number of paddles moved, since the beginning of time (global variable)
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
                 if (newslice[col][row]>90) newslice[col][row]=90;
                 else if (newslice[col][row]<-90) newslice[col][row]=-90;
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
-                if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
+                if (fabs(amplitude)/(max_speed) > SPACING) {
                     cout << "Constraining (" << col << ", " << row << ") ";
+                    outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
                     else if (amplitude < 0) step_size[col][row] = -max_speed;
                 }
