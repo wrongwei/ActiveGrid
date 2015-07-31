@@ -61,16 +61,16 @@ char * myLoaf = NULL;
 // CTRL-C that memory is freed before the program is terminated
 // If you want to terminate the program immediately, type CTRL-backslash
 static void mySignalHandler(int iSignal){
-  // Free any used memory
-  cout << "\nFreeing memory in use\n";
-  if (myLoaf != NULL){
-    free(myLoaf);
-  }
-  
-  // Kill the program
-  cout << "Killing program by sending the signal SIGKILL, which equals 9. ";
-  fflush(NULL);
-  raise(SIGKILL);
+    // Free any used memory
+    cout << "\nFreeing memory in use\n";
+    if (myLoaf != NULL){
+        free(myLoaf);
+    }
+    
+    // Kill the program
+    cout << "Killing program by sending the signal SIGKILL, which equals 9. ";
+    fflush(NULL);
+    raise(SIGKILL);
 }
 
 /*--------------------------------------------------------------------*/
@@ -91,7 +91,7 @@ int main (int argc , char * const argv[]) {
     if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
     iRet = sigprocmask(SIG_UNBLOCK, &sSet, NULL);
     if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
-
+    
     // Install mySignalHandler as the handler for CTRL-C signals.
     pfRet = signal(SIGINT, mySignalHandler);
     if (pfRet == SIG_ERR) {perror(argv[0]); exit(EXIT_FAILURE); }
@@ -101,81 +101,81 @@ int main (int argc , char * const argv[]) {
     cout << "This is the program to run the software of the activegrid." << endl;
     
     while(i!=0){
-      cout << "Menu:\n"
-	" 1 - see current angle configuration\n"
-	" 2 - see current servo map\n"
-	" 3 - open the grid\n\n"
-	" 4 - set all servos to the same angle\n"
-	" 5 - set one certain servo to one certain angle\n"
-	" 6 - set one col to one certain angle\n"
-	" 7 - set one row to one certain angle\n"
-	" 8 - close row 1-5 and open 6-11\n"
-	" 9 - get angle of one servo\n\n"
-	" 10 - all periodic\n"
-	" 11 - chaotic 1 (piecewise periodic)\n"
-	" 12 - chaotic 2 (random)\n"
-	" 13 - chaotic correlated\n"
-	" 14 - chaotic correlated (2 alternating amplitudes)\n"
-	" 15 - chaotic correlated (periodic pattern)\n\n"
-	" 16 - chaotic correlated in space and correlated in time\n\n"
-	" 17 - test the paddles by opening and closing each row and then each column\n\n"
-	" 18 - set boundary paddles to constant angle\n\n"
-	" 19 - test loaf object\n\n"
-	" 20 - end program\n\n";
-      cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
-      cin >> choice;
-      cout << "your choice is  " << choice << "\n";
-    
-      if((int)choice==1){
-	alg.grid.showallangles();
-      }
-      
-      else if((int)choice==2){
-	alg.grid.showservomap();
-      }
-    
-      else if((int)choice==3){
-	alg.grid.opengrid();
-      }
-    
-      else if((int)choice==4){
-	double angle=0;
-	cout << "Angle? (-90 - 90)";
-	cin >> angle;
-	angle=angle_check(angle);
-	cout << endl;
-	alg.setsameangletoallservos(angle);
-      }
+        cout << "Menu:\n"
+        " 1 - see current angle configuration\n"
+        " 2 - see current servo map\n"
+        " 3 - open the grid\n\n"
+        " 4 - set all servos to the same angle\n"
+        " 5 - set one certain servo to one certain angle\n"
+        " 6 - set one col to one certain angle\n"
+        " 7 - set one row to one certain angle\n"
+        " 8 - close row 1-5 and open 6-11\n"
+        " 9 - get angle of one servo\n\n"
+        " 10 - all periodic\n"
+        " 11 - chaotic 1 (piecewise periodic)\n"
+        " 12 - chaotic 2 (random)\n"
+        " 13 - chaotic correlated\n"
+        " 14 - chaotic correlated (2 alternating amplitudes)\n"
+        " 15 - chaotic correlated (periodic pattern)\n\n"
+        " 16 - chaotic correlated in space and correlated in time\n\n"
+        " 17 - test the paddles by opening and closing each row and then each column\n\n"
+        " 18 - set boundary paddles to constant angle\n\n"
+        " 19 - test loaf object\n\n"
+        " 20 - end program\n\n";
+        cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
+        cin >> choice;
+        cout << "your choice is  " << choice << "\n";
         
-      else if((int)choice==5){
-	int row=0;
-	int col=0;
-	double angle=0;
-	cout << "Col? (1-13)";
-	cin >> col;
-	cout << endl;
-	cout << "Row? (1-11)";
-	cin >> row;
-	cout << endl;
-	cout << "Angle? (-90 - 90)";
-	cin >> angle;
-	angle=angle_check(angle);
-	cout << endl;
-	alg.setangleofoneservo(col,row,angle);
-      }
+        if((int)choice==1){
+            alg.grid.showallangles();
+        }
         
-      else if((int)choice==6){
-	int col=0;
-	double angle=0;
-	cout << "Col? (1-13)";
-	cin >> col;
-	cout << endl;
-	cout << "Angle? (-90 - 90)";
-	cin >> angle;
-	angle=angle_check(angle);
-	cout << endl;
-	alg.setanglesofonecolumn(col,angle);
-      }
+        else if((int)choice==2){
+            alg.grid.showservomap();
+        }
+        
+        else if((int)choice==3){
+            alg.grid.opengrid();
+        }
+        
+        else if((int)choice==4){
+            double angle=0;
+            cout << "Angle? (-90 - 90)";
+            cin >> angle;
+            angle=angle_check(angle);
+            cout << endl;
+            alg.setsameangletoallservos(angle);
+        }
+        
+        else if((int)choice==5){
+            int row=0;
+            int col=0;
+            double angle=0;
+            cout << "Col? (1-13)";
+            cin >> col;
+            cout << endl;
+            cout << "Row? (1-11)";
+            cin >> row;
+            cout << endl;
+            cout << "Angle? (-90 - 90)";
+            cin >> angle;
+            angle=angle_check(angle);
+            cout << endl;
+            alg.setangleofoneservo(col,row,angle);
+        }
+        
+        else if((int)choice==6){
+            int col=0;
+            double angle=0;
+            cout << "Col? (1-13)";
+            cin >> col;
+            cout << endl;
+            cout << "Angle? (-90 - 90)";
+            cin >> angle;
+            angle=angle_check(angle);
+            cout << endl;
+            alg.setanglesofonecolumn(col,angle);
+        }
         
         else if((int)choice==7){
             int row=0;
@@ -478,79 +478,75 @@ int main (int argc , char * const argv[]) {
         }
         
         // correlated in space and time routine
-        
-        // ERROR!!!
-        // RIGHT NOW THIS FUNCTION DOES EXACTLY WHAT CHOICE 15 DOES.
-        // NEED TO CHANGE IT TO ACTUALLY DO THE CORRELATION IN TIME
         else if((int)choice==16){
             int constantArea = 0;
             float spatial_sigma = 0;
             float temporal_sigma = 0;
-	    float alpha = 0;
-	    double height;
+            float alpha = 0;
+            double height;
             int typeOfSpatialCorr = 0;
             int typeOfTemporalCorr = 0;
             float target_rms = 0;
             int numberOfSlices = 0;
-
-	    // CorrParameters temporalCorrParam;
-	    // CorrParameters spatialCorrParam;
-
+            
+            // CorrParameters temporalCorrParam;
+            // CorrParameters spatialCorrParam;
+            
             cout << "Choose the spatial correlation function: \n"
-		" 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		" 5 - Top hat \n"
-		//" 6 - True top hat with a fixed main paddle \n"
-		//" 7 - True top hat with a random main paddle \n"
-		" 8 - Top hat with a long tail \n"
-		" 9 - Triangle\n";
+            " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+            " 5 - Top hat \n"
+            //" 6 - True top hat with a fixed main paddle \n"
+            //" 7 - True top hat with a random main paddle \n"
+            " 8 - Top hat with a long tail \n"
+            " 9 - Triangle\n";
             cin >> typeOfSpatialCorr;
             while (typeOfSpatialCorr > 9 || typeOfSpatialCorr < 1 ||
-		   typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7){
+                   typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the spatial correlation function: \n"
-		    " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		    " 5 - Top hat \n"
-		    //" 6 - True top hat with a fixed main paddle \n"
-		    //" 7 - True top hat with a random main paddle \n"
-		    " 8 - Top hat with a long tail \n"
-		    " 9 - Triangle\n";
-		cin >> typeOfSpatialCorr;
+                " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+                " 5 - Top hat \n"
+                //" 6 - True top hat with a fixed main paddle \n"
+                //" 7 - True top hat with a random main paddle \n"
+                " 8 - Top hat with a long tail \n"
+                " 9 - Triangle\n";
+                cin >> typeOfSpatialCorr;
             }
             
             if (typeOfSpatialCorr == 1){
                 cout << "Spatial Sigma? ";
                 cin >> spatial_sigma;
             }
-	    if (typeOfSpatialCorr == 5 || typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7 ||
-		typeOfSpatialCorr == 8 || typeOfSpatialCorr == 9 ){
-	      cout << "Spatial Sigma? "; //Rename?
+            if (typeOfSpatialCorr == 5 || typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7 ||
+                typeOfSpatialCorr == 8 || typeOfSpatialCorr == 9 ){
+                cout << "Spatial Sigma? "; //Rename?
                 cin >> spatial_sigma;
             }
             if (typeOfSpatialCorr == 8){
-		cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
-		cin >> alpha;
-		cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
-		cin >> height;
-	    }
+                cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
+                cin >> alpha;
+                cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
+                cin >> height;
+            }
             
             cout << "Choose the temporal correlation function: \n"
-		" 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		" 5 - Top hat \n"
-		//" 6 - True top hat with a fixed main paddle \n"
-		//" 7 - True top hat with a random main paddle \n"
-		" 8 - Top hat with a long tail \n"
-		" 9 - Triangle\n";
+            " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+            " 5 - Top hat \n"
+            //" 6 - True top hat with a fixed main paddle \n"
+            //" 7 - True top hat with a random main paddle \n"
+            " 8 - Top hat with a long tail \n"
+            " 9 - Triangle\n";
             cin >> typeOfTemporalCorr;
             while (typeOfTemporalCorr > 9 || typeOfTemporalCorr < 1 ||
-		   typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
+                   typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the temporal correlation function: \n"
-		    " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-		    " 5 - Top hat \n"
-		    //" 6 - True top hat with a fixed main paddle \n"
-		    //" 7 - True top hat with a random main paddle \n"
-		    " 8 - Top hat with a long tail \n"
-		    " 9 - Triangle\n";
+                " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+                " 5 - Top hat \n"
+                //" 6 - True top hat with a fixed main paddle \n"
+                //" 7 - True top hat with a random main paddle \n"
+                " 8 - Top hat with a long tail \n"
+                " 9 - Triangle\n";
                 cin >> typeOfTemporalCorr;
             }
             
@@ -558,18 +554,18 @@ int main (int argc , char * const argv[]) {
                 cout << "Temporal Sigma? ";
                 cin >> temporal_sigma;
             }
-	    if (typeOfTemporalCorr == 5 || typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7 ||
-		typeOfTemporalCorr == 8 || typeOfTemporalCorr == 9 ){
-	      cout << "Temporal Sigma? "; //Rename?
-	      cin >> temporal_sigma;
+            if (typeOfTemporalCorr == 5 || typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7 ||
+                typeOfTemporalCorr == 8 || typeOfTemporalCorr == 9 ){
+                cout << "Temporal Sigma? "; //Rename?
+                cin >> temporal_sigma;
             }
-
-	    if (typeOfTemporalCorr == 8){
-		cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
-		cin >> alpha;
-		cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
-		cin >> height;
-	    }
+            
+            if (typeOfTemporalCorr == 8){
+                cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
+                cin >> alpha;
+                cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
+                cin >> height;
+            }
             
             cout << "rms of angles? (0->36 degrees) ";
             cin >> target_rms;
@@ -591,21 +587,27 @@ int main (int argc , char * const argv[]) {
                 cin >> constantArea;
             }
             
-                        
-	    cout << "What is the range of correlation in the temporal"
-	      " dimension?\nIn other words, how many time-steps should the temporal"
-	      " kernel encompass?\n(Note: one time-step is equal to five grid positions)" << endl;
-	    cin >> numberOfSlices;
-	    while (numberOfSlices <= 0){
-	      cout << "Choose an integer greater than zero!" << endl;
-	      cin >> numberOfSlices;
-	    }
+            // calculate width of temporal kernel (number of time-slices to analyze at a time)
+            if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
+                numberOfSlices = (6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
+            }
+            else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
+                cout << "How many time-slices should the temporal kernel include? (number must be odd) ";
+                cin >> numberOfSlices;
+                while (numberOfSlices <= 0 || numberOfSlices % 2 == 0) { // input must be odd and > 0 so we can define a middle slice and have nice symmetry
+                    cout << "Input must be an odd integer greater than zero!" << endl;
+                    cin >> numberOfSlices;
+                }
+            }
+            else { // top hats, triangle, etc. - decay very rapidly outside of one standard deviation
+                numberOfSlices = (4 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
+            }
+            cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\n(Note: one time-step is equal to 2 grid positions)" << endl;
             
-	    cout << "\nPreliminary computations in progress,"
-	      " the grid will move soon.\n" << endl;
-
-	    alg.correlatedMovement_correlatedInTime(constantArea, temporal_sigma, temporal_sigma, alpha, height, typeOfTemporalCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
-        } 
+            cout << "\nInitializing preliminary computations...\n" << endl;
+            
+            alg.correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, alpha, height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
+        }
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
          one at a time */
@@ -614,7 +616,7 @@ int main (int argc , char * const argv[]) {
             int NUMBER_OF_COLUMNS = 13;
             double openAngle = 0;
             double closedAngle = 90;
-	    double closedAngle2 = -90;
+            double closedAngle2 = -90;
             int i; //column counter
             int j; // row counter
             
@@ -657,11 +659,11 @@ int main (int argc , char * const argv[]) {
             alg.setanglesofonerow(topRow,topAngle);
             alg.setanglesofonerow(bottomRow,bottomAngle);   
         }
-
-	else if((int)choice==19){
-	  testloaf();
-	  i = 0;
-	}
+        
+        else if((int)choice==19){
+            testloaf();
+            i = 0;
+        }
         
         else if((int)choice>=20 || choice<=0) i=0;
     }

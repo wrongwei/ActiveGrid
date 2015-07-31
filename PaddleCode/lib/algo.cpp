@@ -1,7 +1,7 @@
 /*
  Library to create sets of angles and angular speeds, in order to give to the grid a specific motion.
  
-There are a lot of functions, but also a lot of possible motions.
+ There are a lot of functions, but also a lot of possible motions.
  
  The functions setanglesII and setspeeds are called from activegrid, and transform the sets of values (computed in algo) into orders for the grid.
  
@@ -58,10 +58,10 @@ int  algo::setsamespeedtoallservos(double angleperstep){
     for(int row=0;row<12;row++){
         for(int col=0;col<14;col++){
             if(grid.servo[col][row]!=0){
-				newangleperstep[col][row]=angleperstep;
+                newangleperstep[col][row]=angleperstep;
             }
             else{
-				newangleperstep[col][row]=0;
+                newangleperstep[col][row]=0;
             }
         }
     }
@@ -166,7 +166,7 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
                         else count++;
                     }
                 }
-
+                
                 if (combine==3) {
                     if (row%4==1) {
                         if (col%3==0) {
@@ -219,9 +219,9 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
                         if (col==13) row++;
                     }
                 }
-                               
+                
                 if(combine==4 || combine==8){
-                        
+                    
                     newangle[col][row+1]=positions[count];
                     if(combine==8) newangle[col][row+1]=-positions[count];
                     newangleperstep[col][row+1]=anglesteps[count];
@@ -291,7 +291,7 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
                     }
                 }
                 if (combine==3) {
-		  if ((row==1 && col==13) || (row==9 && col==13)) {
+                    if ((row==1 && col==13) || (row==9 && col==13)) {
                         newangle[col][row]=Fictive;
                         newangleperstep[col][row]=0;
                         row++;
@@ -311,19 +311,19 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
         }
     }
     if(constant==1) {area(newangle, rms);}
-
+    
     grid.setspeeds(newangleperstep);
     grid.setanglesII(newangle);
     
     // writing-on-file can be commented to save computational time
     // for plot-output-file
     /*for(int row=1;row<12;row++){
-        for(int col=1;col<14;col++){
-            if(grid.servo[col][row]!=0){
-                anglefile << "    " << newangle[col][row];}
-        }
-    }
-    anglefile << endl;*/
+     for(int col=1;col<14;col++){
+     if(grid.servo[col][row]!=0){
+     anglefile << "    " << newangle[col][row];}
+     }
+     }
+     anglefile << endl;*/
     
     return 1;
 }
@@ -352,17 +352,17 @@ int algo::setanglestoallservosII(float * positions, float * anglesteps, int cons
     }
     
     if(constant==1) {area(newangle, rms);}
-
+    
     grid.setspeeds(newangleperstep);
     grid.setanglesII(newangle);
     
     // writing-on-file removed for space; see above method for angle-writing code
     
-     // write all angles to file
-     for(int i = 0; i < 143; i++){
-            anglefile << "    " << positions[i];
-     }
-     anglefile << endl;
+    // write all angles to file
+    for(int i = 0; i < 143; i++){
+        anglefile << "    " << positions[i];
+    }
+    anglefile << endl;
     
     return 1;
 }
@@ -470,7 +470,7 @@ int algo::allperiodic(double angle, double frequency){
             setsamespeedtoallservos(angleperstep);
             
         }
-    } 
+    }
     
     
     return 0;
@@ -479,7 +479,7 @@ int algo::allperiodic(double angle, double frequency){
 
 // give a chaotic movement to the paddles. Combinations between paddles are possible
 int algo::chaoticMovement(int combine, int constant, int option){
-
+    
     float rms =0;
     
     anglefile.open("angleservo2.txt", ios::out | ios::trunc); // file to plot angles in function of time
@@ -570,21 +570,21 @@ float algo::compute_rms(int option){
 
 // reads the contents of positions and steps, put the value stored at actualposition in vector in actpos and actstep, and actualpositioninvector++
 void algo::run(float actpos[], float actstep[], int option){
-	for(int i=0;i<numberOfServos;i++){
-		//get current positions:
-		if(positions_random[i].at(actualpositioninvector[i])!=-100){
-			actpos[i]=positions_random[i].at(actualpositioninvector[i]);
-			actstep[i]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
-		}
-		else{ // compute the next steps
-			if (option==1) updateOneWing(i); // for piecewise periodic motion (choice 11)
+    for(int i=0;i<numberOfServos;i++){
+        //get current positions:
+        if(positions_random[i].at(actualpositioninvector[i])!=-100){
+            actpos[i]=positions_random[i].at(actualpositioninvector[i]);
+            actstep[i]=steps_random[i].at(actualpositioninvector[i]);
+            actualpositioninvector[i]++;
+        }
+        else{ // compute the next steps
+            if (option==1) updateOneWing(i); // for piecewise periodic motion (choice 11)
             else updateOneWing2(i); // for random motion (choice 12)
-			actpos[i]=positions_random[i].at(actualpositioninvector[i]);
-			actstep[i]=steps_random[i].at(actualpositioninvector[i]);
-			actualpositioninvector[i]++;
-		}
-	}
+            actpos[i]=positions_random[i].at(actualpositioninvector[i]);
+            actstep[i]=steps_random[i].at(actualpositioninvector[i]);
+            actualpositioninvector[i]++;
+        }
+    }
 }
 
 
@@ -592,64 +592,64 @@ void algo::run(float actpos[], float actstep[], int option){
 
 // generates a piecewise periodic random sequence of orders for one paddle and store them in positions and steps.
 void algo::updateOneWing(int WingNumber){
-	//clear positions:
-	positions_random[WingNumber].clear();
-	steps_random[WingNumber].clear();
+    //clear positions:
+    positions_random[WingNumber].clear();
+    steps_random[WingNumber].clear();
     
-	//calculate randomly speed and maximum amplitude for next step
-	speed=(((float)rand()/RAND_MAX)*(max_speed-min_speed))+min_speed;
-	amplitude=(((float)rand()/RAND_MAX)*(max_amplitude-min_amplitude))+min_amplitude;
-	
-	//it might occur that the calculated speed is higher than the maximum amplitude. In this case the speed is adapted to the amplitude to avoid errors.
-	if (speed > amplitude) speed=amplitude;
-	
-	//calculate frequency for user:
-	frequency=5*speed/(2*amplitude);
-	//cout << frequency << endl;
-	
-	//calculate posisitons:
-	double actualangle=0;
-	int sign=+1;
-	
-	//entire sequence for one servo is calculated including positions and steps
-	for(int k=0;k<(int)(floor((4*amplitude/speed)+0.5));k++){ //Total number of steps
-		if((actualangle+speed)>=(amplitude)){
-			sign=-1;
-			actualangle=amplitude - (speed-(amplitude-actualangle));
-		}
-		if((actualangle-speed)<=(amplitude*(-1))){
-			actualangle=(-1)*(amplitude-(speed-(amplitude+actualangle)));
-			sign=+1;
-		}
-		if(actualangle>(amplitude*(-1)) && actualangle<(amplitude)){
-			actualangle+=speed*sign;
-		}
-		//cout << actualangle << ", ";
-		if(positions_random[WingNumber].size()>0){
-			if(positions_random[WingNumber].at(positions_random[WingNumber].size()-1)<0 && actualangle>0) break;
-			else {
-				positions_random[WingNumber].push_back(actualangle);
-				steps_random[WingNumber].push_back(speed);
-			}
-		}
-		else{
-			positions_random[WingNumber].push_back(actualangle);
-			steps_random[WingNumber].push_back(speed);
-		}
-	}
-	//cout << endl;
-	//end:
-	positions_random[WingNumber].push_back(-100);
-	steps_random[WingNumber].push_back(-100);
-	actualpositioninvector[WingNumber]=0;
+    //calculate randomly speed and maximum amplitude for next step
+    speed=(((float)rand()/RAND_MAX)*(max_speed-min_speed))+min_speed;
+    amplitude=(((float)rand()/RAND_MAX)*(max_amplitude-min_amplitude))+min_amplitude;
+    
+    //it might occur that the calculated speed is higher than the maximum amplitude. In this case the speed is adapted to the amplitude to avoid errors.
+    if (speed > amplitude) speed=amplitude;
+    
+    //calculate frequency for user:
+    frequency=5*speed/(2*amplitude);
+    //cout << frequency << endl;
+    
+    //calculate posisitons:
+    double actualangle=0;
+    int sign=+1;
+    
+    //entire sequence for one servo is calculated including positions and steps
+    for(int k=0;k<(int)(floor((4*amplitude/speed)+0.5));k++){ //Total number of steps
+        if((actualangle+speed)>=(amplitude)){
+            sign=-1;
+            actualangle=amplitude - (speed-(amplitude-actualangle));
+        }
+        if((actualangle-speed)<=(amplitude*(-1))){
+            actualangle=(-1)*(amplitude-(speed-(amplitude+actualangle)));
+            sign=+1;
+        }
+        if(actualangle>(amplitude*(-1)) && actualangle<(amplitude)){
+            actualangle+=speed*sign;
+        }
+        //cout << actualangle << ", ";
+        if(positions_random[WingNumber].size()>0){
+            if(positions_random[WingNumber].at(positions_random[WingNumber].size()-1)<0 && actualangle>0) break;
+            else {
+                positions_random[WingNumber].push_back(actualangle);
+                steps_random[WingNumber].push_back(speed);
+            }
+        }
+        else{
+            positions_random[WingNumber].push_back(actualangle);
+            steps_random[WingNumber].push_back(speed);
+        }
+    }
+    //cout << endl;
+    //end:
+    positions_random[WingNumber].push_back(-100);
+    steps_random[WingNumber].push_back(-100);
+    actualpositioninvector[WingNumber]=0;
 }
 
 
 // generates a "totally" random sequence of angles for one paddle and store orders (angles and speeds) in positions and steps.
 void algo::updateOneWing2(int WingNumber){
-	//clear positions:
-	positions_random[WingNumber].clear();
-	steps_random[WingNumber].clear();
+    //clear positions:
+    positions_random[WingNumber].clear();
+    steps_random[WingNumber].clear();
     
     //calculate positions:
     double actualangle;
@@ -658,55 +658,55 @@ void algo::updateOneWing2(int WingNumber){
     
     actualangle=old_angle[WingNumber];
     
-	//calculate randomly angle for next step
-	new_angle[WingNumber]=(((float)rand()/RAND_MAX)*(max_angle-min_angle))+min_angle;
-	
+    //calculate randomly angle for next step
+    new_angle[WingNumber]=(((float)rand()/RAND_MAX)*(max_angle-min_angle))+min_angle;
+    
     // calculate the amplitude between the old and the new angles
     Amplitude = new_angle[WingNumber] - old_angle[WingNumber];
-	
+    
     // calculate the number of steps necessary to go through the amplitude range without exceeding maximal speed
     nbofsteps = (1 + floor(fabs(Amplitude)/max_speed));
     
     // compute speed
     speed = Amplitude/(nbofsteps);
     
-	//entire sequence for one servo is calculated including positions and steps
-	for(int k=0;k< nbofsteps ;k++){ //Total number of steps
+    //entire sequence for one servo is calculated including positions and steps
+    for(int k=0;k< nbofsteps ;k++){ //Total number of steps
         actualangle += speed;
-    
+        
         positions_random[WingNumber].push_back(actualangle);
         steps_random[WingNumber].push_back(speed);
-	}
-	//cout << endl;
-	//end:
-	positions_random[WingNumber].push_back(-100);
-	steps_random[WingNumber].push_back(-100);
-	actualpositioninvector[WingNumber]=0;
+    }
+    //cout << endl;
+    //end:
+    positions_random[WingNumber].push_back(-100);
+    steps_random[WingNumber].push_back(-100);
+    actualpositioninvector[WingNumber]=0;
     old_angle[WingNumber]=new_angle[WingNumber]; // == actualangle
 }
 
 
 // chaotic motion with correlation between paddles
 int algo::correlatedMovement(int constant, float sigma, float alpha, double height, int mode, int mrow, int mcol, float target_rms){
-
+    
     float rms;
     float correction=1;
     int i=0;
     
     // file header for just the angles that get sent to actual servos
     /* anglefile.open("angleservo2.txt", ios::out | ios::trunc); // file to plot angles in function of time
-    for (int numero=0; numero < 129; numero++){
-        anglefile << "   Angle(" << numero << ")";
-    }
-    anglefile << endl; */
-
+     for (int numero=0; numero < 129; numero++){
+     anglefile << "   Angle(" << numero << ")";
+     }
+     anglefile << endl; */
+    
     // file header for all angles
     // file to plot angles in function of time
     anglefile.open("angleservo_cM.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 143; numero++){
-        anglefile << "   Angle(" << numero << ")";
-    }
-    anglefile << endl;*/
+     anglefile << "   Angle(" << numero << ")";
+     }
+     anglefile << endl;*/
     
     // Declare function pointers for the spatial correlation functions
     float (*pfCorr)(int j, int k, float sigma, float height);
@@ -724,12 +724,12 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
             norm1 += pfCorr(j, k, sigma, height);
         }
     }
-
+    
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
     rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol);
-
+    
     
     correction=target_rms/rms; // correction factor
     
@@ -741,7 +741,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
         old_steps[i]=0;
         err[i]=0;
     }
-
+    
     //timing:
     timeval testtime;
     gettimeofday(&testtime,0); // writes the time into the feilds of the structure named testtime
@@ -781,7 +781,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
 // take a random sequence and computes its std dev. It's useful for the correction coefficent that
 // is needed to give to the output the desired rms value of angles.
 float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol){
-
+    
     float control_positions[numberOfServos][4000];
     float mean=0;
     float rms=0;
@@ -819,15 +819,15 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     float interpos[13][11]; // arrays storing the intermediate computed values before convolution
     //float interstep[13][11]; // unused
     
-	for(int i=0;i<numberOfServos;i++){
-		//get current positions:
-		if(positions_random[i].at(actualpositioninvector[i])==-100){
-			updateOneWing2(i);
-		}
+    for(int i=0;i<numberOfServos;i++){
+        //get current positions:
+        if(positions_random[i].at(actualpositioninvector[i])==-100){
+            updateOneWing2(i);
+        }
         interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
-	}
+    }
     // Declare function pointers for the spatial correlation functions
     float (*pfCorr)(int j, int k, float sigma, float height);
     pfCorr = pickSpatialCorr(mode);
@@ -936,107 +936,107 @@ void algo::safety_check(float actpos[], float actstep[], float err[], bool isGau
 
 // function to keep the projected area of the grid constant
 void algo::area(double actpos[14][12], float rms) {
-	//second attempt to keep the projected area constant
-	angle_constant_area = 129 * (100*sin((rms/1.22) * (M_PI / 180))); // 24.4779
-	double projected_area=0;
-	//T_1 and T_2 are coefficients that need to be calculated
-	double T_1=0;
-	double T_2=0;
-	double theta_correct;
-	for (int row=1; row<12; row++) {
-		for (int col=1; col<14; col++) {
-			if (actpos[col][row]!=Fictive) {
-				T_1 += fabs(sin(actpos[col][row] * M_PI / 180));
-				T_2 += fabs(cos(actpos[col][row] * M_PI / 180));
-			}
-		}
-	}
-	//cout << "T_1 :" << T_1 << "  T_2 :" << T_2 << endl;
-	//cout << "constant area :" << angle_constant_area << endl;
-	//theta_correct is the correction angle for all servos to keep the projected area constant
-	theta_correct = (asin(angle_constant_area / 100 / sqrt(pow(T_1,2) + pow(T_2,2))) + atan(T_2/T_1) - M_PI/2)/M_PI*180;
-	//cout << theta_correct << endl;
-	//calculate the projected area before correction
-	for (int row=1; row<12; row++) {
-		for (int col=1; col<14; col++) {
-			if (actpos[col][row]!=Fictive) {
-				projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
-			}
-			//cout << j << "  before:" << "actpos: " << actpos[j] << endl;
-		}
-	}
-	//cout << "old projected area: " << projected_area << endl;
-	//apply correction for current step
-	for (int row=1; row<12; row++) {
-		for (int col=1; col<14; col++) {
-			if (actpos[col][row]!=Fictive) {
-				if (actpos[col][row]<0) {
-					actpos[col][row]-=theta_correct;
-					if (actpos[col][row]>0) actpos[col][row]=0;
-				}
-				else {
-					actpos[col][row]+=theta_correct;
-					if (actpos[col][row]<0) actpos[col][row]=0;
-				}
-			}
-		}
-		
-	}
+    //second attempt to keep the projected area constant
+    angle_constant_area = 129 * (100*sin((rms/1.22) * (M_PI / 180))); // 24.4779
+    double projected_area=0;
+    //T_1 and T_2 are coefficients that need to be calculated
+    double T_1=0;
+    double T_2=0;
+    double theta_correct;
+    for (int row=1; row<12; row++) {
+        for (int col=1; col<14; col++) {
+            if (actpos[col][row]!=Fictive) {
+                T_1 += fabs(sin(actpos[col][row] * M_PI / 180));
+                T_2 += fabs(cos(actpos[col][row] * M_PI / 180));
+            }
+        }
+    }
+    //cout << "T_1 :" << T_1 << "  T_2 :" << T_2 << endl;
+    //cout << "constant area :" << angle_constant_area << endl;
+    //theta_correct is the correction angle for all servos to keep the projected area constant
+    theta_correct = (asin(angle_constant_area / 100 / sqrt(pow(T_1,2) + pow(T_2,2))) + atan(T_2/T_1) - M_PI/2)/M_PI*180;
+    //cout << theta_correct << endl;
+    //calculate the projected area before correction
+    for (int row=1; row<12; row++) {
+        for (int col=1; col<14; col++) {
+            if (actpos[col][row]!=Fictive) {
+                projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
+            }
+            //cout << j << "  before:" << "actpos: " << actpos[j] << endl;
+        }
+    }
+    //cout << "old projected area: " << projected_area << endl;
+    //apply correction for current step
+    for (int row=1; row<12; row++) {
+        for (int col=1; col<14; col++) {
+            if (actpos[col][row]!=Fictive) {
+                if (actpos[col][row]<0) {
+                    actpos[col][row]-=theta_correct;
+                    if (actpos[col][row]>0) actpos[col][row]=0;
+                }
+                else {
+                    actpos[col][row]+=theta_correct;
+                    if (actpos[col][row]<0) actpos[col][row]=0;
+                }
+            }
+        }
+        
+    }
     
     // check if there is no angle angle greater than 90 degrees, correct them if necessary
     for (int row=1; row<12; row++) {
-		for (int col=1; col<14; col++) {
-			if (actpos[col][row]!=Fictive) {
-				if (actpos[col][row]>90) actpos[col][row]=90;
+        for (int col=1; col<14; col++) {
+            if (actpos[col][row]!=Fictive) {
+                if (actpos[col][row]>90) actpos[col][row]=90;
                 else if (actpos[col][row]<-90) actpos[col][row]=-90;
-			}
-		}
-	}
-
+            }
+        }
+    }
     
     
-	//calculate the projected area after application of the correction
-	projected_area=0;
-	for (int row=1; row<12; row++) {
-		for (int col=1; col<14; col++) {
-			if (actpos[col][row]!=Fictive) {
-				projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
-			}
-			//cout << j << "  after:" << "actpos: " << actpos[j] << endl;
-		}
-	}
-	//cout << "new projected area :" << projected_area << endl;
-	/*there are some exceptions when the algorithm allows peaks, in those cases the second correction
-	 reduces the peaks by a manual reduction of the angle. the servos are chosen randomly and it stops
-	 when a limit is crossed. */
-	if (projected_area > (angle_constant_area + 45)) {
-		int random[143];
-		srand(time(0));
-		for (int i=0; i<143; i++) {
-			random[i]=i;
-		}
-		for (int n=0; n<143; n++) {
-			int r = n + (rand() % (143 - n));
-			int temp = random[n]; random[n] = random[r]; random[r] = temp;
-		}
-		for (int k=0; k < 143; k++) {
-			int row = ceil(random[k]/13);
-			int col = random[k] - (row * 13);
-			if (fabs(actpos[col][row]) < 45 && fabs(actpos[col][row]) > 5) {
-				if (actpos[col][row] > 0) actpos[col][row] -= 3;
-				else actpos[col][row] += 3;
-			}
-			projected_area=0;
-			for (int row=1; row<12; row++) {
-				for (int col=1; col<14; col++) {
-					if (actpos[col][row]!=Fictive) {
-						projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
-					}
-				}
-			}
-			if (projected_area < (angle_constant_area + 20)) break;
-		}
-	}
+    
+    //calculate the projected area after application of the correction
+    projected_area=0;
+    for (int row=1; row<12; row++) {
+        for (int col=1; col<14; col++) {
+            if (actpos[col][row]!=Fictive) {
+                projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
+            }
+            //cout << j << "  after:" << "actpos: " << actpos[j] << endl;
+        }
+    }
+    //cout << "new projected area :" << projected_area << endl;
+    /*there are some exceptions when the algorithm allows peaks, in those cases the second correction
+     reduces the peaks by a manual reduction of the angle. the servos are chosen randomly and it stops
+     when a limit is crossed. */
+    if (projected_area > (angle_constant_area + 45)) {
+        int random[143];
+        srand(time(0));
+        for (int i=0; i<143; i++) {
+            random[i]=i;
+        }
+        for (int n=0; n<143; n++) {
+            int r = n + (rand() % (143 - n));
+            int temp = random[n]; random[n] = random[r]; random[r] = temp;
+        }
+        for (int k=0; k < 143; k++) {
+            int row = ceil(random[k]/13);
+            int col = random[k] - (row * 13);
+            if (fabs(actpos[col][row]) < 45 && fabs(actpos[col][row]) > 5) {
+                if (actpos[col][row] > 0) actpos[col][row] -= 3;
+                else actpos[col][row] += 3;
+            }
+            projected_area=0;
+            for (int row=1; row<12; row++) {
+                for (int col=1; col<14; col++) {
+                    if (actpos[col][row]!=Fictive) {
+                        projected_area += 100 * fabs(sin(actpos[col][row] * M_PI / 180));
+                    }
+                }
+            }
+            if (projected_area < (angle_constant_area + 20)) break;
+        }
+    }
 }
 
 
@@ -1052,8 +1052,8 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     
     anglefile.open("angleservo_cMs.txt", ios::out | ios::trunc); // file to plot angles in function of time
     /*for (int numero=0; numero < 129; numero++){
-        anglefile << "   Angle(" << numero << ")";}
-    anglefile << endl;*/
+     anglefile << "   Angle(" << numero << ")";}
+     anglefile << endl;*/
     
     // Declare function pointers for the spatial correlation functions
     float (*pfCorr)(int j, int k, float sigma, float height);
@@ -1136,7 +1136,7 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
         i += 1;
         
     }
-
+    
     return 0;
 }
 
@@ -1159,8 +1159,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     
     anglefile.open("angleservo_cMp.txt", ios::out | ios::trunc); // file to plot angles in function of time
     /*for (int numero=0; numero < 129; numero++){
-        anglefile << "   Angle(" << numero << ")";}
-    anglefile << endl;*/
+     anglefile << "   Angle(" << numero << ")";}
+     anglefile << endl;*/
     
     // Declare function pointers for the spatial correlation functions
     float (*pfCorr)(int j, int k, float sigma, float height);
@@ -1188,7 +1188,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
         old_steps[i]=0;
         err[i]=0;
     }
-
+    
     
     // computes the random sequence of the periodic pattern
     for (int t =0; t<numberofsteps;t++){
@@ -1199,7 +1199,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
             stored_steps[i][t]=anglesteps[i];
         }
     }
-
+    
     
     // corrects the end of the pattern to make a smooth connection with its beginning
     for (int i=0; i<numberOfServos;i++){
@@ -1217,22 +1217,22 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
             }
             else {j++;}
         }
-            
+        
     }
     
     /*angleperiod.open("angleservo_periodic.txt", ios::out | ios::trunc); // file to plot angles in function of time
-    for (int numero=0; numero < 129; numero++){
-        angleperiod << "   Angle(" << numero << ")";}
-    angleperiod << endl;
-    
-    for (int t=0; t<numberofsteps;t++){
-        for (int i=0; i<129;i++){
-            angleperiod << "    " << stored_positions[i][t];
-        }
-        angleperiod << endl;
-    }
-
-    angleperiod.close();*/
+     for (int numero=0; numero < 129; numero++){
+     angleperiod << "   Angle(" << numero << ")";}
+     angleperiod << endl;
+     
+     for (int t=0; t<numberofsteps;t++){
+     for (int i=0; i<129;i++){
+     angleperiod << "    " << stored_positions[i][t];
+     }
+     angleperiod << endl;
+     }
+     
+     angleperiod.close();*/
     
     //timing:
     timeval testtime;
@@ -1251,8 +1251,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
         
         // just read the values previously computed
         for (int i=0; i<numberOfServos;i++){
-        positions[i]= stored_positions[i][phase];
-        anglesteps[i]= stored_steps[i][phase];
+            positions[i]= stored_positions[i][phase];
+            anglesteps[i]= stored_steps[i][phase];
         }
         
         //setposition of each servo:
@@ -1280,18 +1280,18 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int upperTimeBound, float spaceSigma, float timeSigma, float alpha,
-                double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
+void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float alpha,
+                      double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
     /*float randslice[27][25] = {0};
-    int randI;//debugging
-    int randJ;//debugging
-    for (randI = 0; randI < 27; randI++){
-	for (randJ=0; randJ < 25; randJ++){
+     int randI;//debugging
+     int randJ;//debugging
+     for (randI = 0; randI < 27; randI++){
+     for (randJ=0; randJ < 25; randJ++){
 	    randslice[randJ][randI] = (((float)rand()/RAND_MAX)*(max_angle-min_angle))+min_angle;
-	}
-    }*/
+     }
+     }*/
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -1313,32 +1313,32 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, int uppe
     //int col = 0;
     // Loop through servos and calculate/create correlations, using helper methods
     for (int row = 0; row < 11; row++) {
-	for (int col = 0; col < 13; col++){
+        for (int col = 0; col < 13; col++){
             newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-                    for (int t = -halfLoaf; t <= upperTimeBound; t++) { // t taken from the center of the loaf
+                    for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
                         // angle at (col, row) is function of surrounding angles within the correlation kernel
-			//                  col = count % 13;
-			//row = count / 13;
-			//crumb = myLoaf[t+halfLoaf][(k+row+7)*27 + (j+col+7)];
-			crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        //                  col = count % 13;
+                        //row = count / 13;
+                        //crumb = myLoaf[t+halfLoaf][(k+row+7)*27 + (j+col+7)];
+                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
                         //crumb = randslice[j+col+7][k+row+7];
-			//cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
+                        //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
                         newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
                     }
                 }
             }
             newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
-	}
+        }
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
 }
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf, int upperTimeBound) {
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
@@ -1346,60 +1346,55 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     int trials = 4000;
     float slice[13][11] = {{0}}; // this array begins life stuffed with zeros
     float slicestorage[13][11][trials];
-    loaf testLoaf = loaf(halfLoaf + upperTimeBound + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf and upperTimeBound)
+    loaf testLoaf = loaf(halfLoaf*2 + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf)
     
     // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
     for (int t = 0; t < trials; t++) {
-        runcorr_3D(slice, &testLoaf, halfLoaf, upperTimeBound, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
+        runcorr_3D(slice, &testLoaf, halfLoaf, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
         if (t % 100 == 0) cout << (4000 - t) / 100 << endl; // countdown to finish
         for (int row = 0; row < 11; row++) {
-	    for (int col = 0; col < 13; col++){
-		mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
-		slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
-	    }
+            for (int col = 0; col < 13; col++){
+                mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
+                slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
+            }
         }
     }
     //cout << "Test mean = " << mean << endl; // debugging
     // calculate variance from previously-found mean and angle measurements
     for (int t = 0; t < trials; t++) {
         for (int row = 0; row < 11; row++) {
-	    for (int col = 0; col < 13; col++){
+            for (int col = 0; col < 13; col++){
                 rms += pow(slicestorage[col][row][t] - mean, (int) 2) / (numberOfServos * trials);
-	    }
-	}
+            }
+        }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
     //cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
-
+    
     return rms;
 }
 
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
-    anglefile.open("angleservo_cM_cIT_ProblemsFixed.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
     loaf freshLoaf = loaf(numberOfSlices);
-
+    
     float oldslice[13][11] = {{0}}; // stores the last configuration of paddles that was sent to the grid
     float step_size[13][11] = {{0}}; // stores the step size needed to get to the next configuration
     float newslice[13][11] = {{0}}; // stores the step size needed to get to the next configuration
     
     float rms;
-    float correction=1;
+    float correction = 1;
     int i = 1; // grid number counter
     int SPACING = 2; // number of interpolations needed to keep servo speed under its max value, in worst case
     
     float amplitude; // for steps/speeds calculations and safety checks, below
     float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
     float EPSILON = 0.1; // error tolerance for double comparisons (just be within a tenth of a degree)
-    
-    // logic to compute where to set the halfway point of the time loaf
-    int halfLoaf = numberOfSlices / (int) 2;
-    int upperTimeBound = halfLoaf; // how far the loaf goes into the future from the halfway slice
-    if (numberOfSlices % 2 == 0) // even case -> halfLoaf will not represent the true center of the loaf
-        upperTimeBound--; // prevent arrayOutOfBounds issues for off-center halfLoaf values
+    int halfLoaf = numberOfSlices / (int) 2; // determine where to set middle slice of loaf (assumes numberOfSlices is odd)
     
     // Normalization calculations (complicated because different correlation functions have different methods for normalization)
     norm = 0; // master norm parameter that's accessible/used from runcorr_3D
@@ -1413,12 +1408,12 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float (*pfTemporalCorr)(int t, float temporal_sigma, float height);
     pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
     pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
-
+    
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            for (int t = -halfLoaf; t <= upperTimeBound; t++) {
+            for (int t = -halfLoaf; t <= halfLoaf; t++) {
                 norm += (pfSpatialCorr(j, k, spatial_sigma, height) * pfTemporalCorr(t, temporal_sigma, height));
             }
         }
@@ -1427,62 +1422,62 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
-    rms = compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf, upperTimeBound);
+    rms = compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf);
     correction = target_rms / rms; // correction factor
     cout << "Done! Correction factor is " << correction << endl << "Setting up timing..." << endl;
     cout << "Done! Starting grid motions" << endl;
-
+    
     //timing:
     // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
     timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
-            
+    
     // main loop: give angle orders
     while(0==0){
-
+        
         //freshLoaf.Loaf_printFullArray(); // debugging
         cout << "Grid #" << i << " "; // print grid number
         i += 1;
         // get new slice of angles
-        runcorr_3D(newslice, &freshLoaf, halfLoaf, upperTimeBound, spatial_sigma, temporal_sigma, alpha,
-                              height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
-		
+        runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, alpha,
+                   height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
+        
         // store necessary servo speeds after carrying out safety checks
         for (int row = 0; row < 11; row++) {
-	    for (int col = 0; col < 13; col++){
-		// angle safety processing: do not exceed angle of 90 degrees
-		//if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-		if (newslice[col][row]>90) newslice[col][row]=90;
-		else if (newslice[col][row]<-90) newslice[col][row]=-90;
+            for (int col = 0; col < 13; col++){
+                // angle safety processing: do not exceed angle of 90 degrees
+                //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
+                if (newslice[col][row]>90) newslice[col][row]=90;
+                else if (newslice[col][row]<-90) newslice[col][row]=-90;
                 
-		amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
-		if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
-		    cout << "Constraining (" << col << ", " << row << ") ";
-		    if (amplitude > 0) step_size[col][row] = max_speed;
-		    else if (amplitude < 0) step_size[col][row] = -max_speed;
-		}
-		/*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
-                // assign speeds based on min number of legal steps it will take to get to the target angle
-                step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
-		}*/
-		// this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-		/*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
-		  else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-		  step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
-		  }
-		  else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
-                */
-		else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
-	    }
+                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+                if (fabs(amplitude)/(max_speed) > SPACING) { // should never happen, but this is here just in case
+                    cout << "Constraining (" << col << ", " << row << ") ";
+                    if (amplitude > 0) step_size[col][row] = max_speed;
+                    else if (amplitude < 0) step_size[col][row] = -max_speed;
+                }
+                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+                 // assign speeds based on min number of legal steps it will take to get to the target angle
+                 step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+                 }*/
+                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+                 else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+                 step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+                 }
+                 else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+                 */
+                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+            }
         }
         
         /* create two timeslices to separate old and new configurations, and feed each one to the grid in succession
          * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
          * runcorr_3D method once every five grid configurations */
         for (int t = 0; t < SPACING; t++) {
-	    
+            
             //cout << " " << (t+1); // print interpolation number
             
             // compute new intermediate grid position, with steps necessary to attain it
@@ -1495,7 +1490,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     }
                 }
             }
-        
+            
             //setposition of each servo:
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);// useconds elapsed since startTime
