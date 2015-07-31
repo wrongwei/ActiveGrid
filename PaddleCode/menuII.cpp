@@ -589,7 +589,7 @@ int main (int argc , char * const argv[]) {
             
             // calculate width of temporal kernel (number of time-slices to analyze at a time)
             if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
-                numberOfSlices = (6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
+                numberOfSlices = ceil(6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
             }
             else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
                 cout << "How many time-slices should the temporal kernel include? (number must be odd) ";
@@ -602,6 +602,7 @@ int main (int argc , char * const argv[]) {
             else { // top hats, triangle, etc. - decay very rapidly outside of one standard deviation
                 numberOfSlices = (4 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
             }
+            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
             cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\n(Note: one time-step is equal to 2 grid positions)" << endl;
             
             cout << "\nInitializing preliminary computations...\n" << endl;
