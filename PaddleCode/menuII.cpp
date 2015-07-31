@@ -55,6 +55,8 @@ void wait(float seconds) {
 }
 
 char * myLoaf = NULL;
+extern int outOfBoundsCount;
+extern int numberOfAnglesSet;
 
 /*--------------------------------------------------------------------*/
 // Install a signal handler to make sure that when the user types
@@ -66,11 +68,12 @@ static void mySignalHandler(int iSignal){
     if (myLoaf != NULL){
         free(myLoaf);
     }
+    cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
     
     // Kill the program
-    cout << "Killing program by sending the signal SIGKILL, which equals 9. ";
+    cout << "Exiting with code 0. \n";
     fflush(NULL);
-    raise(SIGKILL);
+    exit(0);
 }
 
 /*--------------------------------------------------------------------*/
@@ -493,27 +496,29 @@ int main (int argc , char * const argv[]) {
             // CorrParameters spatialCorrParam;
             
             cout << "Choose the spatial correlation function: \n"
-            " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+            " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
             " 5 - Top hat \n"
             //" 6 - True top hat with a fixed main paddle \n"
             //" 7 - True top hat with a random main paddle \n"
             " 8 - Top hat with a long tail \n"
             " 9 - Triangle\n";
+            " 10 - Unsharp filter\n";
             cin >> typeOfSpatialCorr;
-            while (typeOfSpatialCorr > 9 || typeOfSpatialCorr < 1 ||
+            while (typeOfSpatialCorr > 10 || typeOfSpatialCorr < 0 ||
                    typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the spatial correlation function: \n"
-                " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+                " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
                 " 5 - Top hat \n"
                 //" 6 - True top hat with a fixed main paddle \n"
                 //" 7 - True top hat with a random main paddle \n"
                 " 8 - Top hat with a long tail \n"
                 " 9 - Triangle\n";
+                " 10 - Unsharp filter\n";
                 cin >> typeOfSpatialCorr;
             }
             
-            if (typeOfSpatialCorr == 1){
+            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr == 10){
                 cout << "Spatial Sigma? ";
                 cin >> spatial_sigma;
             }
@@ -528,6 +533,11 @@ int main (int argc , char * const argv[]) {
                 cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
                 cin >> height;
             }
+            else if (typeOfSpatialCorr == 10) {
+                cout << "Scale factor for inverted Gaussian? (0->1)\n";
+                cout << "Note: If you select 8 or 10 in the temporal dimension, height will have to be the same in all dimensions (should be fixed later)" << endl;
+                cin >> height;
+            }
             
             cout << "Choose the temporal correlation function: \n"
             " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
@@ -536,8 +546,9 @@ int main (int argc , char * const argv[]) {
             //" 7 - True top hat with a random main paddle \n"
             " 8 - Top hat with a long tail \n"
             " 9 - Triangle\n";
+            " 10 - Unsharp filter\n";
             cin >> typeOfTemporalCorr;
-            while (typeOfTemporalCorr > 9 || typeOfTemporalCorr < 1 ||
+            while (typeOfTemporalCorr > 10 || typeOfTemporalCorr < 1 ||
                    typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the temporal correlation function: \n"
@@ -547,10 +558,11 @@ int main (int argc , char * const argv[]) {
                 //" 7 - True top hat with a random main paddle \n"
                 " 8 - Top hat with a long tail \n"
                 " 9 - Triangle\n";
+                " 10 - Unsharp filter\n";
                 cin >> typeOfTemporalCorr;
             }
             
-            if ((int)typeOfTemporalCorr == 1){
+            if ((int)typeOfTemporalCorr == 1 || (int)typeOfTemporalCorr == 10){
                 cout << "Temporal Sigma? ";
                 cin >> temporal_sigma;
             }
@@ -564,6 +576,14 @@ int main (int argc , char * const argv[]) {
                 cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
                 cin >> alpha;
                 cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
+                // temporary under-construction warning
+                if (typeOfSpatialCorr == 8 || typeOfSpatialCorr == 10) cout << "WARNING: This height parameter will overwrite your choice of height for the spatial dimension. Please choose the same height as before, or exit and select a different combination of correlation functions." << endl;
+                cin >> height;
+            }
+            else if (typeOfTemporalCorr == 10) {
+                cout << "Scale factor for inverted Gaussian? (0->1)\n";
+                // temporary under-construction warning
+                if (typeOfSpatialCorr == 8 || typeOfSpatialCorr == 10) cout << "WARNING: This height parameter will overwrite your choice of height for the spatial dimension. Please choose the same height as before, or exit and select a different combination of correlation functions." << endl;
                 cin >> height;
             }
             
@@ -588,7 +608,7 @@ int main (int argc , char * const argv[]) {
             }
             
             // calculate width of temporal kernel (number of time-slices to analyze at a time)
-            if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
+            if ((int)typeOfTemporalCorr == 1 || (int)typeOfTemporalCorr == 10) { // calculate width of Gaussian kernel / unsharp kernel
                 numberOfSlices = ceil(6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
             }
             else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
