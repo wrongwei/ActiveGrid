@@ -108,6 +108,34 @@ float triangleTemporalCorr(int t, float temporal_sigma, float height){
     else return 0;
 }
 
+// unsharp correlations. Unsharp correlations are equal to the image in the
+// center and are equal to a negative gaussian everywhere else. 
+// The effect for this correlation is that the grid is made less correlated,
+// because panels will be made more different to the neighbors; if you think of it
+// as a form of image processing it makes the image sharper, which is the opposite
+// of the gaussian (which blurs the image)
+// Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
+float unsharpSpatialCorr(int j, int k, float spatial_sigma, float height){
+    if (j == 0 && k == 0)
+	return 1;
+    return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
+}
+
+float unsharpTemporalCorr(int t, float temporal_sigma, float height){
+    if (t == 0)
+	return 1;
+    return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
+}
+
+// random spatial correlation is uncorrelated in spatial dimensions.
+// We would have made a randomTemporalCorr but this would lead to many angles
+// being asked to move more than 40 degrees per sec
+float randomSpatialCorr(int j, int k, float spatial_sigma, float height){
+    if (j == 0 && k == 0)
+	return 1;
+    return 0;
+}
+
 /*------------------------------------------------------------------------*/
 
 float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float height){
