@@ -116,14 +116,19 @@ float triangleTemporalCorr(int t, float temporal_sigma, float height){
 // of the gaussian (which blurs the image)
 // Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
 float unsharpSpatialCorr(int j, int k, float spatial_sigma, float height){
-    if (j == 0 && k == 0)
-	return 1;
+    if (j == 0 && k == 0){
+	return 225; //(7*2+1)*(7*2+1) width of spatial ker squared
+    }
     return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
 }
 
 float unsharpTemporalCorr(int t, float temporal_sigma, float height){
-    if (t == 0)
-	return 1;
+    if (t == 0){
+	int widthOfTempKer = ceil(6*temporal_sigma)+1;
+	if (widthOfTempKer % 2)
+	    widthOfTempKer++;
+	return widthOfTempKer;
+    }
     return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
 }
 
