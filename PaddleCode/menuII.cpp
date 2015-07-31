@@ -501,7 +501,7 @@ int main (int argc , char * const argv[]) {
             //" 6 - True top hat with a fixed main paddle \n"
             //" 7 - True top hat with a random main paddle \n"
             " 8 - Top hat with a long tail \n"
-            " 9 - Triangle\n";
+            " 9 - Triangle\n"
             " 10 - Unsharp filter\n";
             cin >> typeOfSpatialCorr;
             while (typeOfSpatialCorr > 10 || typeOfSpatialCorr < 0 ||
@@ -513,7 +513,7 @@ int main (int argc , char * const argv[]) {
                 //" 6 - True top hat with a fixed main paddle \n"
                 //" 7 - True top hat with a random main paddle \n"
                 " 8 - Top hat with a long tail \n"
-                " 9 - Triangle\n";
+                " 9 - Triangle\n"
                 " 10 - Unsharp filter\n";
                 cin >> typeOfSpatialCorr;
             }
@@ -545,7 +545,7 @@ int main (int argc , char * const argv[]) {
             //" 6 - True top hat with a fixed main paddle \n"
             //" 7 - True top hat with a random main paddle \n"
             " 8 - Top hat with a long tail \n"
-            " 9 - Triangle\n";
+            " 9 - Triangle\n"
             " 10 - Unsharp filter\n";
             cin >> typeOfTemporalCorr;
             while (typeOfTemporalCorr > 10 || typeOfTemporalCorr < 1 ||
@@ -557,7 +557,7 @@ int main (int argc , char * const argv[]) {
                 //" 6 - True top hat with a fixed main paddle \n"
                 //" 7 - True top hat with a random main paddle \n"
                 " 8 - Top hat with a long tail \n"
-                " 9 - Triangle\n";
+                " 9 - Triangle\n"
                 " 10 - Unsharp filter\n";
                 cin >> typeOfTemporalCorr;
             }
