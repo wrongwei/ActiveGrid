@@ -540,7 +540,7 @@ int main (int argc , char * const argv[]) {
             }
             
             cout << "Choose the temporal correlation function: \n"
-            " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+            " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
             " 5 - Top hat \n"
             //" 6 - True top hat with a fixed main paddle \n"
             //" 7 - True top hat with a random main paddle \n"
@@ -548,11 +548,11 @@ int main (int argc , char * const argv[]) {
             " 9 - Triangle\n"
             " 10 - Unsharp filter\n";
             cin >> typeOfTemporalCorr;
-            while (typeOfTemporalCorr > 10 || typeOfTemporalCorr < 1 ||
+            while (typeOfTemporalCorr > 10 || typeOfTemporalCorr < 0 ||
                    typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
                 cout << "Invalid choice! Try again! \n";
                 cout << "\n Choose the temporal correlation function: \n"
-                " 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
+                " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
                 " 5 - Top hat \n"
                 //" 6 - True top hat with a fixed main paddle \n"
                 //" 7 - True top hat with a random main paddle \n"
@@ -587,11 +587,11 @@ int main (int argc , char * const argv[]) {
                 cin >> height;
             }
             
-            cout << "rms of angles? (0->36 degrees) ";
+            cout << "rms of angles? (0->30 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
             cin >> target_rms;
-            while (target_rms < 0 || target_rms > 36){
-                cout << "For SAFETY reasons, rms should be between 0 and 36 degrees!! Try an acceptable value!" <<endl;
-                cout << "\n rms of angles? (0->36 degrees) ";
+            while (target_rms < 0 || target_rms > 30){
+                cout << "For SAFETY reasons, rms should be between 0 and 30 degrees!! Try an acceptable value!" <<endl;
+                cout << "\n rms of angles? (0->30 degrees) ";
                 cin >> target_rms;
             }
             
@@ -623,7 +623,7 @@ int main (int argc , char * const argv[]) {
                 numberOfSlices = (4 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
             }
             if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
-            cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\n(Note: one time-step is equal to 2 grid positions)" << endl;
+            cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\nNote: one time-step is equal to 'SPACING' grid positions, where the value of SPACING is set manually in algo.cpp. \nEach grid position lasts 0.1 seconds." << endl;
             
             cout << "\nInitializing preliminary computations...\n" << endl;
             
