@@ -145,7 +145,7 @@ float randomSpatialCorr(int j, int k, float spatial_sigma, float height){
 
 float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float height){
   // validate parameters
-  assert (typeOfSpatialCorr > 0 && typeOfSpatialCorr <= 9);
+  assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
   
   if(typeOfSpatialCorr == 0)
       return randomSpatialCorr; 
@@ -184,7 +184,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
  */
 float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, float height){
   // validate parameters
-  assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 9);
+  assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 10);
   
   if(typeOfTemporalCorr == 1)
     return &gaussianTemporalCorr;
