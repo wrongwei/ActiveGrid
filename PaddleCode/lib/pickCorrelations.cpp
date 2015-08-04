@@ -20,6 +20,21 @@
  */
 /*------------------------------------------------------------------------*/
 
+// random. In other words, no correlation
+// We have not implemented randomTemporalCorr in menuII because this would lead to many angles
+// being asked to move more than 40 degrees per sec
+float randomSpatialCorr(int j, int k, float spatial_sigma, float height){
+    if (j == 0 && k == 0)
+	return 1;
+    return 0;
+}
+
+float randomTemporalCorr(int t, float temporal_sigma, float height){
+    if (t == 0)
+	return 1;
+    return 0;
+}
+
 // Gaussian convolution function
 float gaussianSpatialCorr(int j, int k, float spatial_sigma, float height){
     return expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
@@ -132,15 +147,6 @@ float unsharpTemporalCorr(int t, float temporal_sigma, float height){
     return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
 }
 
-// random spatial correlation is uncorrelated in spatial dimensions.
-// We would have made a randomTemporalCorr but this would lead to many angles
-// being asked to move more than 40 degrees per sec
-float randomSpatialCorr(int j, int k, float spatial_sigma, float height){
-    if (j == 0 && k == 0)
-	return 1;
-    return 0;
-}
-
 /*------------------------------------------------------------------------*/
 
 float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float height){
@@ -184,28 +190,30 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
  */
 float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, float height){
   // validate parameters
-  assert (typeOfTemporalCorr > 0 && typeOfTemporalCorr <= 10);
+  assert (typeOfTemporalCorr >= 0 && typeOfTemporalCorr <= 10);
   
-  if(typeOfTemporalCorr == 1)
-    return &gaussianTemporalCorr;
+  if(typeOfTemporalCorr == 0)
+      return &randomTemporalCorr; 
+  else if(typeOfTemporalCorr == 1)
+      return &gaussianTemporalCorr;
   else if(typeOfTemporalCorr == 2)
-    return &inverseSquareTemporalCorr;
+      return &inverseSquareTemporalCorr;
   else if(typeOfTemporalCorr == 3)
-    return &inverseCubeTemporalCorr;
+      return &inverseCubeTemporalCorr;
   else if(typeOfTemporalCorr == 4)
-    return &inverseQuarticTemporalCorr;
+      return &inverseQuarticTemporalCorr;
   else if(typeOfTemporalCorr == 5)
-    return &topHatTemporalCorr;
+      return &topHatTemporalCorr;
   else if(typeOfTemporalCorr == 6)
-    return &trueTopHatTemporalCorr;
+      return &trueTopHatTemporalCorr;
   else if(typeOfTemporalCorr == 7)
-    return &trueTopHatRandomTemporalCorr;
+      return &trueTopHatRandomTemporalCorr;
   else if(typeOfTemporalCorr == 8)
-    return &topHatLongTailTemporalCorr;
+      return &topHatLongTailTemporalCorr;
   else if(typeOfTemporalCorr == 9)
-    return &triangleTemporalCorr;
+      return &triangleTemporalCorr;
   else if(typeOfTemporalCorr == 10)
-    return &unsharpTemporalCorr;
+      return &unsharpTemporalCorr;
   
   // should never reach this point
   assert(1);
