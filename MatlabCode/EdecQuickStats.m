@@ -17,7 +17,6 @@ sum_rmsd = 0;
 total_angle_files = 10.0;
 
 % Compute average RMSD of angles from angle files
-%{
 for f = 0 : 9
     try
         % CHANGE THIS: load angle file for test #f
@@ -54,7 +53,6 @@ for f = 0 : 9
     clear size;
 end
 fprintf('Average RMSD for this run = %.4f \n', sum_rmsd/total_angle_files);
-%}
 
 % Calculating integral length scale and Reynolds number approximation
 % If stats files do not exist, this code block will make them
