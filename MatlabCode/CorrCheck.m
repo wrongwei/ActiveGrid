@@ -5,15 +5,14 @@
 % Horace Zhang + Jessie Liu Summer 2014
 % Modified by Nathan Wei, Summer 2015
 
- clear all;
- close all;
- clc;
+clear all;
+close all;
 
 % MODIFY THIS ------------------------------------------------------------------
-pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
-%pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
-addpath(pathname);
-A = load('angleservo_cM_cIT.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+%pathstring = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+pathstring = fileparts('/Users/nathan/Documents/Data/data07_30_15/');
+addpath(pathstring);
+A = load('angles_g2g2_0730_09.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
@@ -39,7 +38,7 @@ for t = 1 : time
     for i = 1 : 11
         for j = 1 : 13
             a(i,j) = a(i,j) + agrid(i,j)*agrid(padrow,padcol);
-            inst_corr(i,j,t) = (agrid(i,j)*agrid(padrow,padcol))/(agrid(padrow,padcol)*agrid(padrow,padcol));
+            %inst_corr(i,j,t) = (agrid(i,j)*agrid(padrow,padcol))/(agrid(padrow,padcol)*agrid(padrow,padcol));
             avgangle(t) = avgangle(t) + (agrid(i,j) / 143);
         end
     end
@@ -47,8 +46,8 @@ end
 
 a = a./time; % calculate average
 a = a./(norm/time); %normalization
-
-%calculate temporal correlation
+%{
+%calculate temporal correlation (CURRENTLY NONFUNCTIONAL)
 temp_norm = 0;
 padcorr = zeros(time,1); % stores unnormalized correlation for each timeslice
 
@@ -65,7 +64,7 @@ end
 
 padcorr = padcorr./(time - 1); % calculate average over time-1 comparisons
 padcorr = padcorr./(temp_norm/(time - 1)); % normalization
-
+%}
 %calculate distance to every other paddle (no wrapping around)
 
 for i = 1 : 11
@@ -134,8 +133,9 @@ plot(rmsd);
 title('RMSD of grid vs. time');
 xlabel('Time units');
 ylabel('Angle (degrees)');
+fprintf('Average RMS = %.4f \n', mean(rmsd));
 
-
+%{
 % Angle visualizer (shows changes over time and saves result as movie)
 disp(time);
 for i = 1 : time;
@@ -165,4 +165,4 @@ for i = 1 : length(F);
 end
 close(writerObj); % close VideoWriter object (finishes movie-making)
 disp('Saved test.mp4!');
-
+%}

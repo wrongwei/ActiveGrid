@@ -76,10 +76,10 @@ end
 
   % ---- find King's law coefficients for the channel: 
 a = []; b = []; n = []; R = []; 
-%[a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent); 
-a = calibdata.Aquad;
-b = calibdata.Bquad;
-n = calibdata.Cquad;
+[a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent); 
+%a = calibdata.Aquad;
+%b = calibdata.Bquad;
+%n = calibdata.Cquad;
 %R = mean(std(Rtemp-thisE)./thisE); %this line of code causes errors
 
   % ---- plot the data, if requested: 

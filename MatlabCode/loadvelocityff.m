@@ -57,8 +57,8 @@ fprintf('    a = %0.3f, b = %0.3f, n = %0.3f\n', a, b, n);
 
   % ---- apply the calibration:
 fprintf('  converting voltages to velocities...  \n'); 
-%E = applyKingslaw(E, a, b, n);
-E = (a*E.^2)+(b*E)+n;
+E = applyKingslaw(E, a, b, n);
+%E = (a*E.^2)+(b*E)+n;
   % E is now velocity.
 totaltime = toc(tstart); 
 fprintf('  total time to load and convert the data: %.1f seconds.  \n', totaltime); 

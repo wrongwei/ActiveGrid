@@ -19,36 +19,41 @@
 % MASN   - the histogram
 % 
 
+function [] = makeallstats(path, calibfile, filenamebase, outputname)
 
 if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
 %fprintf('  working on %d samples.  \n');
 
 %get the directory of your input files:
-%pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-pathname = fileparts('/Users/nathan/Documents/Data/data08_03_15/'); % location of calib file
-datafolder = fileparts('/Users/nathan/Documents/Data/data08_03_15/g2.6g0.25_10ft/'); % location of data
+if (nargin == 0)
+    %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
+    pathname = fileparts('/Users/nathan/Documents/Data/data08_03_15/'); % location of calib file
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_03_15/g2.6g0.25_10ft/'); % location of data
+else
+    pathname = fileparts(path);
+    datafolder = fileparts(path); % redundant, but avoids errors and streamlines coding
+end
 addpath(pathname);
 addpath(datafolder);
 
 %extract velocity
-%{
-u1 = loadvelocityff('g3g3_0731_00_1.dat', 'calib7_31.m', 1, 1);
-u2 = loadvelocityff('g3g3_0731_00_2.dat', 'calib7_31.m', 1, 1);
-u3 = loadvelocityff('g3g3_0731_00_3.dat', 'calib7_31.m', 1, 1);
-u4 = loadvelocityff('g3g3_0731_00_4.dat', 'calib7_31.m', 1, 1);
-%stitch together the file 
-u = [u1;u2;u3;u4];
-%}
-
-u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-u = [u1;u2;u3;u4;u5;u6];
-
+if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
+    u1 = loadvelocityff(strcat(filenamebase, num2str(1), '.dat'), calibfile, 1, 1);
+    u2 = loadvelocityff(strcat(filenamebase, num2str(2), '.dat'), calibfile, 1, 1);
+    u3 = loadvelocityff(strcat(filenamebase, num2str(3), '.dat'), calibfile, 1, 1);
+    u4 = loadvelocityff(strcat(filenamebase, num2str(4), '.dat'), calibfile, 1, 1);
+    %stitch together the file 
+    u = [u1;u2;u3;u4];
+else % standard operation - however many files you want, manually specified below
+    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    u = [u1;u2;u3;u4;u5;u6];
+end
 fprintf('velocity extracted \n');
 
 %this is 1/ the sampling frequency
@@ -153,7 +158,11 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
-matfile = fullfile(pathname, 'statscorr_g2.6g0.25_0803.mat');
+if (nargin > 0)
+    matfile = fullfile(pathname, outputname); % argument-specified file name, for function version
+else
+    matfile = fullfile(pathname, 'statscorr_g2.6g0.25_0803.mat'); % user-specified, for normal version
+end
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
