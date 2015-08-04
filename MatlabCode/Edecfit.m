@@ -10,8 +10,8 @@
 % Horace Zhang + Jessie Liu Summer 2014
 % Dependencies: none 
 function [a, b, c, R2, conf] = Edecfit(dist, U, eps, b0)
-    % xscale for plotting
-    paddled = 0.13; % distance between two adjacent paddles (m)
+    % xscale for plotting - was 0.13, but this is diagonal distance
+    paddled = 0.115; % distance between two adjacent paddles (m)
     %normalize
     normeps = eps./U.^2;
     normd = dist/paddled;

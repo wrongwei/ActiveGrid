@@ -10,10 +10,10 @@
  clc;
 
 % MODIFY THIS ------------------------------------------------------------------
-%pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
-pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
+pathname = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+%pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
 addpath(pathname);
-A = load('angles_g2g1_0729_08.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angleservo_cM_cIT.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
@@ -127,16 +127,14 @@ plot(padcorr,'o');
 xlabel('Time units'); % temporal spacing between timeslices
 ystring = sprintf('Correlation of Paddle (%d,%d)',padcol,padrow);
 ylabel(ystring);
-
-% plot average angle of grid over time
-figure(5);
+%}
+% plot RMSD of grid over time
+figure(4);
 plot(rmsd);
-%plot(avgangle);
-%title('Average angle of grid vs. time');
 title('RMSD of grid vs. time');
 xlabel('Time units');
 ylabel('Angle (degrees)');
-%}
+
 
 % Angle visualizer (shows changes over time and saves result as movie)
 disp(time);
@@ -145,16 +143,12 @@ for i = 1 : time;
     disp(i);
     set(gca, 'fontsize', 45)
     m5 = meshc(transpose(reshape(A(i,:),13,11)));
-    %m5 = meshc(inst_corr(:,:,i));
     set(m5, 'LineWidth', .3)
-    %title('Correlation with chosen paddle over time');
     title('Paddle angles over time');
     xlabel('Columns');
     ylabel('Rows');
     zlim([-90 90]);
-    %zlim([-2 2]);
     caxis([-90 90]);
-    %caxis([-2 2]);
     colorbar;
     F(i) = getframe;
     drawnow

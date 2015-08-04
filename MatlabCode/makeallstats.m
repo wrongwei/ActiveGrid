@@ -26,16 +26,29 @@ if (~exist('highorder')), highorder = 1; end
 
 %get the directory of your input files:
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
-addpath(pathname)
+pathname = fileparts('/Users/nathan/Documents/Data/data08_03_15/'); % location of calib file
+datafolder = fileparts('/Users/nathan/Documents/Data/data08_03_15/g2.6g0.25_10ft/'); % location of data
+addpath(pathname);
+addpath(datafolder);
 
 %extract velocity
-u1 = loadvelocityff('g2g1_0729_00_1.dat', 'calib7_29.m', 1, 1);
-u2 = loadvelocityff('g2g1_0729_00_2.dat', 'calib7_29.m', 1, 1);
-u3 = loadvelocityff('g2g1_0729_00_3.dat', 'calib7_29.m', 1, 1);
-u4 = loadvelocityff('g2g1_0729_00_4.dat', 'calib7_29.m', 1, 1);
+%{
+u1 = loadvelocityff('g3g3_0731_00_1.dat', 'calib7_31.m', 1, 1);
+u2 = loadvelocityff('g3g3_0731_00_2.dat', 'calib7_31.m', 1, 1);
+u3 = loadvelocityff('g3g3_0731_00_3.dat', 'calib7_31.m', 1, 1);
+u4 = loadvelocityff('g3g3_0731_00_4.dat', 'calib7_31.m', 1, 1);
 %stitch together the file 
 u = [u1;u2;u3;u4];
+%}
+
+u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+u = [u1;u2;u3;u4;u5;u6];
+
 fprintf('velocity extracted \n');
 
 %this is 1/ the sampling frequency
@@ -44,7 +57,7 @@ deltaT = 1/20000;
 %histX = 35;
 
 % number of correlation function separations starting from one in samples: 
-rCmax = 12e6; 
+rCmax = 18e6; 
 
 sepval = [1:rCmax]/(20000)*mean(u);
  
@@ -60,7 +73,7 @@ MASvsm = mean(u);
 rmsvelocity = rms(u);
 
   % compute standard deviation: 
-MASvss = std(u); 
+MASvss = std(u);
 fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
 
   % compute spectrum: 
@@ -140,7 +153,7 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
-matfile = fullfile(pathname, 'statscorr_g2g1_0729_00.mat');
+matfile = fullfile(pathname, 'statscorr_g2.6g0.25_0803.mat');
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
@@ -157,8 +170,9 @@ save(matfile);
 %save('vsm.txt','MASvsm','-append','-ascii');
 %save('std.txt','MASvss','-append','-ascii');
 %save('rms.txt','rmsvelocity','-append','-ascii');
+rmpath(pathname);
+rmpath(datafolder); 
 
-rmpath(pathname); 
 fprintf('  done in %.1f seconds.\n', round(10*toc)/10);
 %close all; 
 

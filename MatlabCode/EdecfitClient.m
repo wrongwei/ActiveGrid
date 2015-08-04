@@ -4,7 +4,7 @@
 % Written by Nathan Wei, summer 2015
 % Dependencies: Edecfit.m
 
-% CAN WE JUST USE THE AVERAGE VOLTAGES GIVEN BY THE TXT FILES???
+% CAN WE JUST USE MASvsm AND MASvss FROM MAKEALLSTATS???
 
 clear all;
 close all;

@@ -76,7 +76,10 @@ end
 
   % ---- find King's law coefficients for the channel: 
 a = []; b = []; n = []; R = []; 
-[a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent); 
+%[a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent); 
+a = calibdata.Aquad;
+b = calibdata.Bquad;
+n = calibdata.Cquad;
 %R = mean(std(Rtemp-thisE)./thisE); %this line of code causes errors
 
   % ---- plot the data, if requested: 
@@ -119,8 +122,8 @@ if (nargin > 5)
     plot(us, us*(b).^(1/n)/meandens, 'k-'); 
 
     h = xlabel('u [m/s]'); 
-    setfontsize(h, 18); 
+    %setfontsize(h, 18); 
     h = ylabel('(E^2 - a)^{1/ n} / \rho ,  u b^{1/ n} / \rho'); 
-    setfontsize(h, 18); 
-    setfontsize(gca, 16); 
+    %setfontsize(h, 18); 
+    %setfontsize(gca, 16); 
 end

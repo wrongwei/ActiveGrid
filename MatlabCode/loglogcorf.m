@@ -5,13 +5,13 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-pathname = fileparts('/Users/nathan/Documents/Data/data07_29_15/');
-addpath(pathname); 
+path = fileparts('/Users/nathan/Documents/Data/data08_03_15/');
+addpath(path); 
 
 % which workspace stats do you want to load??????????
 % -----------------------------------------------------------------------
-load statscorr_g2g1_0729_00.mat
-% -------------------------------------------------------------------
+load statscorr_g2.6NT_0803.mat
+% -----------------------------------------------------------------------
 
 %sepval = [1:12e6]/(20000)*mean(u); 
 L = hwils(MASC,sepval,2) %this is the integral length scale
@@ -53,20 +53,23 @@ title('Correlation Function')
 
 H2 = figure(2);
 set(gca, 'fontsize', 12);
-loglog(sepvalc/L,MASCc,'*');
+%loglog(sepvalc/L,MASCc,'*');
+plot(sepvalc/L,MASCc);
 hax = gca; 
 ylabel('correlation   ');
 xlabel('distance (m/L)  ');
-title('Correlation Function loglog')
+xlim([0 4]);
+%title('Correlation Function loglog');
+title('Correlation Function');
 
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? -------------------------------------------------------------------------------
 %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
-logcorf = fullfile(pathname, 'logcorel_g2g1_0729_00.fig');
+logcorf = fullfile(path, 'awesome.fig');
 
 %saveas(H1, ncorf);
 saveas(H2, logcorf);
 
 
-rmpath(pathname);
+rmpath(path);
  
