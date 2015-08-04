@@ -1372,7 +1372,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
-    //cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
+    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
     
     return rms;
 }
@@ -1458,7 +1458,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
-                    cout << "Constraining (" << col << ", " << row << ") ";
+                    //cout << "Constraining (" << col << ", " << row << ") ";
+                    cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n";
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
                     else if (amplitude < 0) step_size[col][row] = -max_speed;

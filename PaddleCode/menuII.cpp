@@ -595,10 +595,6 @@ int main (int argc , char * const argv[]) {
                 cin >> target_rms;
             }
             
-            alg.max_speed = target_rms;
-            alg.max_angle = 5 * target_rms /2;
-            alg.min_angle = - 5 *target_rms /2;
-            
             cout << "Should the area be kept constant? (1,0) ";
             cin >> constantArea;
             while (constantArea < 0 || constantArea > 1){
