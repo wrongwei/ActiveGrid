@@ -16,6 +16,20 @@ load statscorr_g1g1_0805.mat
 %sepval = [1:12e6]/(20000)*mean(u); 
 L = hwils(MASC,sepval,2); %this is the integral length scale
 
+nu = 1.46e-5; % kinematic viscosity of air
+% print standard deviation = RMS velocity
+fprintf('RMS velocity (m/s) = %.4f \n', MASvss);
+% calculate energy dissipation
+epsilon = 0.5 * (MASvss^3) / L; % 0.5 is constant prefactor
+% calculate Kolmogorov length scale
+eta = (nu^0.75) * (epsilon^(-0.25));
+% calculate maximum frequency
+freq = MASvss/eta;
+% print results
+fprintf('Integral length scale (m) = %.8f \n', L);
+fprintf('Energy dissipation rate (W) = %.8f \n', epsilon);
+fprintf('Kolmogorov length scale (m) = %.8f \n', eta);
+fprintf('Maximum fluctuation frequency (Hz) = %.8f \n', freq);
 % Cut off MASC (the correlation function) at nth zero crossing. Discards
 % much of unwanted data
 count = 0; 

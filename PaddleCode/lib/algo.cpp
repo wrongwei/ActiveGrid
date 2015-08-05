@@ -1381,7 +1381,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, double spatial_height, double temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
     // debugging------------------
-    cout << constantArea <<endl;
+    /*cout << constantArea <<endl;
     cout << spatial_sigma << endl;
     cout << temporal_sigma << endl;
     cout << spatial_alpha << endl;
@@ -1391,7 +1391,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << typeOfSpatialCorr << endl;
     cout << typeOfTemporalCorr << endl;
     cout << target_rms << endl;
-    cout << numberOfSlices << endl;
+    cout << numberOfSlices << endl;*/
     // end of debugging ----------
 
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
