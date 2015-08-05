@@ -5,7 +5,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
+path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
 addpath(path); 
 
 % which workspace stats do you want to load??????????
@@ -14,7 +14,7 @@ load statscorr_g1g1_0805.mat
 % -----------------------------------------------------------------------
 
 %sepval = [1:12e6]/(20000)*mean(u); 
-L = hwils(MASC,sepval,2) %this is the integral length scale
+L = hwils(MASC,sepval,2); %this is the integral length scale
 
 % Cut off MASC (the correlation function) at nth zero crossing. Discards
 % much of unwanted data
@@ -54,11 +54,33 @@ title('Correlation Function')
 H2 = figure(2);
 set(gca, 'fontsize', 12);
 %loglog(sepvalc/L,MASCc,'*');
-plot(sepvalc/L,MASCc);
+plot(sepvalc/L,MASCc,'b');
+hold on;
+distR = 5:30; % make a vector of the first 26 points excluding noise
+linux = 1:1000;
+linux2 = sepvalc(linux)/L;
+distR2 = sepvalc(distR)/L;
+corrVals = MASCc(distR);
+corrVals = corrVals';
+plot(distR2,corrVals,'-ok'); %plot these 26 points
+hold on;
+p = polyfit(distR2,corrVals,2); %fit a second order polynomial to these 26 points
+y1 = polyval(p,linux2);
+plot(linux2,y1,'r');
+fprintf('Integral Length Scale = %f\n', L);
+% the x-intercept of polyfit p is the taylor length scale
+taylorL = max(roots(p))*L;
+fprintf('The taylor length scale = %f\n', taylorL);
+fprintf('Comment: I multipled by L because of the scaling of the graph\n');
+mu = 1.46E-5;
+turbRe = MASvss*taylorL/mu;
+fprintf('mu = %f\nrms = %f\nTurbulent reynolds Number = %f\n',mu, MASvss, turbRe);
+
 hax = gca; 
 ylabel('correlation   ');
 xlabel('distance (m/L)  ');
 xlim([0 4]);
+ylim([0 1]);
 %title('Correlation Function loglog');
 title('Correlation Function');
 

@@ -28,8 +28,8 @@ if (~exist('highorder')), highorder = 1; end
 %get the directory of your input files:
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
+    pathname = fileparts('/Users/kevin/Documents/Data/data08_05_15/'); % location of calib file
+    datafolder = fileparts('/Users/kevin/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
 else
     pathname = fileparts(path);
     datafolder = fileparts(path); % redundant, but avoids errors and streamlines coding
