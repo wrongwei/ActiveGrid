@@ -61,19 +61,19 @@ for f = 0 : (trials - 1)
     % CHANGE THIS (should correspond to same test as angle files)
     filestring2 = strcat('statscorr_g3g3_0731_0', num2str(f), '.mat');
     load(filestring2, 'MASvss', 'MASC', 'sepval'); % std/rms, corr, ?
-    fprintf('RMS velocity for file %d = %.4f \n', f, MASvss);
+    fprintf('RMS velocity for file %d (m/s) = %.8f \n', f, MASvss);
     % calculate integral length scale
     L(f+1) = hwils(MASC, sepval, 2); %this is the integral length scale
-    fprintf('Integral length scale for file %d = %.4f \n', f, L(f+1));
+    fprintf('Integral length scale for file %d (m) = %.8f \n', f, L(f+1));
     % calculate energy dissipation
     epsilon(f+1) = 0.5 * (MASvss^3) / L(f+1); % 0.5 is constant prefactor
     % calculate Kolmogorov length scale
     eta(f+1) = (nu^0.75) * (epsilon(f+1)^(-0.25));
     % calculate maximum frequency
     freq(f+1) = MASvss/eta(f+1);
-    fprintf('Energy dissipation rate for file %d = %.4f \n', f, epsilon(f+1));
-    fprintf('Kolmogorov length scale for file %d = %.4f \n', f, eta(f+1));
-    fprintf('Maximum fluctuation frequency for file %d = %.4f \n', f, freq(f+1));
+    fprintf('Energy dissipation rate for file %d (W) = %.8f \n', f, epsilon(f+1));
+    fprintf('Kolmogorov length scale for file %d (m) = %.8f \n', f, eta(f+1));
+    fprintf('Maximum fluctuation frequency for file %d (Hz) = %.8f \n', f, freq(f+1));
     % calculate Reynolds number approximation, based on RMSD fluctuation
     % velocity (i.e. standard deviation) and integral length scale
     Re(f+1) = L(f+1)*MASvss/nu; % NEEDS TAYLOR MICROSCALE
