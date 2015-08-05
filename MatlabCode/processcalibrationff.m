@@ -74,12 +74,18 @@ if ~isempty(T0)
 	thisE = applytempcorrection(thisE, calibdata.T(channel, :), calibdata.Twire(channel), T0); 
 end
 
-  % ---- find King's law coefficients for the channel: 
-a = []; b = []; n = []; R = []; 
-[a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent); 
-%a = calibdata.Aquad;
-%b = calibdata.Bquad;
-%n = calibdata.Cquad;
+% ---- curve fit calculations (King's Law or polynomial fit) ----
+a = []; b = []; n = []; R = [];
+if (isfield(calibdata, 'polyfit'))
+    disp('  Polynomial fit selected');
+    % polyfit returns a vector of coefficients for fit of order 'polyfit'
+    % (hijacking R for this purpose b/c it's currently unused)
+    R = polyfit(thisE, calibdata.v(channel, :), calibdata.polyfit);
+else
+    % ---- find King's law coefficients for the channel: 
+    disp('  King''s Law fit selected');
+    [a b n Rtemp] = findKingslaw(calibdata.v(channel, :), thisE, freeexponent);
+end
 %R = mean(std(Rtemp-thisE)./thisE); %this line of code causes errors
 
   % ---- plot the data, if requested: 

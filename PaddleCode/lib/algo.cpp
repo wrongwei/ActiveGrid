@@ -1458,8 +1458,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
-                    //cout << "Constraining (" << col << ", " << row << ") ";
-                    cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n";
+                    cout << "Constraining (" << col << ", " << row << ") ";
+                    //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
                     else if (amplitude < 0) step_size[col][row] = -max_speed;

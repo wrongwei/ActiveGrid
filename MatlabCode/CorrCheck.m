@@ -9,10 +9,10 @@ clear all;
 close all;
 
 % MODIFY THIS ------------------------------------------------------------------
-%pathstring = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
-pathstring = fileparts('/Users/nathan/Documents/Data/data07_30_15/');
+pathstring = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+%pathstring = fileparts('/Users/nathan/Documents/Data/data07_30_15/');
 addpath(pathstring);
-A = load('angles_g2g2_0730_09.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angleservo_cM_g2.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
@@ -135,7 +135,7 @@ xlabel('Time units');
 ylabel('Angle (degrees)');
 fprintf('Average RMS = %.4f \n', mean(rmsd));
 
-%{
+
 % Angle visualizer (shows changes over time and saves result as movie)
 disp(time);
 for i = 1 : time;
@@ -165,4 +165,4 @@ for i = 1 : length(F);
 end
 close(writerObj); % close VideoWriter object (finishes movie-making)
 disp('Saved test.mp4!');
-%}
+

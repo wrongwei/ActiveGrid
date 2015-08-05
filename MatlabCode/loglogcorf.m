@@ -5,12 +5,12 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_03_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
 addpath(path); 
 
 % which workspace stats do you want to load??????????
 % -----------------------------------------------------------------------
-load statscorr_g2.6NT_0803.mat
+load statscorr_g1g1_0805.mat
 % -----------------------------------------------------------------------
 
 %sepval = [1:12e6]/(20000)*mean(u); 
@@ -65,7 +65,7 @@ title('Correlation Function');
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? -------------------------------------------------------------------------------
 %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
-logcorf = fullfile(path, 'awesome.fig');
+logcorf = fullfile(path, 'test.fig');
 
 %saveas(H1, ncorf);
 saveas(H2, logcorf);

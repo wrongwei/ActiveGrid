@@ -16,11 +16,11 @@ Example data file name: g2g1_0730_05_3.dat
 %}
 
 % -------------------------- PARAMETERS TO SET --------------------------
-filename = '/Users/nathan/Documents/Data/data07_30_15/';
+filename = '/Users/nathan/Documents/Data/data07_31_15/';
 tests = 10; % number of data collection points along the tunnel
-calibfile = 'calib7_30.m';
-datafilebase = 'rand45_0730_0'; % standardized beginning of each data file
-outputfilebase = 'statscorr_rand45_0730_0'; % standardized beginning of each workspace makeallstats will create
+calibfile = 'calib7_31.m';
+datafilebase = 'g3g3_0731_0'; % standardized beginning of each data file
+outputfilebase = 'statscorr_g3g3_0731_0'; % standardized beginning of each workspace makeallstats will create
 % -----------------------------------------------------------------------
 
 path = fileparts(filename);
@@ -28,6 +28,7 @@ addpath(path);
 tstart = tic;
 
 for t = 1 : tests
+    disp(strcat('Processing test #', num2str(t), '/', num2str(tests)));
     filestring = strcat(datafilebase, num2str(t-1), '_');
     outputstring = strcat(outputfilebase, num2str(t-1));
     makeallstats(filename, calibfile, filestring, outputstring); % note: makeallstats adds the final index and file extension

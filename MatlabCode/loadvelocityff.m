@@ -20,8 +20,9 @@ E = loadLabviewbin(datafilename);
 
 probeinfo = extractprobeinfo(calibrationfilename); 
 
-E = E/probeinfo.probe(probenumber).sensor(sensornumber).gain + ...  
-    probeinfo.probe(probenumber).sensor(sensornumber).offset;
+%E = E/probeinfo.probe(probenumber).sensor(sensornumber).gain + ...  
+%    probeinfo.probe(probenumber).sensor(sensornumber).offset; % problematic
+
 
 if nargin > 4  % NOT IMPLEMENTED YET
 	  % ---- convert temperature to degrees C, if necessary: 
@@ -49,16 +50,21 @@ else
 	T0 = []; 
 end
 
-%disp(mean(E));
+
   % ---- process the calibration data: 
 fprintf('  processing the calibrations...  \n'); 
-[a b n] = processcalibrationff(calibrationfilename, T0, true, probenumber, sensornumber);
-fprintf('    a = %0.3f, b = %0.3f, n = %0.3f\n', a, b, n); 
+[a b n R] = processcalibrationff(calibrationfilename, T0, true, probenumber, sensornumber);
 
-  % ---- apply the calibration:
-fprintf('  converting voltages to velocities...  \n'); 
-E = applyKingslaw(E, a, b, n);
-%E = (a*E.^2)+(b*E)+n;
+  % ---- apply the calibration: 
+if (length(R) == 0)
+    fprintf('    a = %0.3f, b = %0.3f, n = %0.3f\n', a, b, n); 
+    fprintf('  converting voltages to velocities...  \n');
+    E = applyKingslaw(E, a, b, n); % King's Law fit delivered from processcalibrationff
+else
+    disp(R); % coefficients in descending order 
+    fprintf('  converting voltages to velocities...  \n');
+    E = polyval(R,E); % polynomial fit delivered from processcalibrationff
+end
   % E is now velocity.
 totaltime = toc(tstart); 
 fprintf('  total time to load and convert the data: %.1f seconds.  \n', totaltime); 

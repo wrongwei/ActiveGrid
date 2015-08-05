@@ -7,7 +7,7 @@
 
 clear all;
 
-folder = fileparts('/Users/nathan/Documents/Data/data07_30_15/');
+folder = fileparts('/Users/nathan/Documents/Data/data07_31_15/');
 addpath(folder);
 mean_rmsd = zeros(10,1); % mean RMSD for a given trial
 L = zeros(10,1); % integral length scale for a given trial
@@ -20,7 +20,7 @@ total_angle_files = 10.0;
 for f = 0 : 9
     try
         % CHANGE THIS: load angle file for test #f
-        filestring1 = strcat('angles_rand45_0730_0', num2str(f), '.txt');
+        filestring1 = strcat('angles_g3g3_0731_0', num2str(f), '.txt');
         A = load(filestring1);
     catch err
         % file does not exist, so skip it and move on to the next one
@@ -58,14 +58,14 @@ fprintf('Average RMSD for this run = %.4f \n', sum_rmsd/total_angle_files);
 % If stats files do not exist, this code block will make them
 for f = 0 : 9
     % CHANGE THIS (should correspond to same test as angle files)
-    filestring2 = strcat('statscorr_rand45_0730_0', num2str(f), '.mat');
-    load(filestring2, 'MASvsm', 'MASC', 'sepval');
+    filestring2 = strcat('statscorr_g3g3_0731_0', num2str(f), '.mat');
+    load(filestring2, 'MASvss', 'MASC', 'sepval');
     % calculate integral length scale
     L(f+1) = hwils(MASC, sepval, 2); %this is the integral length scale
     fprintf('Integral length scale of file %d = %.4f \n', f, L(f+1));
-    % calculate Reynolds number approximation, based on mean flow velocity
-    % and integral length scale
-    Re(f+1) = L(f+1)*MASvsm/nu;
+    % calculate Reynolds number approximation, based on RMSD fluctuation
+    % velocity (i.e. standard deviation) and integral length scale
+    Re(f+1) = L(f+1)*MASvss/nu;
     fprintf('Reynolds number for file %d is approximately %.4f \n', f, Re(f+1));
 end
 fprintf('\nIntegral Length Scale range for this run: %.4f to %.4f \n', min(L), max(L));
