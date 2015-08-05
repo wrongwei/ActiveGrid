@@ -78,7 +78,7 @@ MASvsm = mean(u);
   % compute rms velocity: THIS IS COMPLETELY NUTS - rms = std
 %rmsvelocity = rms(u);
 
-  % compute standard deviation: 
+  % compute standard deviation / RMSD: 
 MASvss = std(u);
 fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
 

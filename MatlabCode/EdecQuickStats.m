@@ -6,18 +6,19 @@
 % Nathan Wei, August 2015
 
 clear all;
-
+trials = 10.0; % number of tests carried out
 folder = fileparts('/Users/nathan/Documents/Data/data07_31_15/');
 addpath(folder);
-mean_rmsd = zeros(10,1); % mean RMSD for a given trial
-L = zeros(10,1); % integral length scale for a given trial
-Re = zeros(10,1); % Reynolds number approximation for a given trial
-nu = 0.0000146; % kinematic viscosity of air
+mean_rmsd = zeros(trials,1); % mean RMSD for a given trial
+L = zeros(trials,1); % integral length scale for a given trial
+Re = zeros(trials,1); % turbulence Reynolds number for a given trial
+epsilon = zeros(trials,1);
+nu = 1.46e-5; % kinematic viscosity of air
 sum_rmsd = 0;
-total_angle_files = 10.0;
-
+total_angle_files = trials;
+%{
 % Compute average RMSD of angles from angle files
-for f = 0 : 9
+for f = 0 : (trials - 1)
     try
         % CHANGE THIS: load angle file for test #f
         filestring1 = strcat('angles_g3g3_0731_0', num2str(f), '.txt');
@@ -53,22 +54,32 @@ for f = 0 : 9
     clear size;
 end
 fprintf('Average RMSD for this run = %.4f \n', sum_rmsd/total_angle_files);
-
+%}
 % Calculating integral length scale and Reynolds number approximation
 % If stats files do not exist, this code block will make them
-for f = 0 : 9
+for f = 0 : (trials - 1)
     % CHANGE THIS (should correspond to same test as angle files)
     filestring2 = strcat('statscorr_g3g3_0731_0', num2str(f), '.mat');
-    load(filestring2, 'MASvss', 'MASC', 'sepval');
+    load(filestring2, 'MASvss', 'MASC', 'sepval'); % std/rms, corr, ?
+    fprintf('RMS velocity for file %d = %.4f \n', f, MASvss);
     % calculate integral length scale
     L(f+1) = hwils(MASC, sepval, 2); %this is the integral length scale
-    fprintf('Integral length scale of file %d = %.4f \n', f, L(f+1));
+    fprintf('Integral length scale for file %d = %.4f \n', f, L(f+1));
+    % calculate energy dissipation
+    epsilon(f+1) = 0.5 * (MASvss^3) / L(f+1); % 0.5 is constant prefactor
+    % calculate Kolmogorov length scale
+    eta(f+1) = (nu^0.75) * (epsilon(f+1)^(-0.25));
+    % calculate maximum frequency
+    freq(f+1) = MASvss/eta(f+1);
+    fprintf('Energy dissipation rate for file %d = %.4f \n', f, epsilon(f+1));
+    fprintf('Kolmogorov length scale for file %d = %.4f \n', f, eta(f+1));
+    fprintf('Maximum fluctuation frequency for file %d = %.4f \n', f, freq(f+1));
     % calculate Reynolds number approximation, based on RMSD fluctuation
     % velocity (i.e. standard deviation) and integral length scale
-    Re(f+1) = L(f+1)*MASvss/nu;
-    fprintf('Reynolds number for file %d is approximately %.4f \n', f, Re(f+1));
+    Re(f+1) = L(f+1)*MASvss/nu; % NEEDS TAYLOR MICROSCALE
+    fprintf('Reynolds number for file %d is approximately %.4f \n\n', f, Re(f+1));
 end
-fprintf('\nIntegral Length Scale range for this run: %.4f to %.4f \n', min(L), max(L));
+fprintf('Integral Length Scale range for this run: %.4f to %.4f \n', min(L), max(L));
 fprintf('Reynolds Number range for this run: %.4f to %.4f\n', min(Re), max(Re));
 
 rmpath(folder);
