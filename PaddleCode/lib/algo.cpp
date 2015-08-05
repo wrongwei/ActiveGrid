@@ -1283,8 +1283,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float alpha,
-                      double height, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
+void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, double spaceHeight,
+                      double timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
     /*float randslice[27][25] = {0};
@@ -1303,8 +1303,8 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
     float bound;
     if (spaceMode <= 4) bound = range_of_corr;
     else bound = spaceSigma;
-    if (spaceMode == 8) spaceSigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
-    if (timeMode == 8) timeSigma = alpha; // same rationale as above
+    if (spaceMode == 8) spaceSigma = spaceAlpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (timeMode == 8) timeSigma = timeAlpha; // same rationale as above
     
     // Declare function pointers for the spatial and temporal correlation functions
     float (*pfSpatialCorr)(int j, int k, float spaceSigma, float height);
@@ -1329,7 +1329,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
                         //crumb = randslice[j+col+7][k+row+7];
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, height) * pfTemporalCorr(t, timeSigma, height));
+                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, spaceHeight) * pfTemporalCorr(t, timeSigma, timeHeight));
                     }
                 }
             }
@@ -1341,7 +1341,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float alpha, double height, int mrow, int mcol, int halfLoaf) {
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, double spaceHeight, double timeHeight, int mrow, int mcol, int halfLoaf) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
@@ -1353,7 +1353,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     
     // takes a random correlated sequence of angles, without correction, and executes 4000 sample runs of runcorr_3D
     for (int t = 0; t < trials; t++) {
-        runcorr_3D(slice, &testLoaf, halfLoaf, spaceSigma, timeSigma, alpha, height, spaceMode, timeMode, mrow, mcol, 1);
+        runcorr_3D(slice, &testLoaf, halfLoaf, spaceSigma, timeSigma, spaceAlpha, timeAlpha, spaceHeight, timeHeight, spaceMode, timeMode, mrow, mcol, 1);
         if (t % 100 == 0) cout << (4000 - t) / 100 << endl; // countdown to finish
         for (int row = 0; row < 11; row++) {
             for (int col = 0; col < 13; col++){
@@ -1378,8 +1378,22 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 }
 
 // movement of the paddles that is correlated in space and in time
-int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float alpha, double height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
+int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, double spatial_height, double temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
+    // debugging------------------
+    cout << constantArea <<endl;
+    cout << spatial_sigma << endl;
+    cout << temporal_sigma << endl;
+    cout << spatial_alpha << endl;
+    cout << temporal_alpha << endl;
+    cout << spatial_height << endl;
+    cout << temporal_height << endl;
+    cout << typeOfSpatialCorr << endl;
+    cout << typeOfTemporalCorr << endl;
+    cout << target_rms << endl;
+    cout << numberOfSlices << endl;
+    // end of debugging ----------
+
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1404,20 +1418,29 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float bound;
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
-    if (typeOfSpatialCorr == 8) spatial_sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
-    if (typeOfTemporalCorr == 8) temporal_sigma = alpha; // same rationale as above
     // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float height);
-    float (*pfTemporalCorr)(int t, float temporal_sigma, float height);
+    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatail_height);
+    float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
     pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
     pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
     
+    float spatial_alphaorsigma;
+    float temporal_alphaorsigma;
+    if (typeOfSpatialCorr == 8)
+	spatial_alphaorsigma = spatial_alpha;
+    else
+	spatial_alphaorsigma = spatial_sigma;
+    if (typeOfTemporalCorr == 8)
+	temporal_alphaorsigma = temporal_alpha;
+    else
+	temporal_alphaorsigma = temporal_sigma;
+
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
             for (int t = -halfLoaf; t <= halfLoaf; t++) {
-                norm += (pfSpatialCorr(j, k, spatial_sigma, height) * pfTemporalCorr(t, temporal_sigma, height));
+                norm += (pfSpatialCorr(j, k, spatial_alphaorsigma, spatial_height) * pfTemporalCorr(t, temporal_alphaorsigma, temporal_height));
             }
         }
     }
@@ -1425,7 +1448,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
-    rms = compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, 2., 2., 1, 1, halfLoaf);
+    rms = compute_rmscorr_3D(spatial_sigma, temporal_sigma, typeOfSpatialCorr, typeOfTemporalCorr, spatial_alpha, temporal_alpha, spatial_height, temporal_height, 1, 1, halfLoaf);
     correction = target_rms / rms; // correction factor
     cout << "Done! Correction factor is " << correction << endl << "Setting up timing..." << endl;
     cout << "Done! Starting grid motions" << endl;
@@ -1444,8 +1467,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         cout << "Grid #" << i << " "; // print grid number
         i += 1;
         // get new slice of angles
-        runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, alpha,
-                   height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
+        runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
+                   spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
         
         // store necessary servo speeds after carrying out safety checks
         for (int row = 0; row < 11; row++) {
