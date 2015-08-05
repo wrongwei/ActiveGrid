@@ -485,8 +485,10 @@ int main (int argc , char * const argv[]) {
             int constantArea = 0;
             float spatial_sigma = 0;
             float temporal_sigma = 0;
-            float alpha = 0;
-            double height;
+            float spatial_alpha = 0;
+            float temporal_alpha = 0;
+            double spatial_height = 0;
+	    double temporal_height = 0;
             int typeOfSpatialCorr = 0;
             int typeOfTemporalCorr = 0;
             float target_rms = 0;
@@ -524,19 +526,18 @@ int main (int argc , char * const argv[]) {
             }
             if (typeOfSpatialCorr == 5 || typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7 ||
                 typeOfSpatialCorr == 8 || typeOfSpatialCorr == 9 ){
-                cout << "Spatial Sigma? "; //Rename?
+                cout << "Spatial Sigma? ";
                 cin >> spatial_sigma;
             }
             if (typeOfSpatialCorr == 8){
-                cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
-                cin >> alpha;
-                cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
-                cin >> height;
+                cout << "Spatial Alpha? This is the width of part with correlation of 1 (usually spatial_alpha=0)\n";
+                cin >> spatial_alpha;
+                cout << "Spatial Height? This is how tall the tail is. 1 would be a correlation of 1 and 0 would be no correlation in the tail.\n";
+                cin >> spatial_height;
             }
             else if (typeOfSpatialCorr == 10) {
                 cout << "Scale factor for inverted Gaussian? (0->1)\n";
-                cout << "Note: If you select 8 or 10 in the temporal dimension, height will have to be the same in all dimensions (should be fixed later)" << endl;
-                cin >> height;
+                cin >> spatial_height;
             }
             
             cout << "Choose the temporal correlation function: \n"
@@ -568,24 +569,21 @@ int main (int argc , char * const argv[]) {
             }
             if (typeOfTemporalCorr == 5 || typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7 ||
                 typeOfTemporalCorr == 8 || typeOfTemporalCorr == 9 ){
-                cout << "Temporal Sigma? "; //Rename?
+                cout << "Temporal Sigma? ";
                 cin >> temporal_sigma;
             }
             
             if (typeOfTemporalCorr == 8){
-                cout << "Alpha?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, alpha has to be the same in both dimensions\n"; // Describe what alpha is?
-                cin >> alpha;
-                cout << "Height?\nNote: If you want to use a long tail top hat in both the spatial and temporal dimensions, height has to be the same in both dimensions\n"; //Describe what height is?
-                // temporary under-construction warning
-                if (typeOfSpatialCorr == 8 || typeOfSpatialCorr == 10) cout << "WARNING: This height parameter will overwrite your choice of height for the spatial dimension. Please choose the same height as before, or exit and select a different combination of correlation functions." << endl;
-                cin >> height;
-            }
-            else if (typeOfTemporalCorr == 10) {
-                cout << "Scale factor for inverted Gaussian? (0->1)\n";
-                // temporary under-construction warning
-                if (typeOfSpatialCorr == 8 || typeOfSpatialCorr == 10) cout << "WARNING: This height parameter will overwrite your choice of height for the spatial dimension. Please choose the same height as before, or exit and select a different combination of correlation functions." << endl;
-                cin >> height;
-            }
+                cout << "Temporal Alpha? This is the width of the part with correlation of 1 (usually temporal_alpha=0)\n";
+                cin >> temporal_alpha;
+                cout << "Temporal Height? This is how tall the tail is. 1 would be a correlation of 1 and 0 would be no correlation in the tail.\n";
+		cin >> temporal_height;
+	    }
+	    
+	    if (typeOfTemporalCorr == 10) {
+		cout << "Scale factor for inverted Gaussian? (0->1)\n";
+		cin >> temporal_height;
+	    }
             
             cout << "rms of angles? (0->30 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
             cin >> target_rms;
@@ -623,7 +621,7 @@ int main (int argc , char * const argv[]) {
             
             cout << "\nInitializing preliminary computations...\n" << endl;
             
-            alg.correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, alpha, height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
+            alg.correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
         }
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
