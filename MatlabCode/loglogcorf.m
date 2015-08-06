@@ -109,11 +109,11 @@ for j = 1 : length(workspaceArray)
     curvePoints = 1:1000; % vector used for plotting the quadratic fit
     curvePoints = sepvalc(curvePoints)/L;
     corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
-    %plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
+    plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
     hold on;
     p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
     y1 = polyval(p,curvePoints);
-    %plot(curvePoints,y1,'r'); % plot the curve fit
+    plot(curvePoints,y1,'r'); % plot the curve fit
     fprintf('Integral Length Scale = %f\n', L);
     % the x-intercept of polyfit p is the taylor length scale
     taylorL = max(roots(p))*L;
@@ -126,7 +126,7 @@ for j = 1 : length(workspaceArray)
     ylabel('correlation   ');
     xlabel('distance (m/L)  ');
     if (j == length(workspaceArray))
-        legend(workspaceNames);
+        %legend(workspaceNames);
     end
     xlim([0 4]);
     ylim([0 1]);
