@@ -564,12 +564,12 @@ int main (int argc , char * const argv[]) {
             }
             
             if ((int)typeOfTemporalCorr == 1 || (int)typeOfTemporalCorr == 10){
-                cout << "Temporal Sigma? ";
+                cout << "Temporal Sigma? (has units of 0.1 seconds times spacing) ";
                 cin >> temporal_sigma;
             }
             if (typeOfTemporalCorr == 5 || typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7 ||
                 typeOfTemporalCorr == 8 || typeOfTemporalCorr == 9 ){
-                cout << "Temporal Sigma? ";
+                cout << "Temporal Sigma? (has units of 0.1 seconds times spacing) ";
                 cin >> temporal_sigma;
             }
             
@@ -585,11 +585,11 @@ int main (int argc , char * const argv[]) {
 		cin >> temporal_height;
 	    }
             
-            cout << "rms of angles? (0->30 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
+            cout << "rms of angles? (0->50 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
             cin >> target_rms;
-            while (target_rms < 0 || target_rms > 30){
-                cout << "For SAFETY reasons, rms should be between 0 and 30 degrees!! Try an acceptable value!" <<endl;
-                cout << "\n rms of angles? (0->30 degrees) ";
+            while (target_rms < 0 || target_rms > 50){
+                cout << "For SAFETY reasons, rms should be between 0 and 50 degrees!! Try an acceptable value!" <<endl;
+                cout << "\n rms of angles? (0->50 degrees) ";
                 cin >> target_rms;
             }
             
