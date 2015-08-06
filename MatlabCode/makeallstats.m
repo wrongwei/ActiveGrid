@@ -28,8 +28,8 @@ if (~exist('highorder')), highorder = 1; end
 %get the directory of your input files:
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    pathname = fileparts('/Users/kevin/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/kevin/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
+    pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
 else
     pathname = fileparts(path);
     datafolder = fileparts(path); % redundant, but avoids errors and streamlines coding
@@ -46,7 +46,7 @@ if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
     %stitch together the file 
     u = [u1;u2;u3;u4];
 else % standard operation - however many files you want, manually specified below
-    actualtemp = []; % change this if you have a temperature reading you want to use
+    actualtemp = 20; % change this if you have a temperature reading you want to use
     u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
     u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
     u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
@@ -83,8 +83,8 @@ MASvsm = mean(u);
 MASvss = std(u);
 fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
 
-figure;
-histogram(u);
+%figure;
+%histogram(u);
 
   % compute spectrum: 
 tic
@@ -166,7 +166,7 @@ tic;
 if (nargin > 0)
     matfile = fullfile(pathname, outputname); % argument-specified file name, for function version
 else
-    matfile = fullfile(pathname, 'statscorr_g1g1_0805.mat'); % user-specified, for normal version
+    matfile = fullfile(pathname, 'statscorr_g1g1_0805_test.mat'); % user-specified, for normal version
 end
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
