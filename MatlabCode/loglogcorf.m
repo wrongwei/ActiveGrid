@@ -9,26 +9,32 @@
 path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
 addpath(path); 
 
-%MODIFY THIS, WHAT YOU WANT TO NAME THE
-%FIGURES? ---------------------------------------------------------------
-figurename = 'test.fig';
-
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
 % workspaceArray
 % -----------------------------------------------------------------------
 % Example with three workspaces
-% workspace1 = load('statscorr_g1g1_0805.mat');
-% workspace2 = load('statscorr_g2g2_0805.mat');
-% workspace3 = load('statscorr_g3g3_0805.mat');
-% workspaceArray = [workspace1,workspace2,workspace3];
+workspace1 = load('statscorr_g0.5g0.1_0805.mat');
+workspace2 = load('statscorr_g0.5g0.25_0805.mat');
+workspace3 = load('statscorr_g0.5g0.5_0805.mat');
+workspace4 = load('statscorr_g0.5g1_0805.mat');
+workspace5 = load('statscorr_g0.5rand_0805.mat');
+workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
+workspaceNames = ['TS 0.1','TS 0.25', 'TS 0.5', 'TS 1', 'TS random'];
 % Example with one workspace
-workspace1 = load('statscorr_g1g1_0805.mat');
-workspaceArray = [workspace1];
+%workspace1 = load('statscorr_g1g1_0805.mat');
+%workspaceArray = [workspace1];
+
+%MODIFY THIS, WHAT YOU WANT TO NAME THE
+%FIGURES? ---------------------------------------------------------------
+figurename = 'g0.5_corrfs.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
 % These variables include MASC MASvss sepval
 % -----------------------------------------------------------------------
+if (length(workspaceNames) ~= length(workspaceArray)) % validation
+    error('Array size mismatch between workspaceNames and workspaceArray');
+end
 for j = 1 : length(workspaceArray)
     %sepval = [1:12e6]/(20000)*mean(u); 
     L = hwils(workspaceArray(j).MASC,workspaceArray(j).sepval,2); %this is the integral length scale
@@ -108,10 +114,13 @@ for j = 1 : length(workspaceArray)
     hax = gca; 
     ylabel('correlation   ');
     xlabel('distance (m/L)  ');
+    if (j == length(workspaceArray))
+        legend(workspaceNames);
+    end
     xlim([0 4]);
     ylim([0 1]);
     %title('Correlation Function loglog');
-    title('Correlation Function');
+    title('Correlation Function(s)');
 
     %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
     logcorf = fullfile(path, figurename);
