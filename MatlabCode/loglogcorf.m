@@ -5,7 +5,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
 addpath(path); 
 
 % which workspace stats do you want to load??????????
@@ -84,11 +84,10 @@ plot(linux2,y1,'r');
 fprintf('Integral Length Scale = %f\n', L);
 % the x-intercept of polyfit p is the taylor length scale
 taylorL = max(roots(p))*L;
-fprintf('The taylor length scale = %f\n', taylorL);
+fprintf('The Taylor length scale = %f\n', taylorL);
 fprintf('Comment: I multipled by L because of the scaling of the graph\n');
-mu = 1.46E-5;
-turbRe = MASvss*taylorL/mu;
-fprintf('mu = %f\nrms = %f\nTurbulent reynolds Number = %f\n',mu, MASvss, turbRe);
+turbRe = MASvss*taylorL/nu;
+fprintf('mu = %f\nrms = %f\nTurbulent Reynolds Number = %f\n',nu, MASvss, turbRe);
 
 hax = gca; 
 ylabel('correlation   ');
