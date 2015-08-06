@@ -13,6 +13,9 @@ addpath(path);
 % and then put all of those variables into the array below named
 % workspaceArray
 % -----------------------------------------------------------------------
+close all;
+fprintf('Loading workspaces... ');
+tic;
 % Example with three workspaces
 workspace1 = load('statscorr_g0.5g0.1_0805.mat');
 workspace2 = load('statscorr_g0.5g0.25_0805.mat');
@@ -20,7 +23,9 @@ workspace3 = load('statscorr_g0.5g0.5_0805.mat');
 workspace4 = load('statscorr_g0.5g1_0805.mat');
 workspace5 = load('statscorr_g0.5rand_0805.mat');
 workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
-workspaceNames = ['TS 0.1','TS 0.25', 'TS 0.5', 'TS 1', 'TS random'];
+workspaceNames = {'Temporal Sigma: 0.1','Temporal Sigma: 0.25','Temporal Sigma: 0.5',...
+    'Temporal Sigma: 1','No Temporal Correlation'};
+chartTitle = 'Correlation Functions for Gaussian 0.5 (spatial)';
 % Example with one workspace
 %workspace1 = load('statscorr_g1g1_0805.mat');
 %workspaceArray = [workspace1];
@@ -35,7 +40,9 @@ figurename = 'g0.5_corrfs.fig';
 if (length(workspaceNames) ~= length(workspaceArray)) % validation
     error('Array size mismatch between workspaceNames and workspaceArray');
 end
+fprintf('Workspaces loaded in %.1f seconds.\n', round(10*toc)/10);
 for j = 1 : length(workspaceArray)
+    fprintf('\n Processing test %s \n',workspaceNames{j});
     %sepval = [1:12e6]/(20000)*mean(u); 
     L = hwils(workspaceArray(j).MASC,workspaceArray(j).sepval,2); %this is the integral length scale
 
@@ -91,18 +98,18 @@ for j = 1 : length(workspaceArray)
     H2 = figure(2);
     set(gca, 'fontsize', 12);
     %loglog(sepvalc/L,MASCc,'*');
-    plot(sepvalc/L,MASCc,'b');
+    plot(sepvalc/L,MASCc);
     hold on;
     samplePoints = 5:30; % make a vector of the first 26 points excluding noise
     samplePoints2 = sepvalc(samplePoints)/L;
     curvePoints = 1:1000; % vector used for plotting the quadratic fit
     curvePoints = sepvalc(curvePoints)/L;
     corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
-    plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
+    %plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
     hold on;
     p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
     y1 = polyval(p,curvePoints);
-    plot(curvePoints,y1,'r'); % plot the curve fit
+    %plot(curvePoints,y1,'r'); % plot the curve fit
     fprintf('Integral Length Scale = %f\n', L);
     % the x-intercept of polyfit p is the taylor length scale
     taylorL = max(roots(p))*L;
@@ -120,14 +127,13 @@ for j = 1 : length(workspaceArray)
     xlim([0 4]);
     ylim([0 1]);
     %title('Correlation Function loglog');
-    title('Correlation Function(s)');
+    title(chartTitle);
 
     %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
     logcorf = fullfile(path, figurename);
 
     %saveas(H1, ncorf);
     saveas(H2, logcorf);
-
-
-    rmpath(path);
 end
+
+rmpath(path);
