@@ -1406,7 +1406,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float rms;
     float correction = 1;
     int i = 1; // grid number counter
-    int SPACING = 2; // number of interpolations needed to keep servo speed under its max value, in worst case
+    int SPACING = 1; // number of interpolations needed to keep servo speed under its max value, in worst case
     
     float amplitude; // for steps/speeds calculations and safety checks, below
     float diff; // difference between two doubles (used with epsilon in place of == operator, which doesn't perform well on doubles)
