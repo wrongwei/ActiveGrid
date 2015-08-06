@@ -6,8 +6,12 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
 addpath(path); 
+
+%MODIFY THIS, WHAT YOU WANT TO NAME THE
+%FIGURES? ---------------------------------------------------------------
+figurename = 'test.fig';
 
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
@@ -109,10 +113,8 @@ for j = 1 : length(workspaceArray)
     %title('Correlation Function loglog');
     title('Correlation Function');
 
-    %MODIFY THIS, WHAT YOU WANT TO NAME THE
-    %FIGURES? -------------------------------------------------------------------------------
     %ncorf = fullfile(pathname, 'ncorel_trd1.5.fig');
-    logcorf = fullfile(path, 'test.fig');
+    logcorf = fullfile(path, figurename);
 
     %saveas(H1, ncorf);
     saveas(H2, logcorf);
