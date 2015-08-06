@@ -6,8 +6,8 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
-addpath(path); 
+path = fileparts('/Users/nathan/Documents/Data/data08_04_15/');
+addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
@@ -16,23 +16,28 @@ addpath(path);
 close all;
 fprintf('Loading workspaces... ');
 tic;
-% Example with three workspaces
-workspace1 = load('statscorr_g0.5g0.1_0805.mat');
-workspace2 = load('statscorr_g0.5g0.25_0805.mat');
-workspace3 = load('statscorr_g0.5g0.5_0805.mat');
-workspace4 = load('statscorr_g0.5g1_0805.mat');
-workspace5 = load('statscorr_g0.5rand_0805.mat');
+% Example with five workspaces
+%{
+workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0805.mat');
+workspace2 = load('statscorr_lt1.3lt0.5_h0.25_0805.mat');
+workspace3 = load('statscorr_lt1.3lt0.5_h0.5_0805.mat');
+workspace4 = load('statscorr_lt1.3lt0.5_h0.75_0805.mat');
+workspace5 = load('statscorr_lt1.3lt0.5_h1_0805.mat');
 workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
-workspaceNames = {'Temporal Sigma: 0.1','Temporal Sigma: 0.25','Temporal Sigma: 0.5',...
-    'Temporal Sigma: 1','No Temporal Correlation'};
-chartTitle = 'Correlation Functions for Gaussian 0.5 (spatial)';
+workspaceNames = {'Height: 0.1','Height: 0.25','Height: 0.5',...
+    'Height: 0.75','Height: 1'};
+chartTitle = 'Correlation Functions for Top Hat Long Tail (spatial sigma = 1.3, temporal sigma = 0.5)';
+%}
+
 % Example with one workspace
-%workspace1 = load('statscorr_g1g1_0805.mat');
-%workspaceArray = [workspace1];
+workspace1 = load('statscorr_us2.6g1_space6_0804.mat');
+workspaceArray = [workspace1];
+workspaceNames = {'US2.6G1'};
+chartTitle = 'Correlation Function: Unsharp (spatial sigma = 2.6, temporal sigma = 1, 0.6s spacing';
 
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? ---------------------------------------------------------------
-figurename = 'g0.5_corrfs.fig';
+figurename = 'test.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
 % These variables include MASC MASvss sepval
@@ -48,7 +53,7 @@ for j = 1 : length(workspaceArray)
 
     nu = 1.46e-5; % kinematic viscosity of air
     % print standard deviation = RMS velocity
-    fprintf('RMS velocity (m/s) = %.4f \n', workspaceArray(j).MASvss);
+    fprintf('RMS velocity (m/s) = %f \n', workspaceArray(j).MASvss);
     % calculate energy dissipation
     epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
     % calculate Kolmogorov length scale
@@ -56,10 +61,9 @@ for j = 1 : length(workspaceArray)
     % calculate maximum frequency
     freq = workspaceArray(j).MASvss/eta;
     % print results
-    fprintf('Integral length scale (m) = %.8f \n', L);
-    fprintf('Energy dissipation rate (W) = %.8f \n', epsilon);
-    fprintf('Kolmogorov length scale (m) = %.8f \n', eta);
-    fprintf('Maximum fluctuation frequency (Hz) = %.8f \n', freq);
+    fprintf('Energy dissipation rate (W) = %f \n', epsilon);
+    fprintf('Kolmogorov length scale (m) = %f \n', eta);
+    fprintf('Maximum fluctuation frequency (Hz) = %f \n', freq);
     % Cut off MASC (the correlation function) at nth zero crossing. Discards
     % much of unwanted data
     count = 0; 
@@ -113,10 +117,10 @@ for j = 1 : length(workspaceArray)
     fprintf('Integral Length Scale = %f\n', L);
     % the x-intercept of polyfit p is the taylor length scale
     taylorL = max(roots(p))*L;
-    fprintf('The Taylor length scale = %f\n', taylorL);
-    fprintf('Comment: I multipled by L because of the scaling of the graph\n');
+    fprintf('Taylor length scale = %f\n', taylorL);
+    %fprintf('Comment: I multipled by L because of the scaling of the graph\n');
     turbRe = workspaceArray(j).MASvss*taylorL/nu;
-    fprintf('mu = %f\nrms = %f\nTurbulent Reynolds Number = %f\n',nu, workspaceArray(j).MASvss, turbRe);
+    fprintf('Turbulent Reynolds Number = %f\n', turbRe);
 
     hax = gca; 
     ylabel('correlation   ');

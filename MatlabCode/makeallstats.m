@@ -29,8 +29,8 @@ if (~exist('highorder')), highorder = 1; end
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
     pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g0.5g0.5_10ft_rms20/'); % location of data
-    outputname = 'statscorr_g0.5g0.5_0805.mat'; % name your .mat workspace!
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/lt1.3lt0.5_h1/'); % location of data
+    outputname = 'statscorr_lt1.3lt0.5_h1_0805.mat'; % name your .mat workspace!
     calibfile = 'calib8_05.m'; % calibration file name (set here for convenience)
     actualtemp = []; % change this if you have a temperature measurement you want to use, otherwise should be []
 else
@@ -66,7 +66,7 @@ deltaT = 1/20000;
 %histX = 35;
 
 % number of correlation function separations starting from one in samples: 
-rCmax = 18e6; 
+rCmax = length(u);
 
 sepval = [1:rCmax]/(20000)*mean(u);
  
