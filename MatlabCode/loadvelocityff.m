@@ -52,15 +52,13 @@ if ~isempty(actualtemp)  % temperature correction
     calibtemp = mean(calibdata.calibtemp);
 	E = applytempcorrection(E, actualtemp, calibtemp, Rw, Rc, ...
         probeinfo.probe(probenumber).sensor(sensornumber).alpha);
-	toc
-else
-	T0 = []; 
+	toc 
 end
 
 
   % ---- process the calibration data: 
 fprintf('  processing the calibrations...  \n'); 
-[a b n R] = processcalibrationff(calibrationfilename, T0, true, probenumber, sensornumber);
+[a b n R] = processcalibrationff(calibrationfilename, true, probenumber, sensornumber);
 
   % ---- apply the calibration: 
 if (length(R) == 0)
