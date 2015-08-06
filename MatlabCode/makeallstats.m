@@ -29,7 +29,10 @@ if (~exist('highorder')), highorder = 1; end
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
     pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g0.5g0.1_10ft_rms20/'); % location of data
+    outputname = 'statscorr_g1g1_0805_test.mat'; % name your .mat workspace!
+    calibfile = 'calib8_05.m'; % calibration file name (set here for convenience)
+    actualtemp = []; % change this if you have a temperature measurement you want to use, otherwise should be []
 else
     pathname = fileparts(path);
     datafolder = fileparts(path); % redundant, but avoids errors and streamlines coding
@@ -46,11 +49,10 @@ if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
     %stitch together the file 
     u = [u1;u2;u3;u4];
 else % standard operation - however many files you want, manually specified below
-    actualtemp = []; % change this if you have a temperature reading you want to use
-    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
-    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
-    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
-    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
+    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
+    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
+    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
+    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
     %u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
     %u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
     %u = [u1;u2;u3;u4;u5;u6];
@@ -163,11 +165,8 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
-if (nargin > 0)
-    matfile = fullfile(pathname, outputname); % argument-specified file name, for function version
-else
-    matfile = fullfile(pathname, 'statscorr_g1g1_0805_test.mat'); % user-specified, for normal version
-end
+matfile = fullfile(pathname, outputname);
+
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
