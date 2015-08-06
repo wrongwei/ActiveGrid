@@ -19,7 +19,7 @@
 % MASN   - the histogram
 % 
 
-function [] = makeallstats(path, calibfile, filenamebase, outputname, actualtemp)
+function [] = makeallstats(path, folder, calibfile, outputname, actualtemp)
 
 if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
@@ -29,35 +29,24 @@ if (~exist('highorder')), highorder = 1; end
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
     pathname = fileparts('/Users/nathan/Documents/Data/data08_06_15/'); % location of calib file
-    datafolder = fileparts('/Users/nathan/Documents/Data/data08_06_15/lt1.3lt0.5_h1/'); % location of data
-    outputname = 'statscorr_lt1.3lt0.5_h1_0806.mat'; % name your .mat workspace!
+    files = dir('/Users/nathan/Documents/Data/data08_06_15/lt1.3lt1_h0_rms40/*.dat');
+    outputname = 'statscorr_lt1.3lt1_h0_rms40_0806.mat'; % name your .mat workspace!
     calibfile = 'calib8_06.m'; % calibration file name (set here for convenience)
     actualtemp = 22.9; % change this if you have a temperature measurement you want to use, otherwise should be []
 else
     pathname = fileparts(path);
-    datafolder = fileparts(path); % change this if you have your data organized into separate folders
+    files = dir(strcat(folder, '*.dat'));
 end
 addpath(pathname);
-addpath(datafolder);
 
 %extract velocity
-if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
-    u1 = loadvelocityff(strcat(filenamebase, num2str(1), '.dat'), calibfile, 1, 1, actualtemp);
-    u2 = loadvelocityff(strcat(filenamebase, num2str(2), '.dat'), calibfile, 1, 1, actualtemp);
-    u3 = loadvelocityff(strcat(filenamebase, num2str(3), '.dat'), calibfile, 1, 1, actualtemp);
-    u4 = loadvelocityff(strcat(filenamebase, num2str(4), '.dat'), calibfile, 1, 1, actualtemp);
-    %stitch together the file 
-    u = [u1;u2;u3;u4];
-else % standard operation - however many files you want, manually specified below
-    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
-    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
-    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
-    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', calibfile, 1, 1, actualtemp);
-    %u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
-    %u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
-    %u = [u1;u2;u3;u4;u5;u6];
-    u = [u1;u2;u3;u4];
+for i = 1 : length(files)
+    disp(files(i).name); % debugging
+    newU = loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp);
+    u = cat(1, u, newU);
 end
+clear newU;
+disp(length(u));
 fprintf('velocity extracted \n');
 
 %this is 1/ the sampling frequency
@@ -165,6 +154,7 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
+clear u; % u is not needed in workspace, but takes up a lot of space...
 matfile = fullfile(pathname, outputname);
 
 %structfile = fullfile(pathname, 'struct.fig');
@@ -184,8 +174,11 @@ save(matfile);
 %save('std.txt','MASvss','-append','-ascii');
 %save('rms.txt','rmsvelocity','-append','-ascii');
 rmpath(pathname);
-rmpath(datafolder); 
+
+% play sound to alert sleeping user to end of data processing
+t = 0:(1/8000):0.5;
+y = sin(2*pi*440*t);
+sound(y, 8000);
 
 fprintf('  done in %.1f seconds.\n', round(10*toc)/10);
 %close all; 
-
