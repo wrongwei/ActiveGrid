@@ -28,11 +28,11 @@ if (~exist('highorder')), highorder = 1; end
 %get the directory of your input files:
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/lt1.3lt0.5_h1/'); % location of data
-    outputname = 'statscorr_lt1.3lt0.5_h1_0805.mat'; % name your .mat workspace!
-    calibfile = 'calib8_05.m'; % calibration file name (set here for convenience)
-    actualtemp = []; % change this if you have a temperature measurement you want to use, otherwise should be []
+    pathname = fileparts('/Users/nathan/Documents/Data/data08_06_15/'); % location of calib file
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_06_15/lt1.3lt0.5_h1/'); % location of data
+    outputname = 'statscorr_lt1.3lt0.5_h1_0806.mat'; % name your .mat workspace!
+    calibfile = 'calib8_06.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.9; % change this if you have a temperature measurement you want to use, otherwise should be []
 else
     pathname = fileparts(path);
     datafolder = fileparts(path); % change this if you have your data organized into separate folders

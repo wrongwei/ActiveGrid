@@ -6,7 +6,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_04_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_06_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -17,27 +17,27 @@ close all;
 fprintf('Loading workspaces... ');
 tic;
 % Example with five workspaces
-%{
-workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0805.mat');
-workspace2 = load('statscorr_lt1.3lt0.5_h0.25_0805.mat');
-workspace3 = load('statscorr_lt1.3lt0.5_h0.5_0805.mat');
-workspace4 = load('statscorr_lt1.3lt0.5_h0.75_0805.mat');
-workspace5 = load('statscorr_lt1.3lt0.5_h1_0805.mat');
+
+workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0806.mat');
+workspace2 = load('statscorr_lt1.3lt0.5_h0.25_0806.mat');
+workspace3 = load('statscorr_lt1.3lt0.5_h0.5_0806.mat');
+workspace4 = load('statscorr_lt1.3lt0.5_h0.75_0806.mat');
+workspace5 = load('statscorr_lt1.3lt0.5_h1_0806.mat');
 workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
 workspaceNames = {'Height: 0.1','Height: 0.25','Height: 0.5',...
     'Height: 0.75','Height: 1'};
 chartTitle = 'Correlation Functions for Top Hat Long Tail (spatial sigma = 1.3, temporal sigma = 0.5)';
-%}
 
+%{
 % Example with one workspace
-workspace1 = load('statscorr_us2.6g1_space6_0804.mat');
+workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0806.mat');
 workspaceArray = [workspace1];
-workspaceNames = {'US2.6G1'};
-chartTitle = 'Correlation Function: Unsharp (spatial sigma = 2.6, temporal sigma = 1, 0.6s spacing';
-
+workspaceNames = {'LT1.3 LT 0.5 H0.1'};
+chartTitle = 'Correlation Function';
+%}
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? ---------------------------------------------------------------
-figurename = 'test.fig';
+figurename = 'lt1.3lt0.5_corrfs.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
 % These variables include MASC MASvss sepval
@@ -51,7 +51,7 @@ for j = 1 : length(workspaceArray)
     %sepval = [1:12e6]/(20000)*mean(u); 
     L = hwils(workspaceArray(j).MASC,workspaceArray(j).sepval,2); %this is the integral length scale
 
-    nu = 1.46e-5; % kinematic viscosity of air
+    nu = 15.11e-6; % kinematic viscosity of air
     % print standard deviation = RMS velocity
     fprintf('RMS velocity (m/s) = %f \n', workspaceArray(j).MASvss);
     % calculate energy dissipation
