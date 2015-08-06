@@ -19,7 +19,7 @@
 % MASN   - the histogram
 % 
 
-function [] = makeallstats(path, calibfile, filenamebase, outputname)
+function [] = makeallstats(path, calibfile, filenamebase, outputname, actualtemp)
 
 if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
@@ -28,8 +28,8 @@ if (~exist('highorder')), highorder = 1; end
 %get the directory of your input files:
 if (nargin == 0)
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    pathname = fileparts('/Users/kevin/Documents/Data/data08_05_15/'); % location of calib file
-    datafolder = fileparts('/Users/kevin/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
+    pathname = fileparts('/Users/nathan/Documents/Data/data08_05_15/'); % location of calib file
+    datafolder = fileparts('/Users/nathan/Documents/Data/data08_05_15/g1g1_10ft_rms20/'); % location of data
 else
     pathname = fileparts(path);
     datafolder = fileparts(path); % redundant, but avoids errors and streamlines coding
@@ -39,19 +39,20 @@ addpath(datafolder);
 
 %extract velocity
 if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
-    u1 = loadvelocityff(strcat(filenamebase, num2str(1), '.dat'), calibfile, 1, 1);
-    u2 = loadvelocityff(strcat(filenamebase, num2str(2), '.dat'), calibfile, 1, 1);
-    u3 = loadvelocityff(strcat(filenamebase, num2str(3), '.dat'), calibfile, 1, 1);
-    u4 = loadvelocityff(strcat(filenamebase, num2str(4), '.dat'), calibfile, 1, 1);
+    u1 = loadvelocityff(strcat(filenamebase, num2str(1), '.dat'), calibfile, 1, 1, actualtemp);
+    u2 = loadvelocityff(strcat(filenamebase, num2str(2), '.dat'), calibfile, 1, 1, actualtemp);
+    u3 = loadvelocityff(strcat(filenamebase, num2str(3), '.dat'), calibfile, 1, 1, actualtemp);
+    u4 = loadvelocityff(strcat(filenamebase, num2str(4), '.dat'), calibfile, 1, 1, actualtemp);
     %stitch together the file 
     u = [u1;u2;u3;u4];
 else % standard operation - however many files you want, manually specified below
-    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_05.m', 1, 1);
-    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_05.m', 1, 1);
-    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_05.m', 1, 1);
-    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_05.m', 1, 1);
-    %u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
-    %u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1);
+    actualtemp = []; % change this if you have a temperature reading you want to use
+    u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
+    u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
+    u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
+    u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
+    %u5 = loadvelocityff('xpos100_ypos100_evts12000000-14999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
+    %u6 = loadvelocityff('xpos100_ypos100_evts15000000-17999999SN_Ch4.dat', 'calib8_03.m', 1, 1, actualtemp);
     %u = [u1;u2;u3;u4;u5;u6];
     u = [u1;u2;u3;u4];
 end
@@ -82,8 +83,8 @@ MASvsm = mean(u);
 MASvss = std(u);
 fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
 
-figure;
-histogram(u);
+%figure;
+%histogram(u);
 
   % compute spectrum: 
 tic
@@ -165,7 +166,7 @@ tic;
 if (nargin > 0)
     matfile = fullfile(pathname, outputname); % argument-specified file name, for function version
 else
-    matfile = fullfile(pathname, 'statscorr_g1g1_0805.mat'); % user-specified, for normal version
+    matfile = fullfile(pathname, 'statscorr_g1g1_0805_test.mat'); % user-specified, for normal version
 end
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
@@ -188,7 +189,4 @@ rmpath(datafolder);
 
 fprintf('  done in %.1f seconds.\n', round(10*toc)/10);
 %close all; 
-
-
-
 

@@ -21,6 +21,7 @@ tests = 10; % number of data collection points along the tunnel
 calibfile = 'calib7_31.m';
 datafilebase = 'g3g3_0731_0'; % standardized beginning of each data file
 outputfilebase = 'statscorr_g3g3_0731_0'; % standardized beginning of each workspace makeallstats will create
+testtemps = []; % temperatures measured at each point - leave empty if no temperature data was taken
 % -----------------------------------------------------------------------
 
 path = fileparts(filename);
@@ -31,7 +32,13 @@ for t = 1 : tests
     disp(strcat('Processing test #', num2str(t), '/', num2str(tests)));
     filestring = strcat(datafilebase, num2str(t-1), '_');
     outputstring = strcat(outputfilebase, num2str(t-1));
-    makeallstats(filename, calibfile, filestring, outputstring); % note: makeallstats adds the final index and file extension
+    if ~isempty(testtemps)
+        temp = []; % so makeallstats knows not to do temp correction
+    else
+        temp = testtemps(tests);
+    end
+    makeallstats(filename, calibfile, filestring, outputstring, temp); 
+    % note: makeallstats adds the final index and file extension
 end
 
 rmpath(path);

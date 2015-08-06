@@ -4,11 +4,9 @@
 % 
 % SINGLE CHANNEL VERSION OF PROCESSCALIBRATIONNF: 
 % 
-% [a b n R figs] = processcalibrationff(calibrationfilename, T0, freeexponent, ...  
+% [a b n R figs] = processcalibrationff(calibrationfilename, freeexponent, ...  
 %                                       probenumber, sensornumber, figs); 
-% 
-% T0 (optional)   - temperature to correct each data point to.  
-%                   default no temp correction.  
+%  
 % freeexponent (optional) - value for King's law exponent, or true if left free to fit.  
 %                           default 0.5.  
 % figs (optional) - 0 to make one new figure for each probe, 
@@ -17,15 +15,15 @@
 % 
 % Gregory Bewley  2009
 
-function [a b n R figs] = processcalibrationff(calibrationfilename, T0, freeexponent, ...  
+function [a b n R figs] = processcalibrationff(calibrationfilename, freeexponent, ...  
                                                probenumber, sensornumber, figs)
 
-if (nargin < 6), figs = 0; end
+if (nargin < 5), figs = 0; end
 %if (nargin < 3), freeexponent = 0.5; 
 %elseif isempty(freeexponent), freeexponent = 0.5; end
-if (nargin < 3), freeexponent = true; 
+if (nargin < 2), freeexponent = true; 
 elseif isempty(freeexponent), freeexponent = 0.5; end
-if (nargin < 2), T0 = []; end
+%if (nargin < 2), T0 = []; end
 
   % ---- load probeinfo, calibdata, ...  
 [pathstr, name] = fileparts(calibrationfilename); 
@@ -67,16 +65,16 @@ calibdata.E(channel, :) = calibdata.E(channel, I);
 
   % the relevant data: 
 thisE = calibdata.E(channel, :); 
-
-  % ---- apply temperature correction, if requested: 
+%{
+  % ---- apply temperature correction, if requested: (OUTDATED)
 if ~isempty(T0)
-    calibdata.T(channel, :); 
+    calibdata.T(channel, :);
 	thisE = applytempcorrection(thisE, calibdata.T(channel, :), calibdata.Twire(channel), T0); 
 end
-
+%}
 % ---- curve fit calculations (King's Law or polynomial fit) ----
 a = []; b = []; n = []; R = [];
-if (isfield(calibdata, 'polyfit'))
+if (isfield(calibdata, 'polyfit') && ~isempty(calibdata.polyfit))
     disp('  Polynomial fit selected');
     % polyfit returns a vector of coefficients for fit of order 'polyfit'
     % (hijacking R for this purpose b/c it's currently unused)
@@ -106,11 +104,12 @@ if (nargin > 5)
 	hold on
     
     E = calibdata.E(channel, :); 
-      % ---- apply temperature correction, if requested: 
+    %{
+      % ---- apply temperature correction, if requested: (OUTDATED)
     if ~isempty(T0)
         E = applytempcorrection(E, calibdata.T(channel, :), calibdata.Twire(channel), T0); 
     end
-
+    %}
     u = calibdata.v(channel,:); 
     meandens = mean(calibdata.dens); 
 
