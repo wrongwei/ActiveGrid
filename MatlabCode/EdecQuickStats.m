@@ -7,7 +7,7 @@
 
 clear all;
 trials = 10.0; % number of tests carried out
-folder = fileparts('/Users/nathan/Documents/Data/data07_31_15/');
+folder = fileparts('/Users/kevin/Documents/Data/data07_31_15/');
 addpath(folder);
 mean_rmsd = zeros(trials,1); % mean RMSD for a given trial
 L = zeros(trials,1); % integral length scale for a given trial
@@ -74,10 +74,50 @@ for f = 0 : (trials - 1)
     fprintf('Energy dissipation rate for file %d (W) = %.8f \n', f, epsilon(f+1));
     fprintf('Kolmogorov length scale for file %d (m) = %.8f \n', f, eta(f+1));
     fprintf('Maximum fluctuation frequency for file %d (Hz) = %.8f \n', f, freq(f+1));
-    % calculate Reynolds number approximation, based on RMSD fluctuation
-    % velocity (i.e. standard deviation) and integral length scale
-    Re(f+1) = L(f+1)*MASvss/nu; % NEEDS TAYLOR MICROSCALE
-    fprintf('Reynolds number for file %d is approximately %.4f \n\n', f, Re(f+1));
+    % calculate the taylor microscale (needed to find reynolds number)
+    count = 0; 
+    n = 2;
+    for i=1:length(MASC)
+        if(MASC(i) < 0 ) 
+            count = count + 1;
+        end;
+        if(count >= n)
+            cutoff = i; 
+            break;
+        end;
+
+    end;
+    MASCc = MASC(1: cutoff); % the cut off structure function
+    sepvalc = sepval(1:cutoff); %the cut off sepval 
+    figure(1);
+    set(gca, 'fontsize', 12);
+    plot(sepvalc/L(f+1),MASCc,'b');
+    hold on;
+    samplePoints = 5:30; % make a vector of the first 26 points excluding noise
+    samplePoints2 = sepvalc(samplePoints)/L(f+1);
+    curvePoints = 1:1000; % vector used for plotting the quadratic fit
+    curvePoints = sepvalc(curvePoints)/L(f+1);
+    corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
+    plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
+    hold on;
+    p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+    y1 = polyval(p,curvePoints);
+    plot(curvePoints,y1,'r'); % plot the curve fit
+    fprintf('Integral Length Scale = %f\n', L(f+1));
+    % the x-intercept of polyfit p is the taylor length scale
+    taylorL = max(roots(p))*L(f+1);
+    fprintf('The Taylor length scale = %f\n', taylorL);
+    fprintf('Comment: I multipled by L because of the scaling of the graph\n');
+    %calculated turbulent Reynolds Number
+    Re(f+1) = MASvss*taylorL/nu;
+    fprintf('mu = %f\nrms = %f\nTurbulent Reynolds Number = %f\n',nu, MASvss, Re(f+1));
+    hax = gca; 
+    ylabel('correlation   ');
+    xlabel('distance (m/L)  ');
+    xlim([0 4]);
+    ylim([0 1]);
+    %title('Correlation Function loglog');
+    title('Correlation Function');
 end
 fprintf('Integral Length Scale range for this run: %.4f to %.4f \n', min(L), max(L));
 fprintf('Reynolds Number range for this run: %.4f to %.4f\n', min(Re), max(Re));
