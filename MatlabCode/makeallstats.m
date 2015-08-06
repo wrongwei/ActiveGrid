@@ -46,7 +46,7 @@ if (nargin > 0) % function call with 2 arguments - from makeallstats_edec_fast
     %stitch together the file 
     u = [u1;u2;u3;u4];
 else % standard operation - however many files you want, manually specified below
-    actualtemp = 20; % change this if you have a temperature reading you want to use
+    actualtemp = []; % change this if you have a temperature reading you want to use
     u1 = loadvelocityff('xpos100_ypos100_evts0-2999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
     u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
     u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999SN_Ch4.dat', 'calib8_05.m', 1, 1, actualtemp);
