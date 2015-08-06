@@ -5,7 +5,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
+path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
 addpath(path); 
 
 % which workspace stats do you want to load??????????
@@ -70,17 +70,16 @@ set(gca, 'fontsize', 12);
 %loglog(sepvalc/L,MASCc,'*');
 plot(sepvalc/L,MASCc,'b');
 hold on;
-distR = 5:30; % make a vector of the first 26 points excluding noise
-linux = 1:1000;
-linux2 = sepvalc(linux)/L;
-distR2 = sepvalc(distR)/L;
-corrVals = MASCc(distR);
-corrVals = corrVals';
-plot(distR2,corrVals,'-ok'); %plot these 26 points
+samplePoints = 5:30; % make a vector of the first 26 points excluding noise
+samplePoints2 = sepvalc(samplePoints)/L;
+curvePoints = 1:1000; % vector used for plotting the quadratic fit
+curvePoints = sepvalc(curvePoints)/L;
+corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
+plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
 hold on;
-p = polyfit(distR2,corrVals,2); %fit a second order polynomial to these 26 points
-y1 = polyval(p,linux2);
-plot(linux2,y1,'r');
+p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+y1 = polyval(p,curvePoints);
+plot(curvePoints,y1,'r'); % plot the curve fit
 fprintf('Integral Length Scale = %f\n', L);
 % the x-intercept of polyfit p is the taylor length scale
 taylorL = max(roots(p))*L;

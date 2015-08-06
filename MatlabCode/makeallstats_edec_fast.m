@@ -16,7 +16,7 @@ Example data file name: g2g1_0730_05_3.dat
 %}
 
 % -------------------------- PARAMETERS TO SET --------------------------
-filename = '/Users/nathan/Documents/Data/data07_31_15/';
+filename = '/Users/kevin/Documents/Data/data07_31_15/';
 tests = 10; % number of data collection points along the tunnel
 calibfile = 'calib7_31.m';
 datafilebase = 'g3g3_0731_0'; % standardized beginning of each data file
