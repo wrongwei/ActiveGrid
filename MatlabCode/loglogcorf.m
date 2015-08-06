@@ -6,9 +6,10 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
-addpath(path); 
-
+path = fileparts('/Users/kevin/Documents/Data/data07_31_15/');
+addpath(path);
+path = fileparts('/Users/kevin/Documents/Data/data08_03_15/');
+addpath(path);
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
 % workspaceArray
@@ -17,15 +18,16 @@ close all;
 fprintf('Loading workspaces... ');
 tic;
 % Example with three workspaces
-workspace1 = load('statscorr_g0.5g0.1_0805.mat');
-workspace2 = load('statscorr_g0.5g0.25_0805.mat');
-workspace3 = load('statscorr_g0.5g0.5_0805.mat');
-workspace4 = load('statscorr_g0.5g1_0805.mat');
-workspace5 = load('statscorr_g0.5rand_0805.mat');
-workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
-workspaceNames = {'Temporal Sigma: 0.1','Temporal Sigma: 0.25','Temporal Sigma: 0.5',...
-    'Temporal Sigma: 1','No Temporal Correlation'};
-chartTitle = 'Correlation Functions for Gaussian 0.5 (spatial)';
+workspace1 = load('statscorr_g2.6g1_0803.mat');
+workspace2 = load('statscorr_g2.6inv2_0731.mat');
+workspace3 = load('statscorr_g2.6th1_0731.mat');
+workspace4 = load('statscorr_g2.6tr2_0731.mat');
+workspace5 = load('statscorr_randg1_0731.mat');
+workspace6 = load('statscorr_us2.6g1_0731.mat');
+workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,workspace6];
+workspaceNames = {'g2.6g1','g2.6inv2','g2.6th1',...
+    'g2.6tr2','randg1','us2.6g1'};
+chartTitle = 'Correlation Functions 0731 and 0803';
 % Example with one workspace
 %workspace1 = load('statscorr_g1g1_0805.mat');
 %workspaceArray = [workspace1];
@@ -105,11 +107,11 @@ for j = 1 : length(workspaceArray)
     curvePoints = 1:1000; % vector used for plotting the quadratic fit
     curvePoints = sepvalc(curvePoints)/L;
     corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
-    %plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
+    plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
     hold on;
     p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
     y1 = polyval(p,curvePoints);
-    %plot(curvePoints,y1,'r'); % plot the curve fit
+    plot(curvePoints,y1,'r'); % plot the curve fit
     fprintf('Integral Length Scale = %f\n', L);
     % the x-intercept of polyfit p is the taylor length scale
     taylorL = max(roots(p))*L;
@@ -122,7 +124,7 @@ for j = 1 : length(workspaceArray)
     ylabel('correlation   ');
     xlabel('distance (m/L)  ');
     if (j == length(workspaceArray))
-        legend(workspaceNames);
+        %legend(workspaceNames);
     end
     xlim([0 4]);
     ylim([0 1]);
