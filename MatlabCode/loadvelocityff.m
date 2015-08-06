@@ -10,7 +10,7 @@
 % 
 % Greg Bewley  2011
 
-function [E,a,b,n] = loadvelocityff(datafilename, calibrationfilename, probenumber, sensornumber)
+function [E,a,b,n] = loadvelocityff(datafilename, calibrationfilename, probenumber, sensornumber, actualtemp)
 
 tstart = tic; 
  
@@ -24,10 +24,12 @@ probeinfo = extractprobeinfo(calibrationfilename);
 %    probeinfo.probe(probenumber).sensor(sensornumber).offset; % problematic
 
 
-if nargin > 4  % NOT IMPLEMENTED YET
+if ~isempty(actualtemp)  % temperature correction
 	  % ---- convert temperature to degrees C, if necessary: 
+      %{
 	fprintf('  converting the temp...  mean, std temp for each block: \n'); 
 	tic
+    
 	if (T{1}(1) < 5)  % if the value is less than 5, its probably a voltage, not a temp.  
 		T{j} = convertDantectemp(T{j}); 
 	end
@@ -39,12 +41,17 @@ if nargin > 4  % NOT IMPLEMENTED YET
 	  % all data will be corrected to the mean temperature for this collection of data: 
 	T0 = mean(T0); 
 	toc
-	
+	%}
 	  % ---- correct voltages for temperature: 
 	fprintf('  correcting voltages for temps...  \n'); 
 	tic
 	calibdata = extractcalibdata(calibrationfilename); 
-	E{j}(i, :) = applytempcorrection(E{j}(i, :), mean(T{j}), calibdata.Twire(i), T0); 
+    % get resistances from calibration file
+    Rc = probeinfo.probe(probenumber).sensor(sensornumber).resistance;
+    Rw = Rc * (1 + probeinfo.probe(probenumber).sensor(sensornumber).overheat);
+    calibtemp = mean(calibdata.calibtemp);
+	E = applytempcorrection(E, actualtemp, calibtemp, Rw, Rc, ...
+        probeinfo.probe(probenumber).sensor(sensornumber).alpha);
 	toc
 else
 	T0 = []; 
