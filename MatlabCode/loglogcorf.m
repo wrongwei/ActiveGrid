@@ -6,7 +6,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
+path = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -16,16 +16,20 @@ addpath(path);
 close all;
 fprintf('Loading workspaces... ');
 tic;
-% Example with five workspaces
-workspace2 = load('statscorr_th1.3th1_rms10_tr0.1_0806.mat');
-workspace3 = load('statscorr_th1.3th1_rms20_tr0.1_0806.mat');
-workspace4 = load('statscorr_th1.3th1_rms30_tr0.1_0806.mat');
-workspace5 = load('statscorr_th1.3th1_rms40_tr0.1_0806.mat');
-workspace6 = load('statscorr_th1.3th1_rms50_tr0.1_0806.mat');
-workspaceArray = [workspace2,workspace3,workspace4,workspace5,workspace6];
-workspaceNames = {'rms 10','rms 20',...
-    'rms 30','rms 40','rms 50'};
-chartTitle = 'Correlation Functions for Top Hat, SpatialSigma=1.3, TemporalSigma=.1sec';
+%workspace1 = load('statscorr_lt1.3lt1_h0.8_Re_0807.mat');
+
+workspace1 = load('statscorr_lt1.3lt1_h0_Re_0807.mat');
+workspace2 = load('statscorr_lt1.3lt1_h0.05_Re_0807.mat');
+workspace3 = load('statscorr_lt1.3lt1_h0.1_Re_0807.mat');
+workspace4 = load('statscorr_lt1.3lt1_h0.2_Re_0807.mat');
+workspace5 = load('statscorr_lt1.3lt1_h0.4_Re_0807.mat');
+workspace6 = load('statscorr_lt1.3lt1_h0.8_Re_0807.mat');
+
+workspaceArray = [workspace1, workspace2,workspace3,workspace4,workspace5,workspace6];
+workspaceNames = {'rms 30 Height 0','rms 30 Height 0.05','rms 30 Height 0.1',...
+    'rms 25 Height 0.2','rms 19 Height 0.4','rms 18 Height 0.8'};
+ %workspaceNames = {'works'};   
+  chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, Reynolds Number Constant';
 
 %{
 % Example with one workspace
@@ -68,6 +72,14 @@ for j = 1 : length(workspaceArray)
     MASCc = workspaceArray(j).MASC(1: cutoff); % the cut off structure function
     sepvalc = workspaceArray(j).sepval(1:cutoff); %the cut off sepval 
 
+    nu = 15.11e-6; % kinematic viscosity of air
+    % calculate energy dissipation
+    epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
+    % calculate Kolmogorov length scale
+    eta = (nu^0.75) * (epsilon^(-0.25));
+    % calculate maximum frequency
+    freq = workspaceArray(j).MASvss/eta;
+    
     % Plot correlation function on normal/loglog axes. with x-axis normalized
     % by integral lengthscale
     % gives a vertical line on where the integral length scale is on the
@@ -89,7 +101,10 @@ for j = 1 : length(workspaceArray)
     H2 = figure(2);
     set(gca, 'fontsize', 12);
     %loglog(sepvalc/L,MASCc,'*');
+    %semilogy(sepvalc/L,log(MASCc));
     plot(sepvalc/L,MASCc);
+    %plot(sepvalc/taylorL,MASCc);
+    %semilogx(sepvalc/eta,MASCc);
     hold on;
     samplePoints = 5:30; % make a vector of the first 26 points excluding noise
     samplePoints2 = sepvalc(samplePoints)/L;
@@ -108,6 +123,7 @@ for j = 1 : length(workspaceArray)
     taylorL = max(roots(p))*L;
     fprintf('Taylor length scale = %f\n', taylorL);
     %fprintf('Comment: I multipled by L because of the scaling of the graph\n');
+    nu = 15.11e-6;
     turbRe = workspaceArray(j).MASvss*taylorL/nu;
     fprintf('Turbulent Reynolds Number = %f\n', turbRe);
 
@@ -125,13 +141,6 @@ for j = 1 : length(workspaceArray)
     %saveas(H1, ncorf);
     saveas(H2, logcorf);
     
-    nu = 15.11e-6; % kinematic viscosity of air
-    % calculate energy dissipation
-    epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
-    % calculate Kolmogorov length scale
-    eta = (nu^0.75) * (epsilon^(-0.25));
-    % calculate maximum frequency
-    freq = workspaceArray(j).MASvss/eta;
     % print results
     fprintf('Energy dissipation rate (W) = %f \n', epsilon);
     fprintf('Kolmogorov length scale (m) = %f \n', eta);
