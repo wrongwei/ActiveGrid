@@ -6,11 +6,11 @@
 % Nathan Wei, August 2015
 
 clear all;
-folder = fileparts('/Users/nathan/Documents/Data/data08_05_15/');
+folder = fileparts('/Users/nathan/Documents/Data/data08_06_15/');
 addpath(folder);
 
 % find all angle files in a given folder (angle files start with "angles_")
-files = dir('/Users/nathan/Documents/Data/data08_05_15/angles_*');
+files = dir('/Users/nathan/Documents/Data/data08_06_15/angles_th*');
 
 % Compute average RMSD of angles from angle files
 for f = 1 : length(files)

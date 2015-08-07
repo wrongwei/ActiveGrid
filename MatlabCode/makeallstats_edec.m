@@ -16,31 +16,27 @@ Example data file name: g2g1_0730_05_3.dat
 %}
 
 % -------------------------- PARAMETERS TO SET --------------------------
-filename = '/Users/kevin/Documents/Data/data07_31_15/';
+foldername = '/Users/kevin/Documents/Data/data07_31_15/';
 tests = 10; % number of data collection points along the tunnel
 calibfile = 'calib7_31.m';
-datafilebase = 'g3g3_0731_0'; % standardized beginning of each data file
+datafolderbase = 'g3g3_0731_0'; % standardized beginning of each data file
 outputfilebase = 'statscorr_g3g3_0731_0'; % standardized beginning of each workspace makeallstats will create
 testtemps = []; % temperatures measured at each point - leave empty if no temperature data was taken
 % -----------------------------------------------------------------------
 
-path = fileparts(filename);
-addpath(path);
 tstart = tic;
 
 for t = 1 : tests
     disp(strcat('Processing test #', num2str(t), '/', num2str(tests)));
-    filestring = strcat(datafilebase, num2str(t-1), '_');
-    outputstring = strcat(outputfilebase, num2str(t-1));
+    folderstring = strcat(datafolderbase, num2str(t-1),'/');
+    outputstring = strcat(outputfilebase, num2str(t-1), '.mat');
     if ~isempty(testtemps)
         temp = []; % so makeallstats knows not to do temp correction
     else
         temp = testtemps(tests);
     end
-    makeallstats(filename, calibfile, filestring, outputstring, temp); 
+    makeallstats(foldername, calibfile, folderstring, outputstring, temp); 
     % note: makeallstats adds the final index and file extension
 end
-
-rmpath(path);
 
 fprintf('\n\nTotal time to create %d workspaces: %.1f seconds.\n', tests, round(10*toc(tstart))/10);

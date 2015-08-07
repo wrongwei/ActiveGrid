@@ -1,6 +1,7 @@
 
 % script to return standard statistics of a hot wire signal
 %makeallstats.m
+% can be run as script or called as function (implemented summer 2015)
 % 
 % must exist: 
 % u      - the velocity
@@ -25,28 +26,31 @@ if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
 %fprintf('  working on %d samples.  \n');
 
-%get the directory of your input files:
-if (nargin == 0)
+
+% ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
+if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    pathname = fileparts('/Users/nathan/Documents/Data/data08_06_15/'); % location of calib file
-    files = dir('/Users/nathan/Documents/Data/data08_06_15/lt1.3lt1_h0_rms40/*.dat');
+    path = '/Users/nathan/Documents/Data/data08_06_15/'; % location of calib file
+    folder = 'lt1.3lt1_h0_rms40'; % name of folder containing data
     outputname = 'statscorr_lt1.3lt1_h0_rms40_0806.mat'; % name your .mat workspace!
     calibfile = 'calib8_06.m'; % calibration file name (set here for convenience)
     actualtemp = 22.9; % change this if you have a temperature measurement you want to use, otherwise should be []
-else
-    pathname = fileparts(path);
-    files = dir(strcat(folder, '*.dat'));
 end
-addpath(pathname);
+% -------------------------------------------------------------------------
+
+% add necessary paths and load data files from folder
+files = dir(strcat(path, folder, '/*.dat'));
+addpath(fileparts(path));
+addpath(fileparts(strcat(path, folder, '/')));
 
 %extract velocity
+u = [];
 for i = 1 : length(files)
     disp(files(i).name); % debugging
     newU = loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp);
     u = cat(1, u, newU);
 end
 clear newU;
-disp(length(u));
 fprintf('velocity extracted \n');
 
 %this is 1/ the sampling frequency
@@ -155,7 +159,7 @@ loglog(sepval,MASC,'o');
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
 clear u; % u is not needed in workspace, but takes up a lot of space...
-matfile = fullfile(pathname, outputname);
+matfile = fullfile(fileparts(path), outputname);
 
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
@@ -173,7 +177,8 @@ save(matfile);
 %save('vsm.txt','MASvsm','-append','-ascii');
 %save('std.txt','MASvss','-append','-ascii');
 %save('rms.txt','rmsvelocity','-append','-ascii');
-rmpath(pathname);
+rmpath(fileparts(path));
+rmpath(fileparts(strcat(path, folder, '/')));
 
 % play sound to alert sleeping user to end of data processing
 t = 0:(1/8000):0.5;
