@@ -31,8 +31,8 @@ if (~exist('highorder')), highorder = 1; end
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
     path = '/Users/nathan/Documents/Data/data08_06_15/'; % location of calib file
-    folder = 'lt1.3lt1_h0_rms40'; % name of folder containing data
-    outputname = 'statscorr_lt1.3lt1_h0_rms40_0806.mat'; % name your .mat workspace!
+    folder = 'th1.3th1_rms50_tr0.1'; % name of folder containing data
+    outputname = 'statscorr_lt1.3lt1_h0.8_rms40_0806.mat'; % name your .mat workspace!
     calibfile = 'calib8_06.m'; % calibration file name (set here for convenience)
     actualtemp = 22.9; % change this if you have a temperature measurement you want to use, otherwise should be []
 end
@@ -78,8 +78,8 @@ MASvsm = mean(u);
 MASvss = std(u);
 fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
 
-%figure;
-%histogram(u);
+figure;
+histogram(u);
 
   % compute spectrum: 
 tic
@@ -159,13 +159,13 @@ loglog(sepval,MASC,'o');
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
 clear u; % u is not needed in workspace, but takes up a lot of space...
-matfile = fullfile(fileparts(path), outputname);
+%%%%%%matfile = fullfile(fileparts(path), outputname);
 
 %structfile = fullfile(pathname, 'struct.fig');
 %histfile = fullfile(pathname, 'hist.fig');
 %corelfile = fullfile(pathname, 'corel.fig');
 %logcorf = fullfile(pathname, 'lcorel.fig');
-save(matfile);
+%%%%%%save(matfile);
 %saveas(H1, structfile);
 %saveas(H2, histfile);
 %saveas(H3, corelfile);

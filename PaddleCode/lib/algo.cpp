@@ -1524,7 +1524,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);// useconds elapsed since startTime
             if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
-                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
+                cout << "\aTime Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
             else if (usecElapsed < 0){
