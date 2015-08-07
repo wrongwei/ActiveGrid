@@ -1372,7 +1372,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
-    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
+    //cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
     
     return rms;
 }
