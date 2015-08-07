@@ -1372,7 +1372,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
         }
     }
     rms = sqrt(rms); // rms is the sqrt of variance
-    cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
+    //cout << "Normalization: " << norm << "\nTest RMS: " << rms << endl; // debugging
     
     return rms;
 }
@@ -1502,9 +1502,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
         }
         
-        /* create two timeslices to separate old and new configurations, and feed each one to the grid in succession
+        /* create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
          * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
-         * runcorr_3D method once every five grid configurations */
+         * runcorr_3D method once every SPACING grid configurations */
         for (int t = 0; t < SPACING; t++) {
             
             //cout << " " << (t+1); // print interpolation number

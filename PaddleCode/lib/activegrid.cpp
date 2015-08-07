@@ -174,6 +174,7 @@ void activegrid::showservomap(){
 int activegrid::error(){
     const char * header = "activegrid::error: ";
     cout << header << "Cannot set the required angles for safety reasons." << endl;
+    cout << "\007";
     //opengrid();
     return -1;
 }

@@ -7,6 +7,7 @@
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
 path = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
+
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -32,15 +33,27 @@ workspaceNames = {'rms 30 Height 0','rms 30 Height 0.05','rms 30 Height 0.1',...
   chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, Reynolds Number Constant';
 
 %{
-% Example with one workspace
-workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0806.mat');
-workspaceArray = [workspace1];
-workspaceNames = {'LT1.3 LT 0.5 H0.1'};
-chartTitle = 'Correlation Function';
+workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
+workspace2 = load('statscorr_lt1.3lt1_h0.05_rms40_0806.mat');
+workspace3 = load('statscorr_lt1.3lt1_h0.1_rms40_0806.mat');
+workspace4 = load('statscorr_lt1.3lt1_h0.2_rms40_0806.mat');
+workspace5 = load('statscorr_lt1.3lt1_h0.4_rms40_0806.mat');
+workspace6 = load('statscorr_lt1.3lt1_h0.8_rms40_0806.mat');
+workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,workspace6];
+workspaceNames = {'Height: 0','Height: 0.05',...
+    'Height: 0.1','Height: 0.2','Height: 0.4','Height: 0.8'};
+chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, RMS=40deg';
 %}
+
+% Example with one workspace
+workspace1 = load('statscorr_test_0807.mat');
+workspaceArray = [workspace1];
+workspaceNames = {'test'};
+chartTitle = 'Correlation Function';
+
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? ---------------------------------------------------------------
-figurename = 'lt1.3lt0.5_corrfs.fig';
+figurename = 'lt1.3lt1_rms40_corrfs_lkjhffsdgh.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
 % These variables include MASC MASvss sepval
@@ -145,7 +158,15 @@ for j = 1 : length(workspaceArray)
     fprintf('Energy dissipation rate (W) = %f \n', epsilon);
     fprintf('Kolmogorov length scale (m) = %f \n', eta);
     fprintf('Maximum fluctuation frequency (Hz) = %f \n', freq);
+    hold on;
 end
     
 legend(workspaceNames);
 rmpath(path);
+
+% play sound to alert user to end of data processing
+t = 0:(1/8000):0.25;
+y1 = sin(2*pi*440*t);
+y2 = sin(2*pi*880*t);
+y = [y1 y2 y1 y1];
+sound(y, 8000);
