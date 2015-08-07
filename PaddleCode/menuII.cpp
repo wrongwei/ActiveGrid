@@ -69,7 +69,7 @@ static void mySignalHandler(int iSignal){
         free(myLoaf);
     }
     cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
-    
+    cout << "\nRemember to save the angle file!" << endl;
     // Kill the program
     cout << "Exiting with code 0. \n";
     fflush(NULL);

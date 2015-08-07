@@ -6,7 +6,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_06_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_07_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -17,6 +17,7 @@ close all;
 fprintf('Loading workspaces... ');
 tic;
 % Example with five workspaces
+%{
 workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
 workspace2 = load('statscorr_lt1.3lt1_h0.05_rms40_0806.mat');
 workspace3 = load('statscorr_lt1.3lt1_h0.1_rms40_0806.mat');
@@ -27,17 +28,17 @@ workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,workspa
 workspaceNames = {'Height: 0','Height: 0.05',...
     'Height: 0.1','Height: 0.2','Height: 0.4','Height: 0.8'};
 chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, RMS=40deg';
-
-%{
-% Example with one workspace
-workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0806.mat');
-workspaceArray = [workspace1];
-workspaceNames = {'LT1.3 LT 0.5 H0.1'};
-chartTitle = 'Correlation Function';
 %}
+
+% Example with one workspace
+workspace1 = load('statscorr_test_0807.mat');
+workspaceArray = [workspace1];
+workspaceNames = {'test'};
+chartTitle = 'Correlation Function';
+
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? ---------------------------------------------------------------
-figurename = 'lt1.3lt1_rms40_corrfs.fig';
+figurename = 'lt1.3lt1_rms40_corrfs_lkjhffsdgh.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
 % These variables include MASC MASvss sepval
@@ -144,7 +145,7 @@ end
 legend(workspaceNames);
 rmpath(path);
 
-% play sound to alert sleeping user to end of data processing
+% play sound to alert user to end of data processing
 t = 0:(1/8000):0.25;
 y1 = sin(2*pi*440*t);
 y2 = sin(2*pi*880*t);
