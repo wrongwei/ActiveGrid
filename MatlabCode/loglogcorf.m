@@ -6,7 +6,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_06_15/');
+path = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -17,16 +17,15 @@ close all;
 fprintf('Loading workspaces... ');
 tic;
 % Example with five workspaces
-
-workspace1 = load('statscorr_lt1.3lt0.5_h0.1_0806.mat');
-workspace2 = load('statscorr_lt1.3lt0.5_h0.25_0806.mat');
-workspace3 = load('statscorr_lt1.3lt0.5_h0.5_0806.mat');
-workspace4 = load('statscorr_lt1.3lt0.5_h0.75_0806.mat');
-workspace5 = load('statscorr_lt1.3lt0.5_h1_0806.mat');
-workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5];
-workspaceNames = {'Height: 0.1','Height: 0.25','Height: 0.5',...
-    'Height: 0.75','Height: 1'};
-chartTitle = 'Correlation Functions for Top Hat Long Tail (spatial sigma = 1.3, temporal sigma = 0.5)';
+workspace2 = load('statscorr_th1.3th1_rms10_tr0.1_0806.mat');
+workspace3 = load('statscorr_th1.3th1_rms20_tr0.1_0806.mat');
+workspace4 = load('statscorr_th1.3th1_rms30_tr0.1_0806.mat');
+workspace5 = load('statscorr_th1.3th1_rms40_tr0.1_0806.mat');
+workspace6 = load('statscorr_th1.3th1_rms50_tr0.1_0806.mat');
+workspaceArray = [workspace2,workspace3,workspace4,workspace5,workspace6];
+workspaceNames = {'rms 10','rms 20',...
+    'rms 30','rms 40','rms 50'};
+chartTitle = 'Correlation Functions for Top Hat, SpatialSigma=1.3, TemporalSigma=.1sec';
 
 %{
 % Example with one workspace
@@ -47,23 +46,11 @@ if (length(workspaceNames) ~= length(workspaceArray)) % validation
 end
 fprintf('Workspaces loaded in %.1f seconds.\n', round(10*toc)/10);
 for j = 1 : length(workspaceArray)
-    fprintf('\n Processing test %s \n',workspaceNames{j});
+    fprintf('\n-----------------------------------------------------------------------');
+    fprintf('------\n Processing test %s \n',workspaceNames{j});
     %sepval = [1:12e6]/(20000)*mean(u); 
     L = hwils(workspaceArray(j).MASC,workspaceArray(j).sepval,2); %this is the integral length scale
 
-    nu = 15.11e-6; % kinematic viscosity of air
-    % print standard deviation = RMS velocity
-    fprintf('RMS velocity (m/s) = %f \n', workspaceArray(j).MASvss);
-    % calculate energy dissipation
-    epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
-    % calculate Kolmogorov length scale
-    eta = (nu^0.75) * (epsilon^(-0.25));
-    % calculate maximum frequency
-    freq = workspaceArray(j).MASvss/eta;
-    % print results
-    fprintf('Energy dissipation rate (W) = %f \n', epsilon);
-    fprintf('Kolmogorov length scale (m) = %f \n', eta);
-    fprintf('Maximum fluctuation frequency (Hz) = %f \n', freq);
     % Cut off MASC (the correlation function) at nth zero crossing. Discards
     % much of unwanted data
     count = 0; 
@@ -109,11 +96,13 @@ for j = 1 : length(workspaceArray)
     curvePoints = 1:1000; % vector used for plotting the quadratic fit
     curvePoints = sepvalc(curvePoints)/L;
     corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
-    plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
+    %plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
     hold on;
     p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
     y1 = polyval(p,curvePoints);
-    plot(curvePoints,y1,'r'); % plot the curve fit
+    %plot(curvePoints,y1,'r'); % plot the curve fit
+    % print standard deviation = RMS velocity
+    fprintf('RMS velocity (m/s) = %f \n', workspaceArray(j).MASvss);
     fprintf('Integral Length Scale = %f\n', L);
     % the x-intercept of polyfit p is the taylor length scale
     taylorL = max(roots(p))*L;
@@ -125,9 +114,6 @@ for j = 1 : length(workspaceArray)
     hax = gca; 
     ylabel('correlation   ');
     xlabel('distance (m/L)  ');
-    if (j == length(workspaceArray))
-        %legend(workspaceNames);
-    end
     xlim([0 4]);
     ylim([0 1]);
     %title('Correlation Function loglog');
@@ -138,6 +124,19 @@ for j = 1 : length(workspaceArray)
 
     %saveas(H1, ncorf);
     saveas(H2, logcorf);
+    
+    nu = 15.11e-6; % kinematic viscosity of air
+    % calculate energy dissipation
+    epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
+    % calculate Kolmogorov length scale
+    eta = (nu^0.75) * (epsilon^(-0.25));
+    % calculate maximum frequency
+    freq = workspaceArray(j).MASvss/eta;
+    % print results
+    fprintf('Energy dissipation rate (W) = %f \n', epsilon);
+    fprintf('Kolmogorov length scale (m) = %f \n', eta);
+    fprintf('Maximum fluctuation frequency (Hz) = %f \n', freq);
 end
-
+    
+legend(workspaceNames);
 rmpath(path);
