@@ -1283,8 +1283,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, double spaceHeight,
-                      double timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
+void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
+                      float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
     /*float randslice[27][25] = {0};
@@ -1341,7 +1341,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, double spaceHeight, double timeHeight, int mrow, int mcol, int halfLoaf) {
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
@@ -1378,7 +1378,7 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 }
 
 // movement of the paddles that is correlated in space and in time
-int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, double spatial_height, double temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
+int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
     // debugging------------------
     /*cout << constantArea <<endl;
@@ -1419,7 +1419,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
     // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatail_height);
+    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatial_height);
     float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
     pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
     pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
@@ -1459,12 +1459,25 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
-    
+
+    // debugging------------
+    gettimeofday(&currentTime,0);
+    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+    while (usecElapsed <= updatetimeinmus){
+	gettimeofday(&currentTime,0);
+	usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+    }
+    while (usecElapsed > updatetimeinmus){
+	gettimeofday(&currentTime,0);
+	usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
+    }
+    //----------
+
     // main loop: give angle orders
     while(0==0){
         
         //freshLoaf.Loaf_printFullArray(); // debugging
-        cout << "Grid #" << i << " "; // print grid number
+        cout << "\nGrid #" << i << " "; // print grid number
         i += 1;
         // get new slice of angles
         runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
@@ -1481,7 +1494,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
-                    cout << "Constraining (" << col << ", " << row << ") ";
+                    cout << "*";
+		    //cout << "Constraining (" << col << ", " << row << ") ";
                     //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
@@ -1522,8 +1536,9 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             
             //setposition of each servo:
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
-            usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);// useconds elapsed since startTime
-            if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+            usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
+            
+	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
                 cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
@@ -1533,15 +1548,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             else {
                 while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
-                    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
+                    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
+		//cout << usecElapsed;
+		cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
             }
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
             
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
-        cout << endl;
     }
     anglefile.close(); // never reaches this point
     return 0; // never reaches this point
