@@ -1348,6 +1348,8 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
     float rms = 0;
     int trials = 4000;
     float slice[13][11] = {{0}}; // this array begins life stuffed with zeros
+    //float oldslice[13][11] = {{0}}; // debugging
+    //anglefile.open("angleservo_rmstest.txt", ios::out | ios::trunc); // debugging
     float slicestorage[13][11][trials];
     loaf testLoaf = loaf(halfLoaf*2 + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf)
     
@@ -1359,9 +1361,12 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
             for (int col = 0; col < 13; col++){
                 mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
                 slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
+                //oldslice[col][row] = slicestorage[col][row][t-1]; // debugging
             }
         }
+        //setanglestoallservosIII(slice, oldslice, 1, 40); // debugging
     }
+    //anglefile.close();
     //cout << "Test mean = " << mean << endl; // debugging
     // calculate variance from previously-found mean and angle measurements
     for (int t = 0; t < trials; t++) {
@@ -1382,18 +1387,18 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     // debugging------------------
     /*cout << constantArea <<endl;
-    cout << spatial_sigma << endl;
-    cout << temporal_sigma << endl;
-    cout << spatial_alpha << endl;
-    cout << temporal_alpha << endl;
-    cout << spatial_height << endl;
-    cout << temporal_height << endl;
-    cout << typeOfSpatialCorr << endl;
-    cout << typeOfTemporalCorr << endl;
-    cout << target_rms << endl;
-    cout << numberOfSlices << endl;*/
+     cout << spatial_sigma << endl;
+     cout << temporal_sigma << endl;
+     cout << spatial_alpha << endl;
+     cout << temporal_alpha << endl;
+     cout << spatial_height << endl;
+     cout << temporal_height << endl;
+     cout << typeOfSpatialCorr << endl;
+     cout << typeOfTemporalCorr << endl;
+     cout << target_rms << endl;
+     cout << numberOfSlices << endl;*/
     // end of debugging ----------
-
+    
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1427,14 +1432,14 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float spatial_alphaorsigma;
     float temporal_alphaorsigma;
     if (typeOfSpatialCorr == 8)
-	spatial_alphaorsigma = spatial_alpha;
+        spatial_alphaorsigma = spatial_alpha;
     else
-	spatial_alphaorsigma = spatial_sigma;
+        spatial_alphaorsigma = spatial_sigma;
     if (typeOfTemporalCorr == 8)
-	temporal_alphaorsigma = temporal_alpha;
+        temporal_alphaorsigma = temporal_alpha;
     else
-	temporal_alphaorsigma = temporal_sigma;
-
+        temporal_alphaorsigma = temporal_sigma;
+    
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
@@ -1454,7 +1459,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << "Done! Starting grid motions" << endl;
     
     //timing:
-    // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
+    // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 1000000, seconds increments and microseconds is set to zero
     timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
@@ -1528,7 +1533,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
             else if (usecElapsed < 0){
-                assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
+                assert(0); // assert because something bizarre happened, like maybe the timer overflowed some how
             }
             else {
                 while (usecElapsed < updatetimeinmus){ // we need to wait
