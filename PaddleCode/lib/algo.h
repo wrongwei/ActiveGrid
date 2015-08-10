@@ -70,7 +70,7 @@ public:
     int correlatedMovement (int constant, float sigma, float alpha, double height, int mode, int mrow, int mcol, float target_rms);
     int correlatedMovement_steps (int constant, float sigma1, float sigma2, int mode, float target_rms1, float target_rms2, double period, double duty_cycle);
     int correlatedMovement_periodic (int constant, float sigma, int mode, float target_rms, int numberofsteps);
-    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, double spatial_height, double temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices);
+    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices);
     
     //keeps the projected area constant
     void area(double actpos[14][12], float rms);
@@ -108,11 +108,11 @@ public:
 		 double height, int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
     void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha,
-                    double spaceHeight, double timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction);
+                    float spaceHeight, float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction);
     float compute_rms(int option);
     float compute_rmscorr(float sigma, int mode, float alpha, double height,
 			  int mrow, int mcol);
-    float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, double spaceHeight, double timeHeight,
+    float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight,
                              int mrow, int mcol, int halfLoaf);
     
     // helper methods for correlation procedures

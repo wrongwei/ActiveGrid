@@ -487,8 +487,8 @@ int main (int argc , char * const argv[]) {
             float temporal_sigma = 0;
             float spatial_alpha = 0;
             float temporal_alpha = 0;
-            double spatial_height = 0;
-	    double temporal_height = 0;
+            float spatial_height = 0;
+	    float temporal_height = 0;
             int typeOfSpatialCorr = 0;
             int typeOfTemporalCorr = 0;
             float target_rms = 0;
