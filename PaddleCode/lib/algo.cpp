@@ -1453,6 +1453,18 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << "Done! Correction factor is " << correction << endl << "Setting up timing..." << endl;
     cout << "Done! Starting grid motions" << endl;
     
+    //old timing -----
+    /*
+    //timing:
+    timeval testtime;
+    gettimeofday(&testtime,0);
+    long time_usec=0;
+    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
+    cout << "Done! Starting grid motions" << endl;
+    */
+    //-------
+
+    
     //timing:
     // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
     timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
@@ -1472,7 +1484,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
 	usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
     }
     //----------
-
+    
     // main loop: give angle orders
     while(0==0){
         
@@ -1539,7 +1551,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
             
 	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
-                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
+                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
             else if (usecElapsed < 0){
@@ -1556,7 +1568,24 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
             
-            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+	    //old timing-------
+	    /*
+	    time_usec += updatetimeinmus;
+            gettimeofday(&testtime,0);
+            if(time_usec>1000000) time_usec-=1000000;
+            if(testtime.tv_usec > time_usec) {
+                cout << "---------------------------------Problem!!!------------------------------" << endl;
+                cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+            }
+            while (testtime.tv_usec <= time_usec){
+                gettimeofday(&testtime,0);
+                if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
+                    break;
+                }
+            }
+	    */
+	    //----------------
+	    setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
     }
     anglefile.close(); // never reaches this point
