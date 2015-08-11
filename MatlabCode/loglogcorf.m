@@ -6,31 +6,59 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/nathan/Documents/Data/data08_07_15/');
 
+path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
 addpath(path);
-
+path = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
+addpath(path);
+path = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
+addpath(path);
+path = fileparts('/Users/kevin/Documents/Data/data08_10_15/');
+addpath(path);
+path = fileparts('/Users/kevin/Documents/Data/data08_11_15/');
+addpath(path);
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
 % workspaceArray
 % -----------------------------------------------------------------------
 close all;
+fprintf('\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
+fprintf('*****************************************************************************\n');
+fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('Loading workspaces... ');
 tic;
 %workspace1 = load('statscorr_lt1.3lt1_h0.8_Re_0807.mat');
 
-workspace1 = load('statscorr_lt1.3lt1_h0_Re_0807.mat');
-workspace2 = load('statscorr_lt1.3lt1_h0.05_Re_0807.mat');
-workspace3 = load('statscorr_lt1.3lt1_h0.1_Re_0807.mat');
-workspace4 = load('statscorr_lt1.3lt1_h0.2_Re_0807.mat');
-workspace5 = load('statscorr_lt1.3lt1_h0.4_Re_0807.mat');
-workspace6 = load('statscorr_lt1.3lt1_h0.8_Re_0807.mat');
+%workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
+%workspace1 = load('statscorr_lt3.9lt3_h0.05_0810.mat');
+%workspace2 = load('statscorr_lt3.9lt3_h0.05_0811.mat');
+workspace1 = load('statscorr_lt3.9lt3_h0_0811.mat');
+%workspace4 = load('statscorr_lt1.3lt1_h0.05_rms40_0806.mat');
+workspace2 = load('statscorr_lt3.9lt3_h0.05_0811.mat');
+%workspace3 = load('statscorr_lt3.9lt3_h0.1_0811.mat');
+workspace3 = load('statscorr_lt3.9lt3_h0.1_0811.mat');
+%workspace4 = load('statscorr_lt3.9lt3_h0.2_0811.mat');
+workspace4 = load('statscorr_lt3.9lt3_h0.2_0811.mat');
+%workspace5 = load('statscorr_lt3.9lt3_h0.4_0811.mat');
+workspace5 = load('statscorr_lt3.9lt3_h0.4_0811.mat');
+%workspace3 = load('statscorr_lt3.9lt3_h0.8_0810.mat');
+workspace6 = load('statscorr_lt3.9lt3_h0.8_0811.mat');
+%workspace4 = load('statscorr_lt3.9lt3_h0.8_0811.mat');
 
 workspaceArray = [workspace1, workspace2,workspace3,workspace4,workspace5,workspace6];
-workspaceNames = {'rms 30 Height 0','rms 30 Height 0.05','rms 30 Height 0.1',...
-    'rms 25 Height 0.2','rms 19 Height 0.4','rms 18 Height 0.8'};
- %workspaceNames = {'works'};   
-  chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, Reynolds Number Constant';
+%
+workspaceNames = {'Height 0',...
+    'Height 0.05','Height 0.1',...
+    'Height 0.2','Height 0.4','Height 0.8'};
+%workspaceNames = {'lt1.3lt1 Height 0','lt3.9lt3 Height 0', 'lt3.9lt3 Height 0',...
+%    'lt1.3lt1 Height 0.05','lt3.9lt3 Height 0.05', 'lt3.9lt3 Height 0.05'};
+%workspaceNames = {'lt1.3lt1 Height 0.05','lt3.9lt3 Height 0.05','lt1.3lt1 Height 0.2',...
+%    'lt3.9lt3 Height 0.2','lt1.3lt1 Height 0.8','lt3.9lt3 Height 0.8'};
+%workspaceNames = {'rms 40 Height 0','rms 40 Height 0.05','rms 40 Height 0.1',...
+ %   'rms 40 Height 0.2'};
+%,'rms 40 Height 0.4','rms 40 Height 0.8'   
+chartTitle = 'Correlation Functions for Top Hat Long Tail, lt3.9lt3, rms 40, not constant area';  
+%chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=3.9, TemporalSigma=.3sec';
 
 %{
 workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
@@ -46,10 +74,10 @@ chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, Tem
 %}
 
 % Example with one workspace
-workspace1 = load('statscorr_test_0807.mat');
-workspaceArray = [workspace1];
-workspaceNames = {'test'};
-chartTitle = 'Correlation Function';
+%workspace1 = load('statscorr_test_0810.mat');
+%workspaceArray = [workspace1];
+%workspaceNames = {'test'};
+%chartTitle = 'Correlation Function';
 
 %MODIFY THIS, WHAT YOU WANT TO NAME THE
 %FIGURES? ---------------------------------------------------------------
@@ -114,8 +142,8 @@ for j = 1 : length(workspaceArray)
     H2 = figure(2);
     set(gca, 'fontsize', 12);
     %loglog(sepvalc/L,MASCc,'*');
-    %semilogy(sepvalc/L,log(MASCc));
-    plot(sepvalc/L,MASCc);
+    %semilogx(sepvalc/L,MASCc);
+    semilogx(sepvalc/L,MASCc,'LineWidth',2);
     %plot(sepvalc/taylorL,MASCc);
     %semilogx(sepvalc/eta,MASCc);
     hold on;
