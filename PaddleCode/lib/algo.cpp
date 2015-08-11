@@ -1464,20 +1464,20 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
-
+    
     // debugging------------
     gettimeofday(&currentTime,0);
     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     while (usecElapsed <= updatetimeinmus){
-	gettimeofday(&currentTime,0);
-	usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+        gettimeofday(&currentTime,0);
+        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     }
     while (usecElapsed > updatetimeinmus){
-	gettimeofday(&currentTime,0);
-	usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
+        gettimeofday(&currentTime,0);
+        usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
     }
     //----------
-
+    
     // main loop: give angle orders
     while(0==0){
         
@@ -1494,77 +1494,77 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 numberOfAnglesSet++; // total number of paddles moved, since the beginning of time (global variable)
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-                if (newslice[col][row]>90) newslice[col][row]=90;
-                else if (newslice[col][row]<-90) newslice[col][row]=-90;
-                
-                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
-                if (fabs(amplitude)/(max_speed) > SPACING) {
-                    cout << "*";
-		    //cout << "Constraining (" << col << ", " << row << ") ";
-                    //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
-                    outOfBoundsCount++;
-                    if (amplitude > 0) step_size[col][row] = max_speed;
-                    else if (amplitude < 0) step_size[col][row] = -max_speed;
+                if (newslice[col][row]>90) {cout << newslice[col][row] << " "; newslice[col][row]=90;} // debugging
+                else if (newslice[col][row]<-90) {cout << newslice[col][row] << " "; newslice[col][row]=-90;} // debugging
+            
+            amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+            if (fabs(amplitude)/(max_speed) > SPACING) {
+                cout << "*"; // creates constrained angles histogram-like output
+                //cout << "Constraining (" << col << ", " << row << ") ";
+                //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
+                outOfBoundsCount++;
+                if (amplitude > 0) step_size[col][row] = max_speed;
+                else if (amplitude < 0) step_size[col][row] = -max_speed;
+            }
+            /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+             // assign speeds based on min number of legal steps it will take to get to the target angle
+             step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+             }*/
+            // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+            /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+             else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+             step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+             }
+             else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+             */
+            else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+        }
+    }
+    
+    /* create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
+     * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
+     * runcorr_3D method once every SPACING grid configurations */
+    for (int t = 0; t < SPACING; t++) {
+        
+        //cout << " " << (t+1); // print interpolation number
+        
+        // compute new intermediate grid position, with steps necessary to attain it
+        for (int row = 0; row < 11; row++) {
+            for(int col = 0; col < 13; col++){
+                if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
+                    diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                    if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                    else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
                 }
-                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
-                 // assign speeds based on min number of legal steps it will take to get to the target angle
-                 step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
-                 }*/
-                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
-                 else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-                 step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
-                 }
-                 else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
-                 */
-                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
             }
         }
         
-        /* create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
-         * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
-         * runcorr_3D method once every SPACING grid configurations */
-        for (int t = 0; t < SPACING; t++) {
-            
-            //cout << " " << (t+1); // print interpolation number
-            
-            // compute new intermediate grid position, with steps necessary to attain it
-            for (int row = 0; row < 11; row++) {
-                for(int col = 0; col < 13; col++){
-                    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
-                        diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
-                        if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
-                        else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
-                    }
-                }
-            }
-            
-            //setposition of each servo:
-            gettimeofday(&currentTime,0); // set currentTime to hold the current time
-            usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
-            
-	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
-                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
-                //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
-            }
-            else if (usecElapsed < 0){
-                assert(0); // assert because something bizarre happened, like maybe the timer overflowed some how
-            }
-            else {
-                while (usecElapsed < updatetimeinmus){ // we need to wait
-                    gettimeofday(&currentTime,0);
-                    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
-                }
-		//cout << usecElapsed;
-		cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
-            }
-            // record the time when the loop started (for timing purposes)
-            gettimeofday(&startTime,0);
-            
-            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+        //setposition of each servo:
+        gettimeofday(&currentTime,0); // set currentTime to hold the current time
+        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
+        
+        if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+            cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
+            //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
         }
+        else if (usecElapsed < 0){
+            assert(0); // assert because something bizarre happened, like maybe the timer overflowed some how
+        }
+        else {
+            while (usecElapsed < updatetimeinmus){ // we need to wait
+                gettimeofday(&currentTime,0);
+                usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+            }
+            //cout << usecElapsed;
+            cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
+        }
+        // record the time when the loop started (for timing purposes)
+        gettimeofday(&startTime,0);
+        
+        setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
     }
-    anglefile.close(); // never reaches this point
-    return 0; // never reaches this point
+}
+anglefile.close(); // never reaches this point
+return 0; // never reaches this point
 }
 

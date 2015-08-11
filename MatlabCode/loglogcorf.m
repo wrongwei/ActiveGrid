@@ -6,7 +6,7 @@
 
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
-path = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
+path = fileparts('/Users/nathan/Documents/Data/data08_07_15/');
 
 addpath(path);
 
