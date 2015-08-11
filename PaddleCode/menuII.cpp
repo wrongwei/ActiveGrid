@@ -57,7 +57,7 @@ void wait(float seconds) {
 char * myLoaf = NULL;
 extern int outOfBoundsCount;
 extern int numberOfAnglesSet;
-
+extern int over90orminus90count;
 /*--------------------------------------------------------------------*/
 // Install a signal handler to make sure that when the user types
 // CTRL-C that memory is freed before the program is terminated
@@ -69,9 +69,10 @@ static void mySignalHandler(int iSignal){
         free(myLoaf);
     }
     cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
+    cout << "Percent of angles that wanted to be > 90 or < -90 but were clipped: " << ((float)over90orminus90count / numberOfAnglesSet) * 100 << "%" << endl;
     cout << "\nRemember to save the angle file!" << endl;
     // Kill the program
-    cout << "Exiting with code 0. \n";
+    cout << "Exiting with code 0.\n";
     fflush(NULL);
     exit(0);
 }
@@ -636,6 +637,7 @@ int main (int argc , char * const argv[]) {
             int j; // row counter
             
             alg.grid.opengrid();
+	    cout << "\nThe test code will begin in 10 seconds. Quick, run over and watch the grid!" << endl;
             wait(10.0);
             
             for (i = 1; i <= NUMBER_OF_COLUMNS; i++)

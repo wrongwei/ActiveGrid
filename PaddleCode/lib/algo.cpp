@@ -18,8 +18,10 @@
 #include <time.h>
 #include <curses.h>
 
+//global variables
 int outOfBoundsCount = 0; // for info messages in menuII
 int numberOfAnglesSet = 0;
+int over90orminus90count = 0; // for info messages in menuII
 
 // modulo function with NON NEGATIVE remainder
 inline int algo::modulo(int numerator, int denominator){
@@ -1501,8 +1503,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 numberOfAnglesSet++; // total number of paddles moved, since the beginning of time (global variable)
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-                if (newslice[col][row]>90) newslice[col][row]=90;
-                else if (newslice[col][row]<-90) newslice[col][row]=-90;
+                if (newslice[col][row]>90){
+		    newslice[col][row]=90;
+		    over90orminus90count++;
+		    cout << "+";
+		}
+                else if (newslice[col][row]<-90){
+		    newslice[col][row]=-90;
+		    over90orminus90count++;
+		    cout << "-";
+		}
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
@@ -1563,7 +1573,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
 		//cout << usecElapsed;
-		cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
+		//cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
             }
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
