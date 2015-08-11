@@ -718,13 +718,14 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     // compute normalization for any convolution formula
     norm1 = 0;
     float bound;
+    float sigmaOrAlpha = sigma;
     if (mode <= 4) bound = range_of_corr;
     else bound = sigma;
-    if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (mode == 8) sigmaOrAlpha = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigma, height);
+            norm1 += pfCorr(j, k, sigmaOrAlpha, height);
         }
     }
     
@@ -864,7 +865,6 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         }
         // master loop for modular functions (can remove else once we get true top hat modularized)
         else {
-            if (mode == 8) norm = 0; // need 2 norm variables, so wipe norm pumped in from Gaussian
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     col = modulo(columns[i] + j, 13); // controls periodic boundary conditions
@@ -1283,8 +1283,8 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
 // determines the positions of the servos by do a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, double spaceHeight,
-                      double timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
+void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
+                      float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
     /*float randslice[27][25] = {0};
@@ -1341,13 +1341,15 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
 
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, double spaceHeight, double timeHeight, int mrow, int mcol, int halfLoaf) {
+float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
     float rms = 0;
     int trials = 4000;
     float slice[13][11] = {{0}}; // this array begins life stuffed with zeros
+    //float oldslice[13][11] = {{0}}; // debugging
+    //anglefile.open("angleservo_rmstest.txt", ios::out | ios::trunc); // debugging
     float slicestorage[13][11][trials];
     loaf testLoaf = loaf(halfLoaf*2 + 1); // bake test loaf of width = numberOfSlices (recomposed from halfLoaf)
     
@@ -1359,9 +1361,12 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
             for (int col = 0; col < 13; col++){
                 mean += slice[col][row] / (numberOfServos * trials); // calculate mean as we go
                 slicestorage[col][row][t] = slice[col][row]; // store angle values for future use in rms calculation
+                //oldslice[col][row] = slicestorage[col][row][t-1]; // debugging
             }
         }
+        //setanglestoallservosIII(slice, oldslice, 1, 40); // debugging
     }
+    //anglefile.close();
     //cout << "Test mean = " << mean << endl; // debugging
     // calculate variance from previously-found mean and angle measurements
     for (int t = 0; t < trials; t++) {
@@ -1378,22 +1383,22 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 }
 
 // movement of the paddles that is correlated in space and in time
-int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, double spatial_height, double temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
+int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
     // debugging------------------
     /*cout << constantArea <<endl;
-    cout << spatial_sigma << endl;
-    cout << temporal_sigma << endl;
-    cout << spatial_alpha << endl;
-    cout << temporal_alpha << endl;
-    cout << spatial_height << endl;
-    cout << temporal_height << endl;
-    cout << typeOfSpatialCorr << endl;
-    cout << typeOfTemporalCorr << endl;
-    cout << target_rms << endl;
-    cout << numberOfSlices << endl;*/
+     cout << spatial_sigma << endl;
+     cout << temporal_sigma << endl;
+     cout << spatial_alpha << endl;
+     cout << temporal_alpha << endl;
+     cout << spatial_height << endl;
+     cout << temporal_height << endl;
+     cout << typeOfSpatialCorr << endl;
+     cout << typeOfTemporalCorr << endl;
+     cout << target_rms << endl;
+     cout << numberOfSlices << endl;*/
     // end of debugging ----------
-
+    
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1419,7 +1424,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
     // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatail_height);
+    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatial_height);
     float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
     pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
     pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
@@ -1427,14 +1432,14 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float spatial_alphaorsigma;
     float temporal_alphaorsigma;
     if (typeOfSpatialCorr == 8)
-	spatial_alphaorsigma = spatial_alpha;
+        spatial_alphaorsigma = spatial_alpha;
     else
-	spatial_alphaorsigma = spatial_sigma;
+        spatial_alphaorsigma = spatial_sigma;
     if (typeOfTemporalCorr == 8)
-	temporal_alphaorsigma = temporal_alpha;
+        temporal_alphaorsigma = temporal_alpha;
     else
-	temporal_alphaorsigma = temporal_sigma;
-
+        temporal_alphaorsigma = temporal_sigma;
+    
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
@@ -1454,17 +1459,30 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     cout << "Done! Starting grid motions" << endl;
     
     //timing:
-    // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
+    // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 1000000, seconds increments and microseconds is set to zero
     timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
     
+    // debugging------------
+    gettimeofday(&currentTime,0);
+    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+    while (usecElapsed <= updatetimeinmus){
+        gettimeofday(&currentTime,0);
+        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+    }
+    while (usecElapsed > updatetimeinmus){
+        gettimeofday(&currentTime,0);
+        usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
+    }
+    //----------
+    
     // main loop: give angle orders
     while(0==0){
         
         //freshLoaf.Loaf_printFullArray(); // debugging
-        cout << "Grid #" << i << " "; // print grid number
+        cout << "\nGrid #" << i << " "; // print grid number
         i += 1;
         // get new slice of angles
         runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
@@ -1476,74 +1494,77 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 numberOfAnglesSet++; // total number of paddles moved, since the beginning of time (global variable)
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
-                if (newslice[col][row]>90) newslice[col][row]=90;
-                else if (newslice[col][row]<-90) newslice[col][row]=-90;
-                
-                amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
-                if (fabs(amplitude)/(max_speed) > SPACING) {
-                    cout << "Constraining (" << col << ", " << row << ") ";
-                    //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
-                    outOfBoundsCount++;
-                    if (amplitude > 0) step_size[col][row] = max_speed;
-                    else if (amplitude < 0) step_size[col][row] = -max_speed;
+                if (newslice[col][row]>90) {cout << newslice[col][row] << " "; newslice[col][row]=90;} // debugging
+                else if (newslice[col][row]<-90) {cout << newslice[col][row] << " "; newslice[col][row]=-90;} // debugging
+            
+            amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
+            if (fabs(amplitude)/(max_speed) > SPACING) {
+                cout << "*"; // creates constrained angles histogram-like output
+                //cout << "Constraining (" << col << ", " << row << ") ";
+                //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
+                outOfBoundsCount++;
+                if (amplitude > 0) step_size[col][row] = max_speed;
+                else if (amplitude < 0) step_size[col][row] = -max_speed;
+            }
+            /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
+             // assign speeds based on min number of legal steps it will take to get to the target angle
+             step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
+             }*/
+            // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
+            /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
+             else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
+             step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
+             }
+             else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
+             */
+            else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+        }
+    }
+    
+    /* create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
+     * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
+     * runcorr_3D method once every SPACING grid configurations */
+    for (int t = 0; t < SPACING; t++) {
+        
+        //cout << " " << (t+1); // print interpolation number
+        
+        // compute new intermediate grid position, with steps necessary to attain it
+        for (int row = 0; row < 11; row++) {
+            for(int col = 0; col < 13; col++){
+                if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
+                    diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
+                    if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
+                    else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
                 }
-                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
-                 // assign speeds based on min number of legal steps it will take to get to the target angle
-                 step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
-                 }*/
-                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
-                 else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-                 step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
-                 }
-                 else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
-                 */
-                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
             }
         }
         
-        /* create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
-         * this ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
-         * runcorr_3D method once every SPACING grid configurations */
-        for (int t = 0; t < SPACING; t++) {
-            
-            //cout << " " << (t+1); // print interpolation number
-            
-            // compute new intermediate grid position, with steps necessary to attain it
-            for (int row = 0; row < 11; row++) {
-                for(int col = 0; col < 13; col++){
-                    if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived
-                        diff = fabs(newslice[col][row] - oldslice[col][row]); // determination of approximate equality for doubles
-                        if (diff > EPSILON) oldslice[col][row] += step_size[col][row]; // not equal -> add another step
-                        else step_size[col][row] = 0; // paddle has arrived; tell servo not to move any more
-                    }
-                }
-            }
-            
-            //setposition of each servo:
-            gettimeofday(&currentTime,0); // set currentTime to hold the current time
-            usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);// useconds elapsed since startTime
-            if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
-                cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
-                //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
-            }
-            else if (usecElapsed < 0){
-                assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
-            }
-            else {
-                while (usecElapsed < updatetimeinmus){ // we need to wait
-                    gettimeofday(&currentTime,0);
-                    usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + (currentTime.tv_usec - startTime.tv_usec);
-                }
-            }
-            // record the time when the loop started (for timing purposes)
-            gettimeofday(&startTime,0);
-            
-            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+        //setposition of each servo:
+        gettimeofday(&currentTime,0); // set currentTime to hold the current time
+        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
+        
+        if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+            cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed /*<< endl*/;
+            //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
         }
-        cout << endl;
+        else if (usecElapsed < 0){
+            assert(0); // assert because something bizarre happened, like maybe the timer overflowed some how
+        }
+        else {
+            while (usecElapsed < updatetimeinmus){ // we need to wait
+                gettimeofday(&currentTime,0);
+                usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+            }
+            //cout << usecElapsed;
+            cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
+        }
+        // record the time when the loop started (for timing purposes)
+        gettimeofday(&startTime,0);
+        
+        setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
     }
-    anglefile.close(); // never reaches this point
-    return 0; // never reaches this point
+}
+anglefile.close(); // never reaches this point
+return 0; // never reaches this point
 }
 
