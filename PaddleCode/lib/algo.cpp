@@ -1384,18 +1384,18 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     // debugging------------------
     /*cout << constantArea <<endl;
-    cout << spatial_sigma << endl;
-    cout << temporal_sigma << endl;
-    cout << spatial_alpha << endl;
-    cout << temporal_alpha << endl;
-    cout << spatial_height << endl;
-    cout << temporal_height << endl;
-    cout << typeOfSpatialCorr << endl;
-    cout << typeOfTemporalCorr << endl;
-    cout << target_rms << endl;
-    cout << numberOfSlices << endl;*/
+     cout << spatial_sigma << endl;
+     cout << temporal_sigma << endl;
+     cout << spatial_alpha << endl;
+     cout << temporal_alpha << endl;
+     cout << spatial_height << endl;
+     cout << temporal_height << endl;
+     cout << typeOfSpatialCorr << endl;
+     cout << typeOfTemporalCorr << endl;
+     cout << target_rms << endl;
+     cout << numberOfSlices << endl;*/
     // end of debugging ----------
-
+    
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1429,14 +1429,14 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float spatial_alphaorsigma;
     float temporal_alphaorsigma;
     if (typeOfSpatialCorr == 8)
-	spatial_alphaorsigma = spatial_alpha;
+        spatial_alphaorsigma = spatial_alpha;
     else
-	spatial_alphaorsigma = spatial_sigma;
+        spatial_alphaorsigma = spatial_sigma;
     if (typeOfTemporalCorr == 8)
-	temporal_alphaorsigma = temporal_alpha;
+        temporal_alphaorsigma = temporal_alpha;
     else
-	temporal_alphaorsigma = temporal_sigma;
-
+        temporal_alphaorsigma = temporal_sigma;
+    
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
@@ -1457,15 +1457,15 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     //old timing -----
     /*
-    //timing:
-    timeval testtime;
-    gettimeofday(&testtime,0);
-    long time_usec=0;
-    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
-    cout << "Done! Starting grid motions" << endl;
-    */
+     //timing:
+     timeval testtime;
+     gettimeofday(&testtime,0);
+     long time_usec=0;
+     while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
+     cout << "Done! Starting grid motions" << endl;
+     */
     //-------
-
+    
     
     //timing:
     // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
@@ -1473,17 +1473,17 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
-
+    
     // debugging------------
     gettimeofday(&currentTime,0);
     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     while (usecElapsed <= updatetimeinmus){
-	gettimeofday(&currentTime,0);
-	usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+        gettimeofday(&currentTime,0);
+        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     }
     while (usecElapsed > updatetimeinmus){
-	gettimeofday(&currentTime,0);
-	usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
+        gettimeofday(&currentTime,0);
+        usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
     }
     //----------
     
@@ -1504,20 +1504,20 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
                 if (newslice[col][row]>90){
-		    newslice[col][row]=90;
-		    over90orminus90count++;
-		    cout << "+";
-		}
+                    newslice[col][row]=90;
+                    over90orminus90count++;
+                    cout << "+";
+                }
                 else if (newslice[col][row]<-90){
-		    newslice[col][row]=-90;
-		    over90orminus90count++;
-		    cout << "-";
-		}
+                    newslice[col][row]=-90;
+                    over90orminus90count++;
+                    cout << "-";
+                }
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
                     cout << "*";
-		    //cout << "Constraining (" << col << ", " << row << ") ";
+                    //cout << "Constraining (" << col << ", " << row << ") ";
                     //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
@@ -1560,7 +1560,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
             
-	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+            if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
                 cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
@@ -1573,30 +1573,30 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
-		//cout << usecElapsed;
-		//cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
+                //cout << usecElapsed;
+                //cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
             }
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
             
-	    //old timing-------
-	    /*
-	    time_usec += updatetimeinmus;
-            gettimeofday(&testtime,0);
-            if(time_usec>1000000) time_usec-=1000000;
-            if(testtime.tv_usec > time_usec) {
-                cout << "---------------------------------Problem!!!------------------------------" << endl;
-                cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
-            }
-            while (testtime.tv_usec <= time_usec){
-                gettimeofday(&testtime,0);
-                if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
-                    break;
-                }
-            }
-	    */
-	    //----------------
-	    setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+            //old timing-------
+            /*
+             time_usec += updatetimeinmus;
+             gettimeofday(&testtime,0);
+             if(time_usec>1000000) time_usec-=1000000;
+             if(testtime.tv_usec > time_usec) {
+             cout << "---------------------------------Problem!!!------------------------------" << endl;
+             cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+             }
+             while (testtime.tv_usec <= time_usec){
+             gettimeofday(&testtime,0);
+             if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
+             break;
+             }
+             }
+             */
+            //----------------
+            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
     }
     anglefile.close(); // never reaches this point
