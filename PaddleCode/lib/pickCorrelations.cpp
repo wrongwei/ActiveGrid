@@ -169,7 +169,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
     assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
     
     if(typeOfSpatialCorr == 0)
-        return randomSpatialCorr;
+        return &randomSpatialCorr;
     else if(typeOfSpatialCorr == 1)
         return &gaussianSpatialCorr;
     else if(typeOfSpatialCorr == 2)

@@ -713,9 +713,14 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
      }
      anglefile << endl;*/
     
-    // Declare function pointers for the spatial correlation functions
-    float (*pfCorr)(int j, int k, float sigma, float height);
-    pfCorr = pickSpatialCorr(mode);
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
+     (sigma, alpha, and height) as private global variables for use in that file
+     This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfCorr(j, k). */
+    float (*pfCorr)(int j, int k);
+    pfCorr = pickSpatialCorr(mode, sigma, alpha, height);
     
     // compute normalization for any convolution formula
     norm1 = 0;
@@ -727,7 +732,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigmaOrAlpha, height);
+            norm1 += pfCorr(j, k);
         }
     }
     
@@ -834,9 +839,14 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
     }
-    // Declare function pointers for the spatial correlation functions
-    float (*pfCorr)(int j, int k, float sigma, float height);
-    pfCorr = pickSpatialCorr(mode);
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
+     (sigma, alpha, and height) as private global variables for use in that file
+     This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfCorr(j, k). */
+    float (*pfCorr)(int j, int k);
+    pfCorr = pickSpatialCorr(mode, sigma, alpha, height);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -853,7 +863,6 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
     }
-    else if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     
     // Loop through servos and calculate/create correlations, using helper methods (below)
     for (int i = 0; i < numberOfServos; i++) {
@@ -871,7 +880,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     col = modulo(columns[i] + j, 13); // controls periodic boundary conditions
                     row = modulo(rows[i] + k, 11);
-                    actpos[i] += correction * pfCorr(j, k, sigma, height) * interpos[col][row];
+                    actpos[i] += correction * pfCorr(j, k) * interpos[col][row];
                 }
             }
             actpos[i] = actpos[i] / norm; // normalize by pre-calculated coefficient
@@ -1060,24 +1069,30 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
     
-    // Declare function pointers for the spatial correlation functions
-    float (*pfCorr)(int j, int k, float sigma, float height);
-    pfCorr = pickSpatialCorr(mode);
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
+     (sigma, alpha, and height) as private global variables for use in that file
+     This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfCorr(j, k). */
+    float (*pfCorr)(int j, int k);
+    pfCorr = pickSpatialCorr(mode, sigma1, 0, 0);
     
     // compute normalization for any convolution formula
     norm1=0;
     // Note: this is different from the previous implementation (but I'm not sure whether it works like the other one either)
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigma1, 0);
+            norm1 += pfCorr(j, k);
         }
     }
     
+    pfCorr = pickSpatialCorr(mode, sigma2, 0, 0); // re-initialize function pointer with different sigma
     norm2=0;
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm2 += pfCorr(j, k, sigma2, 0);
+            norm2 += pfCorr(j, k);
         }
     }
     
@@ -1167,15 +1182,20 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
     
-    // Declare function pointers for the spatial correlation functions
-    float (*pfCorr)(int j, int k, float sigma, float height);
-    pfCorr = pickSpatialCorr(mode);
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
+     (sigma, alpha, and height) as private global variables for use in that file
+     This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfCorr(j, k). */
+    float (*pfCorr)(int j, int k);
+    pfCorr = pickSpatialCorr(mode, sigma, 0, 0);
     
     // compute normalization for any convolution function (necessary, even with the correction)
     norm1=0;
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigma, 0);
+            norm1 += pfCorr(j, k);
         }
     }
     
@@ -1305,14 +1325,12 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
     float bound;
     if (spaceMode <= 4) bound = range_of_corr;
     else bound = spaceSigma;
-    if (spaceMode == 8) spaceSigma = spaceAlpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
-    if (timeMode == 8) timeSigma = timeAlpha; // same rationale as above
     
-    // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float spaceSigma, float height);
-    float (*pfTemporalCorr)(int t, float timeSigma, float height);
-    pfSpatialCorr = pickSpatialCorr(spaceMode);
-    pfTemporalCorr = pickTemporalCorr(timeMode);
+    // Declare function pointers for the spatial and temporal correlation functions (see notes on similar commands in the 2D functions)
+    float (*pfSpatialCorr)(int j, int k);
+    float (*pfTemporalCorr)(int t);
+    pfSpatialCorr = pickSpatialCorr(spaceMode, spaceSigma, spaceAlpha, spaceHeight);
+    pfTemporalCorr = pickTemporalCorr(timeMode, timeSigma, timeAlpha, timeHeight);
     //myLoaf->Loaf_printFullArray(); // debugging
     //    int row = 0;
     //int col = 0;
@@ -1331,7 +1349,7 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
                         //crumb = randslice[j+col+7][k+row+7];
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, spaceHeight) * pfTemporalCorr(t, timeSigma, timeHeight));
+                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k) * pfTemporalCorr(t));
                     }
                 }
             }
@@ -1420,29 +1438,19 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float bound;
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
-    // Declare function pointers for the spatial and temporal correlation functions
-    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatial_height);
-    float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
-    pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
-    pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
     
-    float spatial_alphaorsigma;
-    float temporal_alphaorsigma;
-    if (typeOfSpatialCorr == 8)
-        spatial_alphaorsigma = spatial_alpha;
-    else
-        spatial_alphaorsigma = spatial_sigma;
-    if (typeOfTemporalCorr == 8)
-        temporal_alphaorsigma = temporal_alpha;
-    else
-        temporal_alphaorsigma = temporal_sigma;
+    // Declare function pointers for the spatial and temporal correlation functions (see notes on similar commands in the 2D functions)
+    float (*pfSpatialCorr)(int j, int k);
+    float (*pfTemporalCorr)(int t);
+    pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr, spatial_sigma, spatial_alpha, spatial_height);
+    pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr, temporal_sigma, temporal_alpha, temporal_height);
     
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
             for (int t = -halfLoaf; t <= halfLoaf; t++) {
-                norm += (pfSpatialCorr(j, k, spatial_alphaorsigma, spatial_height) * pfTemporalCorr(t, temporal_alphaorsigma, temporal_height));
+                norm += (pfSpatialCorr(j, k) * pfTemporalCorr(t));
             }
         }
     }
@@ -1569,7 +1577,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             else {
                 cout << usecElapsed;
-		while (usecElapsed < updatetimeinmus){ // we need to wait
+                while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
