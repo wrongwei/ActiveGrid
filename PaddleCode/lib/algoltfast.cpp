@@ -1,3 +1,9 @@
+/***************************************************/
+
+//This a copy of algo.cpp but optimized to only work for top hat long tail!!!!!!
+
+/***************************************************/
+
 /*
  Library to create sets of angles and angular speeds, in order to give to the grid a specific motion.
  
@@ -713,14 +719,9 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
      }
      anglefile << endl;*/
     
-    /* Declare function pointers for the spatial correlation functions
-     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
-     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
-     (sigma, alpha, and height) as private global variables for use in that file
-     This function returns a pointer to the function of choice (determined by 'mode'),
-     which can then be used by simply calling pfCorr(j, k). */
-    float (*pfCorr)(int j, int k);
-    pfCorr = pickSpatialCorr(mode, sigma, alpha, height);
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
     
     // compute normalization for any convolution formula
     norm1 = 0;
@@ -732,7 +733,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k);
+            norm1 += pfCorr(j, k, sigmaOrAlpha, height);
         }
     }
     
@@ -839,14 +840,9 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
     }
-    /* Declare function pointers for the spatial correlation functions
-     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
-     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
-     (sigma, alpha, and height) as private global variables for use in that file
-     This function returns a pointer to the function of choice (determined by 'mode'),
-     which can then be used by simply calling pfCorr(j, k). */
-    float (*pfCorr)(int j, int k);
-    pfCorr = pickSpatialCorr(mode, sigma, alpha, height);
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -863,6 +859,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
     }
+    else if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     
     // Loop through servos and calculate/create correlations, using helper methods (below)
     for (int i = 0; i < numberOfServos; i++) {
@@ -880,7 +877,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     col = modulo(columns[i] + j, 13); // controls periodic boundary conditions
                     row = modulo(rows[i] + k, 11);
-                    actpos[i] += correction * pfCorr(j, k) * interpos[col][row];
+                    actpos[i] += correction * pfCorr(j, k, sigma, height) * interpos[col][row];
                 }
             }
             actpos[i] = actpos[i] / norm; // normalize by pre-calculated coefficient
@@ -1069,30 +1066,24 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
     
-    /* Declare function pointers for the spatial correlation functions
-     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
-     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
-     (sigma, alpha, and height) as private global variables for use in that file
-     This function returns a pointer to the function of choice (determined by 'mode'),
-     which can then be used by simply calling pfCorr(j, k). */
-    float (*pfCorr)(int j, int k);
-    pfCorr = pickSpatialCorr(mode, sigma1, 0, 0);
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
     
     // compute normalization for any convolution formula
     norm1=0;
     // Note: this is different from the previous implementation (but I'm not sure whether it works like the other one either)
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k);
+            norm1 += pfCorr(j, k, sigma1, 0);
         }
     }
     
-    pfCorr = pickSpatialCorr(mode, sigma2, 0, 0); // re-initialize function pointer with different sigma
     norm2=0;
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm2 += pfCorr(j, k);
+            norm2 += pfCorr(j, k, sigma2, 0);
         }
     }
     
@@ -1182,20 +1173,15 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
     
-    /* Declare function pointers for the spatial correlation functions
-     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
-     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
-     (sigma, alpha, and height) as private global variables for use in that file
-     This function returns a pointer to the function of choice (determined by 'mode'),
-     which can then be used by simply calling pfCorr(j, k). */
-    float (*pfCorr)(int j, int k);
-    pfCorr = pickSpatialCorr(mode, sigma, 0, 0);
+    // Declare function pointers for the spatial correlation functions
+    float (*pfCorr)(int j, int k, float sigma, float height);
+    pfCorr = pickSpatialCorr(mode);
     
     // compute normalization for any convolution function (necessary, even with the correction)
     norm1=0;
     for (int j = -range_of_corr; j <= range_of_corr; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -range_of_corr; k <= range_of_corr; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k);
+            norm1 += pfCorr(j, k, sigma, 0);
         }
     }
     
@@ -1325,12 +1311,16 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
     float bound;
     if (spaceMode <= 4) bound = range_of_corr;
     else bound = spaceSigma;
+    if (spaceMode == 8) spaceSigma = spaceAlpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
+    if (timeMode == 8) timeSigma = timeAlpha; // same rationale as above
     
-    // Declare function pointers for the spatial and temporal correlation functions (see notes on similar commands in the 2D functions)
-    float (*pfSpatialCorr)(int j, int k);
-    float (*pfTemporalCorr)(int t);
-    pfSpatialCorr = pickSpatialCorr(spaceMode, spaceSigma, spaceAlpha, spaceHeight);
-    pfTemporalCorr = pickTemporalCorr(timeMode, timeSigma, timeAlpha, timeHeight);
+    // Declare function pointers for the spatial and temporal correlation functions
+    /*float (*pfSpatialCorr)(int j, int k, float spaceSigma, float height);
+    float (*pfTemporalCorr)(int t, float timeSigma, float height);
+    pfSpatialCorr = pickSpatialCorr(spaceMode);
+    pfTemporalCorr = pickTemporalCorr(timeMode);*/
+    float spatialCorrFactor;
+    float temporalCorrFactor;
     //myLoaf->Loaf_printFullArray(); // debugging
     //    int row = 0;
     //int col = 0;
@@ -1345,11 +1335,24 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
                         //                  col = count % 13;
                         //row = count / 13;
                         //crumb = myLoaf[t+halfLoaf][(k+row+7)*27 + (j+col+7)];
-                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
                         //crumb = randslice[j+col+7][k+row+7];
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k) * pfTemporalCorr(t));
+			crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+			//spatial correlation inlined for top hat long tail
+			if (j == 0 && k == 0)
+			    spatialCorrFactor = 1;
+			else
+			    spatialCorrFactor = spaceHeight;
+			//cout << spatialCorrFactor;
+
+			//temporal correlation inlined for top hat long tail
+			if (t == 0)
+			    temporalCorrFactor = 1;
+			else
+			    temporalCorrFactor = timeHeight;
+			//cout << " " << temporalCorrFactor << " ";
+                        newslice[col][row] += (correction * crumb * spatialCorrFactor * temporalCorrFactor);
                     }
                 }
             }
@@ -1399,21 +1402,27 @@ float algo::compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode,
 
 // movement of the paddles that is correlated in space and in time
 int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
-    
+    cout << "\n**********************************\n";
+    cout << "Running algoltfast. Make sure you aren't running any correlation besides top hat long tail!!!!!!!\n";
+    cout << "\n**********************************" << endl;
+    assert(typeOfSpatialCorr == 8);
+    assert(typeOfTemporalCorr == 8);
+    assert(spatial_alpha == 0);
+    assert(temporal_alpha == 0);
     // debugging------------------
     /*cout << constantArea <<endl;
-     cout << spatial_sigma << endl;
-     cout << temporal_sigma << endl;
-     cout << spatial_alpha << endl;
-     cout << temporal_alpha << endl;
-     cout << spatial_height << endl;
-     cout << temporal_height << endl;
-     cout << typeOfSpatialCorr << endl;
-     cout << typeOfTemporalCorr << endl;
-     cout << target_rms << endl;
-     cout << numberOfSlices << endl;*/
+    cout << spatial_sigma << endl;
+    cout << temporal_sigma << endl;
+    cout << spatial_alpha << endl;
+    cout << temporal_alpha << endl;
+    cout << spatial_height << endl;
+    cout << temporal_height << endl;
+    cout << typeOfSpatialCorr << endl;
+    cout << typeOfTemporalCorr << endl;
+    cout << target_rms << endl;
+    cout << numberOfSlices << endl;*/
     // end of debugging ----------
-    
+
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1438,19 +1447,29 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float bound;
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
+    // Declare function pointers for the spatial and temporal correlation functions
+    float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatial_height);
+    float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
+    pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
+    pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr);
     
-    // Declare function pointers for the spatial and temporal correlation functions (see notes on similar commands in the 2D functions)
-    float (*pfSpatialCorr)(int j, int k);
-    float (*pfTemporalCorr)(int t);
-    pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr, spatial_sigma, spatial_alpha, spatial_height);
-    pfTemporalCorr = pickTemporalCorr(typeOfTemporalCorr, temporal_sigma, temporal_alpha, temporal_height);
-    
+    float spatial_alphaorsigma;
+    float temporal_alphaorsigma;
+    if (typeOfSpatialCorr == 8)
+	spatial_alphaorsigma = spatial_alpha;
+    else
+	spatial_alphaorsigma = spatial_sigma;
+    if (typeOfTemporalCorr == 8)
+	temporal_alphaorsigma = temporal_alpha;
+    else
+	temporal_alphaorsigma = temporal_sigma;
+
     // Correlation function work for finding normalization
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
             for (int t = -halfLoaf; t <= halfLoaf; t++) {
-                norm += (pfSpatialCorr(j, k) * pfTemporalCorr(t));
+                norm += (pfSpatialCorr(j, k, spatial_alphaorsigma, spatial_height) * pfTemporalCorr(t, temporal_alphaorsigma, temporal_height));
             }
         }
     }
@@ -1465,15 +1484,15 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     
     //old timing -----
     /*
-     //timing:
-     timeval testtime;
-     gettimeofday(&testtime,0);
-     long time_usec=0;
-     while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
-     cout << "Done! Starting grid motions" << endl;
-     */
+    //timing:
+    timeval testtime;
+    gettimeofday(&testtime,0);
+    long time_usec=0;
+    while ( testtime.tv_usec > updatetimeinmus) gettimeofday(&testtime,0);
+    cout << "Done! Starting grid motions" << endl;
+    */
     //-------
-    
+
     
     //timing:
     // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
@@ -1481,17 +1500,17 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     timeval currentTime; // declare a structure for holding the current time
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
-    
+
     // debugging------------
     gettimeofday(&currentTime,0);
     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     while (usecElapsed <= updatetimeinmus){
-        gettimeofday(&currentTime,0);
-        usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
+	gettimeofday(&currentTime,0);
+	usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     }
     while (usecElapsed > updatetimeinmus){
-        gettimeofday(&currentTime,0);
-        usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
+	gettimeofday(&currentTime,0);
+	usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
     }
     //----------
     
@@ -1512,20 +1531,20 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 // angle safety processing: do not exceed angle of 90 degrees
                 //if (fabs(newslice1D[col][row]) > 90) cout << "Found angle > 90 degrees at col: " << col << ", row: " << row << endl; // debugging
                 if (newslice[col][row]>90){
-                    newslice[col][row]=90;
-                    over90orminus90count++;
-                    cout << "+";
-                }
+		    newslice[col][row]=90;
+		    over90orminus90count++;
+		    cout << "+";
+		}
                 else if (newslice[col][row]<-90){
-                    newslice[col][row]=-90;
-                    over90orminus90count++;
-                    cout << "-";
-                }
+		    newslice[col][row]=-90;
+		    over90orminus90count++;
+		    cout << "-";
+		}
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
                     cout << "*";
-                    //cout << "Constraining (" << col << ", " << row << ") ";
+		    //cout << "Constraining (" << col << ", " << row << ") ";
                     //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
@@ -1568,7 +1587,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
             
-            if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+	    if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
                 cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
@@ -1577,34 +1596,34 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             else {
                 cout << usecElapsed;
-                while (usecElapsed < updatetimeinmus){ // we need to wait
+		while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
-                //cout << usecElapsed;
-                //cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
+		//cout << usecElapsed;
+		//cout << " " << usecElapsed << " #sec " << currentTime.tv_sec - startTime.tv_sec;
             }
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
             
-            //old timing-------
-            /*
-             time_usec += updatetimeinmus;
-             gettimeofday(&testtime,0);
-             if(time_usec>1000000) time_usec-=1000000;
-             if(testtime.tv_usec > time_usec) {
-             cout << "---------------------------------Problem!!!------------------------------" << endl;
-             cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
-             }
-             while (testtime.tv_usec <= time_usec){
-             gettimeofday(&testtime,0);
-             if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
-             break;
-             }
-             }
-             */
-            //----------------
-            setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
+	    //old timing-------
+	    /*
+	    time_usec += updatetimeinmus;
+            gettimeofday(&testtime,0);
+            if(time_usec>1000000) time_usec-=1000000;
+            if(testtime.tv_usec > time_usec) {
+                cout << "---------------------------------Problem!!!------------------------------" << endl;
+                cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
+            }
+            while (testtime.tv_usec <= time_usec){
+                gettimeofday(&testtime,0);
+                if(time_usec==1000000 && testtime.tv_usec<updatetimeinmus ){
+                    break;
+                }
+            }
+	    */
+	    //----------------
+	    setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion
         }
     }
     anglefile.close(); // never reaches this point

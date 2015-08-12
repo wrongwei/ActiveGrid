@@ -16,7 +16,7 @@
  * pickSpatialCorr will return a ptr to the function gaussianSpatialCorrelation.
  * pcikTemporalCorr works in the same way but returns a ptr to the appropriate
  * temporal correlation function. So, which the argument 1, it returns a ptr to
- * gaussian TemporalCorr. 
+ * gaussian TemporalCorr.
  */
 /*------------------------------------------------------------------------*/
 /* set up some global variables that are initialized in pickTemporalCorr
@@ -34,19 +34,18 @@ static float unsharpCenterPaddleHeightTemporal = 0;
 
 /*------------------------------------------------------------------------*/
 
-
 // random. In other words, no correlation
 // We have not implemented randomTemporalCorr in menuII because this would lead to many angles
 // being asked to move more than 40 degrees per sec
 float randomSpatialCorr(int j, int k){
     if (j == 0 && k == 0)
-	return 1;
+        return 1;
     return 0;
 }
 
 float randomTemporalCorr(int t){
     if (t == 0)
-	return 1;
+        return 1;
     return 0;
 }
 
@@ -157,7 +156,7 @@ float triangleTemporalCorr(int t){
 }
 
 // unsharp correlations. Unsharp correlations are equal to the image in the
-// center and are equal to a negative gaussian everywhere else. 
+// center and are equal to a negative gaussian everywhere else.
 // The effect for this correlation is that the grid is made less correlated,
 // because panels will be made more different to the neighbors; if you think of it
 // as a form of image processing it makes the image sharper, which is the opposite
@@ -199,7 +198,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
   unsharpCenterPaddleHeightSpatial = 0;
 
   if(typeOfSpatialCorr == 0)
-      return randomSpatialCorr; 
+    return &randomSpatialCorr; 
   else if(typeOfSpatialCorr == 1)
       return &gaussianSpatialCorr;
   else if(typeOfSpatialCorr == 2)
@@ -233,6 +232,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
  * and returns a float)
  * In other words, this function returns a correlation function.
  */
+
 float (*pickTemporalCorr(int typeOfTemporalCorr, float temporalSigma, float temporalAlpha, float temporalHeight)) (int t){
   // validate parameters
   assert (typeOfTemporalCorr >= 0 && typeOfTemporalCorr <= 10);
