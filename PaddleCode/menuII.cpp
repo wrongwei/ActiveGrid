@@ -489,7 +489,7 @@ int main (int argc , char * const argv[]) {
             float spatial_alpha = 0;
             float temporal_alpha = 0;
             float spatial_height = 0;
-	    float temporal_height = 0;
+            float temporal_height = 0;
             int typeOfSpatialCorr = 0;
             int typeOfTemporalCorr = 0;
             float target_rms = 0;
@@ -537,7 +537,9 @@ int main (int argc , char * const argv[]) {
                 cin >> spatial_height;
             }
             else if (typeOfSpatialCorr == 10) {
-                cout << "Scale factor for inverted Gaussian? (0->1)\n";
+                cout << "Spatial Alpha? (This sets the radius of the positive portion of the unsharp kernel)\n";
+                cin >> spatial_alpha;
+                cout << "Spatial Depth? (This sets the magnitude of the negative portion of the unsharp kernel, should be between 0 and 1)\n";
                 cin >> spatial_height;
             }
             
@@ -578,13 +580,15 @@ int main (int argc , char * const argv[]) {
                 cout << "Temporal Alpha? This is the width of the part with correlation of 1 (usually temporal_alpha=0)\n";
                 cin >> temporal_alpha;
                 cout << "Temporal Height? This is how tall the tail is. 1 would be a correlation of 1 and 0 would be no correlation in the tail.\n";
-		cin >> temporal_height;
-	    }
-	    
-	    if (typeOfTemporalCorr == 10) {
-		cout << "Scale factor for inverted Gaussian? (0->1)\n";
-		cin >> temporal_height;
-	    }
+                cin >> temporal_height;
+            }
+            
+            else if (typeOfTemporalCorr == 10) {
+                cout << "Temporal Alpha? (This sets the radius of the positive portion of the unsharp kernel)\n";
+                cin >> spatial_alpha;
+                cout << "Temporal Depth? (This sets the magnitude of the negative portion of the unsharp kernel, should be between 0 and 1)\n";
+                cin >> spatial_height;
+            }
             
             cout << "rms of angles? (0->50 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
             cin >> target_rms;
@@ -603,7 +607,7 @@ int main (int argc , char * const argv[]) {
             }
             
             // calculate width of temporal kernel (number of time-slices to analyze at a time)
-            if ((int)typeOfTemporalCorr == 1 || (int)typeOfTemporalCorr == 10) { // calculate width of Gaussian kernel / unsharp kernel
+            if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel / unsharp kernel
                 numberOfSlices = ceil(6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
             }
             else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
@@ -614,10 +618,10 @@ int main (int argc , char * const argv[]) {
                     cin >> numberOfSlices;
                 }
             }
-            else { // top hats, triangle, etc. - decay very rapidly outside of one standard deviation
-                numberOfSlices = (2 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
+            else { // top hats, triangle, etc. - return values of 0 outside one standard deviation
+                numberOfSlices = (2 * temporal_sigma) + 1; // so kernel just needs to have 1 standard deviation on either side of the middle slice
             }
-            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
+            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd (for 1/r^n kernels)
             cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\nNote: one time-step is equal to 'SPACING' grid positions, where the value of SPACING is set manually in algo.cpp. \nEach grid position lasts 0.1 seconds." << endl;
             
             cout << "\nInitializing preliminary computations...\n" << endl;
@@ -637,7 +641,7 @@ int main (int argc , char * const argv[]) {
             int j; // row counter
             
             alg.grid.opengrid();
-	    cout << "\nThe test code will begin in 10 seconds. Quick, run over and watch the grid!" << endl;
+            cout << "\nThe test code will begin in 10 seconds. Quick, run over and watch the grid!" << endl;
             wait(10.0);
             
             for (i = 1; i <= NUMBER_OF_COLUMNS; i++)
@@ -674,7 +678,7 @@ int main (int argc , char * const argv[]) {
             gridAngle = angle_check(gridAngle);
             alg.setsameangletoallservos(gridAngle);
             alg.setanglesofonerow(topRow,topAngle);
-            alg.setanglesofonerow(bottomRow,bottomAngle);   
+            alg.setanglesofonerow(bottomRow,bottomAngle);
         }
         
         else if((int)choice==19){
