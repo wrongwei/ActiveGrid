@@ -615,7 +615,7 @@ int main (int argc , char * const argv[]) {
                 }
             }
             else { // top hats, triangle, etc. - decay very rapidly outside of one standard deviation
-                numberOfSlices = (4 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
+                numberOfSlices = (2 * temporal_sigma) + 1; // so kernel just needs to have 2 standard deviations on either side of the middle slice
             }
             if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
             cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\nNote: one time-step is equal to 'SPACING' grid positions, where the value of SPACING is set manually in algo.cpp. \nEach grid position lasts 0.1 seconds." << endl;

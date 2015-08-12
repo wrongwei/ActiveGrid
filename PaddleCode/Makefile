@@ -8,6 +8,7 @@ LIBDIR = ./lib
 
 all: \
 	menuII \
+	ltfast\
 	Printing
 
 menuII: menuII.cpp
@@ -16,6 +17,12 @@ menuII: menuII.cpp
 	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/testloaf.o $(LIBDIR)/pickCorrelations.o -o menuII menuII.cpp
 
+ltfast: menuII.cpp
+	@echo "==============================================================================================="
+	@echo "Compiling menuII.cpp and linking with .o files to produce an executable file called ltfast"
+	@echo "==============================================================================================="
+	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algoltfast.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/testloaf.o $(LIBDIR)/pickCorrelations.o -o ltfast menuII.cpp
+
 ##temp: temp.cpp
 ##$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o temp temp.cpp
 
@@ -23,7 +30,7 @@ Printing: Printing.cpp
 	@echo "==============================================================================================="
 	@echo "Compiling Printing.cpp and linking with .o files to produce an executable file called Printing"
 	@echo "==============================================================================================="
-	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o Printing Printing.cpp
+	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o Printing.cpp -o Printing
 
 ## type make cleaner to delete all temp files, .o files, and executable binary files in your working directory and in lib
 cleaner: clean

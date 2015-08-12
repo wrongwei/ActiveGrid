@@ -1568,7 +1568,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
             }
             else {
-                while (usecElapsed < updatetimeinmus){ // we need to wait
+                cout << usecElapsed;
+		while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }
