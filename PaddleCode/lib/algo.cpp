@@ -725,10 +725,8 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     // compute normalization for any convolution formula
     norm1 = 0;
     float bound;
-    float sigmaOrAlpha = sigma;
     if (mode <= 4) bound = range_of_corr;
     else bound = sigma;
-    if (mode == 8) sigmaOrAlpha = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
         for (int k = -bound; k <= bound; k++) { // j and k refer to the shift

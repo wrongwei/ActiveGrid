@@ -20,7 +20,7 @@
  */
 /*------------------------------------------------------------------------*/
 /* set up some global variables that are initialized in pickTemporalCorr
-   and pickSpatialCorr and then used in the correlation functions */
+ and pickSpatialCorr and then used in the correlation functions */
 static float spatialSigmaLimit = 0;
 static float temporalSigmaLimit = 0;
 static float spatialAlphaLimit = 0;
@@ -99,60 +99,60 @@ float topHatTemporalCorr(int t){
 
 // true top hat with one main paddle, no wrapping around
 float trueTopHatSpatialCorr(int j, int k){
-  //this function is not ready yet, so it just throws an error
-  assert(0);
-  return 0;
+    //this function is not ready yet, so it just throws an error
+    assert(0);
+    return 0;
 }
 
 float trueTopHatTemporalCorr(int t){
- //this function is not ready yet, so it just throws an error
-  assert(0); 
-  return 0;
+    //this function is not ready yet, so it just throws an error
+    assert(0);
+    return 0;
 }
 
 // true top hat with one randomly chosen paddle
 float trueTopHatRandomSpatialCorr(int j, int k){
-  //this function is not ready yet, so it just throws an error
-  assert(0);
-  return 0;
+    //this function is not ready yet, so it just throws an error
+    assert(0);
+    return 0;
 }
 
 float trueTopHatRandomTemporalCorr(int t){
-  //this function is not ready yet, so it just throws an error
-  assert(0);
-  return 0;
+    //this function is not ready yet, so it just throws an error
+    assert(0);
+    return 0;
 }
 
 float topHatLongTailSpatialCorr(int j, int k){
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatialAlphaLimit)
-      return 1.0;
+        return 1.0;
     if (dist <= spatialSigmaLimit)
-      return spatialHeight;
+        return spatialHeight;
     return 0;
 }
 
 float topHatLongTailTemporalCorr(int t){
-  float absoluteVal_t = abs(t);  
-  if (absoluteVal_t <= temporalAlphaLimit)
-    return 1.0;
-  if (absoluteVal_t <= temporalSigmaLimit)
-    return temporalHeight;
-  return 0;
+    float absoluteVal_t = abs(t);
+    if (absoluteVal_t <= temporalAlphaLimit)
+        return 1.0;
+    if (absoluteVal_t <= temporalSigmaLimit)
+        return temporalHeight;
+    return 0;
 }
 
 float triangleSpatialCorr(int j, int k){
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatialSigmaLimit)
-	return ((-1) / spatialSigmaLimit * dist + 1);
+        return ((-1) / spatialSigmaLimit * dist + 1);
     return 0;
 }
 
 float triangleTemporalCorr(int t){
-  float absoluteVal_t = abs(t);
-  if (absoluteVal_t <= temporalSigmaLimit)
-	return (-1 / temporalSigmaLimit * absoluteVal_t + 1);
-  return 0;
+    float absoluteVal_t = abs(t);
+    if (absoluteVal_t <= temporalSigmaLimit)
+        return (-1 / temporalSigmaLimit * absoluteVal_t + 1);
+    return 0;
 }
 
 // unsharp correlations. Unsharp correlations are equal to the image in the
@@ -164,109 +164,108 @@ float triangleTemporalCorr(int t){
 // Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
 float unsharpSpatialCorr(int j, int k){
     float dist = sqrt(j*j + k*k);
-    if (dist <= 1.5)
-	return 29.0/9 * spatialHeight; // 29 is size of kernel, 9 is size of center of kernel
-	//return 225; //(7*2+1)*(7*2+1) width of spatial ker squared
+    if (dist <= spatialAlphaLimit)
+        return unsharpCenterPaddleHeightSpatial; // 29 is size of kernel, 9 is size of center of kernel
+    //return 225; //(7*2+1)*(7*2+1) width of spatial ker squared
     if (dist <= spatialSigmaLimit)
-	return -spatialHeight;
+        return -spatialHeight;
     return 0;
 }
 
 float unsharpTemporalCorr(int t){
-    if (t <= 1){
-	return 5.0/3*temporalHeight; // 5 is size of kernel. 3 is size of center part of kernel
-	//int widthOfTempKer = ceil(6*temporal_sigma)+1;
-	//if (widthOfTempKer % 2)
-	//    widthOfTempKer++;
-	//return widthOfTempKer;
+    if (t <= temporalAlphaLimit){
+        return unsharpCenterPaddleHeightTemporal; // 5 is size of kernel. 3 is size of center part of kernel
+        //int widthOfTempKer = ceil(6*temporal_sigma)+1;
+        //if (widthOfTempKer % 2)
+        //    widthOfTempKer++;
+        //return widthOfTempKer;
     }
     if (t <= temporalSigmaLimit)
-	return -temporalHeight;
+        return -temporalHeight;
     return 0;
 }
 
 /*------------------------------------------------------------------------*/
 
 float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatial_alpha, float spatial_height)) (int j, int k){
-  // validate parameters
-  assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
-  
-  spatialSigmaLimit = spatial_sigma;
-  spatialAlphaLimit = spatial_alpha;
-  spatialHeight = spatial_height;
-  twoTimesSpatialSigmaSquared = 2 * spatial_sigma * spatial_sigma;
-  unsharpCenterPaddleHeightSpatial = 0;
-
-  if(typeOfSpatialCorr == 0)
-    return &randomSpatialCorr; 
-  else if(typeOfSpatialCorr == 1)
-      return &gaussianSpatialCorr;
-  else if(typeOfSpatialCorr == 2)
-      return &inverseSquareSpatialCorr;
-  else if(typeOfSpatialCorr == 3)
-      return &inverseCubeSpatialCorr;
-  else if(typeOfSpatialCorr == 4)
-      return &inverseQuarticSpatialCorr;
-  else if(typeOfSpatialCorr == 5)
-      return &topHatSpatialCorr;
-  else if(typeOfSpatialCorr == 6)
-      return &trueTopHatSpatialCorr;
-  else if(typeOfSpatialCorr == 7)
-      return &trueTopHatSpatialCorr;
-  else if(typeOfSpatialCorr == 8)
-      return &topHatLongTailSpatialCorr;
-  else if(typeOfSpatialCorr == 9)
-    return &triangleSpatialCorr;
-  else if(typeOfSpatialCorr == 10)
-    return &unsharpSpatialCorr;
-  
-  // should never reach this point
-  assert(1);
-  return NULL;
+    // validate parameters
+    assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
+    
+    spatialSigmaLimit = spatial_sigma;
+    spatialAlphaLimit = spatial_alpha;
+    spatialHeight = spatial_height;
+    twoTimesSpatialSigmaSquared = 2 * spatial_sigma * spatial_sigma;
+    unsharpCenterPaddleHeightSpatial = 0;
+    
+    if(typeOfSpatialCorr == 0)
+        return &randomSpatialCorr;
+    else if(typeOfSpatialCorr == 1)
+        return &gaussianSpatialCorr;
+    else if(typeOfSpatialCorr == 2)
+        return &inverseSquareSpatialCorr;
+    else if(typeOfSpatialCorr == 3)
+        return &inverseCubeSpatialCorr;
+    else if(typeOfSpatialCorr == 4)
+        return &inverseQuarticSpatialCorr;
+    else if(typeOfSpatialCorr == 5)
+        return &topHatSpatialCorr;
+    else if(typeOfSpatialCorr == 6)
+        return &trueTopHatSpatialCorr;
+    else if(typeOfSpatialCorr == 7)
+        return &trueTopHatSpatialCorr;
+    else if(typeOfSpatialCorr == 8)
+        return &topHatLongTailSpatialCorr;
+    else if(typeOfSpatialCorr == 9)
+        return &triangleSpatialCorr;
+    else if(typeOfSpatialCorr == 10)
+        return &unsharpSpatialCorr;
+    
+    // should never reach this point
+    assert(1);
+    return NULL;
 }
 
 /*------------------------------------------------------------------------*/
 
-/* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr
- * and returns a pointer to a function (which accepts an int, int, float*,float as parameters
- * and returns a float)
+/* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr, with associated parameters needed
+ * for computations, and returns a pointer to a function (which accepts 2 ints as parameters and returns a float)
  * In other words, this function returns a correlation function.
  */
 
-float (*pickTemporalCorr(int typeOfTemporalCorr, float temporalSigma, float temporalAlpha, float temporalHeight)) (int t){
-  // validate parameters
-  assert (typeOfTemporalCorr >= 0 && typeOfTemporalCorr <= 10);
-  
-  temporalSigmaLimit = temporal_sigma;
-  temporalAlphaLimit = temporal_alpha;
-  temporalHeight = temporal_height;
-  twoTimesTemporalSigmaSquared = 2 * temporal_sigma * temporal_sigma;
-  unsharpCenterPaddleHeightTemporal = 0;
-
-  if(typeOfTemporalCorr == 0)
-      return &randomTemporalCorr; 
-  else if(typeOfTemporalCorr == 1)
-      return &gaussianTemporalCorr;
-  else if(typeOfTemporalCorr == 2)
-      return &inverseSquareTemporalCorr;
-  else if(typeOfTemporalCorr == 3)
-      return &inverseCubeTemporalCorr;
-  else if(typeOfTemporalCorr == 4)
-      return &inverseQuarticTemporalCorr;
-  else if(typeOfTemporalCorr == 5)
-      return &topHatTemporalCorr;
-  else if(typeOfTemporalCorr == 6)
-      return &trueTopHatTemporalCorr;
-  else if(typeOfTemporalCorr == 7)
-      return &trueTopHatRandomTemporalCorr;
-  else if(typeOfTemporalCorr == 8)
-      return &topHatLongTailTemporalCorr;
-  else if(typeOfTemporalCorr == 9)
-      return &triangleTemporalCorr;
-  else if(typeOfTemporalCorr == 10)
-      return &unsharpTemporalCorr;
-  
-  // should never reach this point
-  assert(1);
-  return NULL;
+float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float temporal_alpha, float temporal_height)) (int t){
+    // validate parameters
+    assert (typeOfTemporalCorr >= 0 && typeOfTemporalCorr <= 10);
+    
+    temporalSigmaLimit = temporal_sigma;
+    temporalAlphaLimit = temporal_alpha;
+    temporalHeight = temporal_height;
+    twoTimesTemporalSigmaSquared = 2 * temporal_sigma * temporal_sigma;
+    unsharpCenterPaddleHeightTemporal = 0;
+    
+    if(typeOfTemporalCorr == 0)
+        return &randomTemporalCorr;
+    else if(typeOfTemporalCorr == 1)
+        return &gaussianTemporalCorr;
+    else if(typeOfTemporalCorr == 2)
+        return &inverseSquareTemporalCorr;
+    else if(typeOfTemporalCorr == 3)
+        return &inverseCubeTemporalCorr;
+    else if(typeOfTemporalCorr == 4)
+        return &inverseQuarticTemporalCorr;
+    else if(typeOfTemporalCorr == 5)
+        return &topHatTemporalCorr;
+    else if(typeOfTemporalCorr == 6)
+        return &trueTopHatTemporalCorr;
+    else if(typeOfTemporalCorr == 7)
+        return &trueTopHatRandomTemporalCorr;
+    else if(typeOfTemporalCorr == 8)
+        return &topHatLongTailTemporalCorr;
+    else if(typeOfTemporalCorr == 9)
+        return &triangleTemporalCorr;
+    else if(typeOfTemporalCorr == 10)
+        return &unsharpTemporalCorr;
+    
+    // should never reach this point
+    assert(1);
+    return NULL;
 }
