@@ -16,12 +16,12 @@ Example data file name: g2g1_0730_05_3.dat
 %}
 
 % -------------------------- PARAMETERS TO SET --------------------------
-foldername = '/Users/kevin/Documents/Data/data07_31_15/';
+foldername = '/Users/kevin/Documents/Data/data08_13_15/';
 tests = 10; % number of data collection points along the tunnel
-calibfile = 'calib7_31.m';
-datafolderbase = 'g3g3_0731_0'; % standardized beginning of each data file
-outputfilebase = 'statscorr_g3g3_0731_0'; % standardized beginning of each workspace makeallstats will create
-testtemps = []; % temperatures measured at each point - leave empty if no temperature data was taken
+calibfile = 'calib8_13.m';
+datafolderbase = ''; % standardized beginning of each data file
+outputfilebase = 'statscorr_th2.6th2_0813_0'; % standardized beginning of each workspace makeallstats will create
+testtemps = [22.65]; % temperatures measured at each point - leave empty if no temperature data was taken
 % -----------------------------------------------------------------------
 
 tstart = tic;
@@ -30,7 +30,7 @@ for t = 1 : tests
     disp(strcat('Processing test #', num2str(t), '/', num2str(tests)));
     folderstring = strcat(datafolderbase, num2str(t-1),'/');
     outputstring = strcat(outputfilebase, num2str(t-1), '.mat');
-    if ~isempty(testtemps)
+    if isempty(testtemps)
         temp = []; % so makeallstats knows not to do temp correction
     else
         temp = testtemps(tests);
