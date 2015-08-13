@@ -165,8 +165,7 @@ float triangleTemporalCorr(int t){
 float unsharpSpatialCorr(int j, int k){
     float dist = sqrt(j*j + k*k);
     if (dist <= spatialAlphaLimit)
-        return unsharpCenterPaddleHeightSpatial; // 29 is size of kernel, 9 is size of center of kernel
-    //return 225; //(7*2+1)*(7*2+1) width of spatial ker squared
+        return unsharpCenterPaddleHeightSpatial;
     if (dist <= spatialSigmaLimit)
         return -spatialHeight;
     return 0;
@@ -174,11 +173,7 @@ float unsharpSpatialCorr(int j, int k){
 
 float unsharpTemporalCorr(int t){
     if (t <= temporalAlphaLimit){
-        return unsharpCenterPaddleHeightTemporal; // 5 is size of kernel. 3 is size of center part of kernel
-        //int widthOfTempKer = ceil(6*temporal_sigma)+1;
-        //if (widthOfTempKer % 2)
-        //    widthOfTempKer++;
-        //return widthOfTempKer;
+        return unsharpCenterPaddleHeightTemporal;
     }
     if (t <= temporalSigmaLimit)
         return -temporalHeight;
