@@ -16,11 +16,11 @@ Example data file name: g2g1_0730_05_3.dat
 %}
 
 % -------------------------- PARAMETERS TO SET --------------------------
-foldername = '/Users/kevin/Documents/Data/data08_13_15/';
+foldername = '/Users/nathan/Documents/Data/data08_13_15/';
 tests = 10; % number of data collection points along the tunnel
 calibfile = 'calib8_13.m';
 % standardized beginning of each data file
-datafolderbase = '';
+datafolderbase = 'th2.6th2/';
 % standardized beginning of each workspace makeallstats will create
 outputfilebase = 'statscorr_th2.6th2_0813_0';
 % temperatures measured at each point - leave empty if no temperature data was taken
@@ -38,7 +38,7 @@ for t = 1 : tests
     else
         temp = testtemps(tests);
     end
-    makeallstats(foldername, calibfile, folderstring, outputstring, temp); 
+    makeallstats(foldername, folderstring, calibfile, outputstring, temp); 
     % note: makeallstats adds the final index and file extension
 end
 
