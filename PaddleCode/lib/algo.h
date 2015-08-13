@@ -104,12 +104,11 @@ public:
     void updateOneWing(int WingNumber);
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
-    void runcorr(float actpos[], float actstep[], float sigma, float alpha,
-		 double height, int mode, int mrow, int mcol, float correction,
+    void runcorr(float actpos[], float actstep[], float sigma, float(*pfCorr)(int, int), int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
     void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float bound, float(*pfSpatialCorr)(int, int), float(*pfTemporalCorr)(int), float correction);
     float compute_rms(int option);
-    float compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol);
+    float compute_rmscorr(float sigma, int mode, float(*pfCorr)(int, int), int mrow, int mcol);
     float compute_rmscorr_3D(float bound, int spaceMode, int timeMode, int halfLoaf, float(*pfSpatialCorr)(int, int), float(*pfTemporalCorr)(int));
     
     // helper methods for correlation procedures

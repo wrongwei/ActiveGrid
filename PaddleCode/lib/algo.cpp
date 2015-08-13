@@ -728,16 +728,19 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     if (mode <= 4) bound = range_of_corr;
     else bound = sigma;
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
-    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k);
+    if (mode == 6 || mode == 7) norm1 = 1; // no normalization needed for true top hats (also avoids assert(0) statements from pickCorrelations)
+    else { // compute normalization by adding all raw correlation function values in kernel
+        for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+            for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+                norm1 += pfCorr(j, k);
+            }
         }
     }
     
     // makes a random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles. This is done so that the rms correction factor can be
     // determined before the angles have been produced
-    rms=compute_rmscorr(sigma, mode, alpha, height, mrow, mcol);
+    rms=compute_rmscorr(sigma, mode, pfCorr, mrow, mcol);
     
     
     correction=target_rms/rms; // correction factor
@@ -761,7 +764,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     while(0==0){
         
         //getpositions of each servo:
-        runcorr(positions,anglesteps,sigma,alpha,height,mode,mrow,mcol,correction,norm1,old_positions,old_steps,err);
+        runcorr(positions,anglesteps,sigma,pfCorr,mode,mrow,mcol,correction,norm1,old_positions,old_steps,err);
         
         //setposition of each servo:
         time_usec += updatetimeinmus;  // add the 0.1 sec to the stopwatch
@@ -789,7 +792,7 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
 
 // take a random sequence and computes its std dev. It's useful for the correction coefficent that
 // is needed to give to the output the desired rms value of angles.
-float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, int mrow, int mcol){
+float algo::compute_rmscorr(float sigma, int mode, float(*pfCorr)(int, int), int mrow, int mcol){
     
     float control_positions[numberOfServos][4000];
     float mean=0;
@@ -797,7 +800,7 @@ float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, i
     
     // takes a random correlated sequence of angles, without correction
     for (int t =0; t<4000;t++){
-        runcorr(positions,anglesteps,sigma,alpha,height,mode,mrow,mcol,1,norm1,old_positions, old_steps, err);
+        runcorr(positions,anglesteps,sigma,pfCorr,mode,mrow,mcol,1,norm1,old_positions, old_steps, err);
         
         for (int i=0; i<numberOfServos;i++){
             control_positions[i][t]=positions[i];
@@ -823,7 +826,7 @@ float algo::compute_rmscorr(float sigma, int mode, float alpha, double height, i
 
 // reads the contents of positions and steps, put the value stored at actualposition in vector in actpos and actstep, and actualpositioninvector++
 // then creates correlation between paddles
-void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, double height, int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
+void algo::runcorr(float actpos[], float actstep[], float sigma, float(*pfCorr)(int, int), int mode, int mrow, int mcol, float correction, float norm, float oldpos[], float oldstep[], float err[]){
     
     float interpos[13][11]; // arrays storing the intermediate computed values before convolution
     //float interstep[13][11]; // unused
@@ -837,14 +840,6 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
         actualpositioninvector[i]++;
     }
-    /* Declare function pointers for the spatial correlation functions
-     First, we declare a pointer *pfCorr to a function with 2 arguments j and k
-     Then we call the function pickSpatialCorr (from pickCorrelations.cpp), which sets our parameters
-     (sigma, alpha, and height) as private global variables for use in that file
-     This function returns a pointer to the function of choice (determined by 'mode'),
-     which can then be used by simply calling pfCorr(j, k). */
-    float (*pfCorr)(int j, int k);
-    pfCorr = pickSpatialCorr(mode, sigma, alpha, height);
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -1096,10 +1091,12 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     
     // takes a first random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles
-    rms1=compute_rmscorr(sigma1, mode, 0,0,0,0);
+    pfCorr = pickSpatialCorr(mode, sigma1, 0, 0); // ugly but necessary to store different sigma as variable
+    rms1=compute_rmscorr(sigma1, mode, pfCorr,0,0);
     correction1=target_rms1/rms1; // correction factor for first half-period
     
-    rms2=compute_rmscorr(sigma2, mode, 0,0,0,0);
+    pfCorr = pickSpatialCorr(mode, sigma2, 0, 0); // ugly but necessary to store different sigma as variable
+    rms2=compute_rmscorr(sigma2, mode, pfCorr,0,0);
     correction2=target_rms2/rms2;
     
     // initialize values to 0 (necessary to avoid NaN output)
@@ -1125,12 +1122,14 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
         gettimeofday(&testtime,0);
         temps = testtime.tv_sec + (testtime.tv_usec/1000000.0);
         if ( ((temps/period)- floor(temps/period)) < duty_cycle ){
-            runcorr(positions,anglesteps,sigma1,0,0,mode,0,0,correction1,norm1, old_positions, old_steps, err);
+            pfCorr = pickSpatialCorr(mode, sigma1, 0, 0); // ugly but necessary to store different sigma as variable
+            runcorr(positions,anglesteps,sigma1,pfCorr,mode,0,0,correction1,norm1, old_positions, old_steps, err);
             target_rms=target_rms1;
             grid.high_duty = true;
         }
         else {
-            runcorr(positions,anglesteps,sigma2,0,0,mode,0,0,correction2,norm2, old_positions, old_steps, err);
+            pfCorr = pickSpatialCorr(mode, sigma2, 0, 0); // ugly but necessary to store different sigma as variable
+            runcorr(positions,anglesteps,sigma2,pfCorr,mode,0,0,correction2,norm2, old_positions, old_steps, err);
             target_rms=target_rms2;
             grid.high_duty = false;
         }
@@ -1199,7 +1198,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     
     // takes a first random correlated sequence of angles, with the same parameters but without correction
     // computes its mean and rms value of angles
-    rms=compute_rmscorr(sigma, mode, 0,0,0,0);
+    rms=compute_rmscorr(sigma, mode, pfCorr, 0, 0);
     
     correction=target_rms/rms; // correction factor
     
@@ -1215,7 +1214,7 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     
     // computes the random sequence of the periodic pattern
     for (int t =0; t<numberofsteps;t++){
-        runcorr(positions, anglesteps, sigma, 0, 0, mode, 0, 0, correction, norm1, old_positions, old_steps, err);
+        runcorr(positions, anglesteps, sigma, pfCorr, mode, 0, 0, correction, norm1, old_positions, old_steps, err);
         
         for (int i=0; i<numberOfServos;i++){
             stored_positions[i][t]=positions[i];
