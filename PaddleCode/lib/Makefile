@@ -11,7 +11,6 @@ all:  \
 	SD84 \
 	activegrid \
 	algo \
-	algoltfast\
 	loaf \
 	testloaf \
 	pickCorrelations
@@ -57,12 +56,6 @@ algo: algo.cpp algo.h loaf.h
 	@echo "Compiling algo.cpp"
 	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c algo.cpp
-
-algoltfast: algoltfast.cpp algo.h loaf.h 
-	@echo "==============================================================================================="
-	@echo "Compiling algoltfast.cpp"
-	@echo "==============================================================================================="
-	$(CPP) $(FLAGS) -c algoltfast.cpp
 
 loaf: loaf.cpp loaf.h
 	@echo "==============================================================================================="

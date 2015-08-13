@@ -8,7 +8,6 @@ LIBDIR = ./lib
 
 all: \
 	menuII \
-	ltfast\
 	Printing
 
 menuII: menuII.cpp
@@ -16,12 +15,6 @@ menuII: menuII.cpp
 	@echo "Compiling menuII.cpp and linking with .o files to produce an executable file called menuII"
 	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/testloaf.o $(LIBDIR)/pickCorrelations.o -o menuII menuII.cpp
-
-ltfast: menuII.cpp
-	@echo "==============================================================================================="
-	@echo "Compiling menuII.cpp and linking with .o files to produce an executable file called ltfast"
-	@echo "==============================================================================================="
-	$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algoltfast.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/testloaf.o $(LIBDIR)/pickCorrelations.o -o ltfast menuII.cpp
 
 ##temp: temp.cpp
 ##$(CPP) $(FLAGS) $(LNK_OPTIONS) $(LIBDIR)/gbserialFlo.o $(LIBDIR)/SD84.o $(LIBDIR)/algo.o $(LIBDIR)/activegrid.o $(LIBDIR)/loaf.o $(LIBDIR)/pickCorrelations.o -o temp temp.cpp

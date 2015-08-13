@@ -187,7 +187,7 @@ float unsharpTemporalCorr(int t){
 
 /*------------------------------------------------------------------------*/
 
-float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatial_alpha, float spatial_height)) (int j, int k){
+float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatial_alpha, float spatial_height)) (int j, int k) {
     // validate parameters
     assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
     
@@ -217,14 +217,37 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
         return &topHatLongTailSpatialCorr;
     else if(typeOfSpatialCorr == 9)
         return &triangleSpatialCorr;
-    else if(typeOfSpatialCorr == 10)
+    else if(typeOfSpatialCorr == 10) {
+        // calculate areas of positive and negative sections of unsharp kernel
+        float inside_area = 0;
+        float outside_area = 0;
+        float dist = 0;
+        for (int row = -spatial_sigma; row <= spatial_sigma; row++) {
+            for (int col = -spatial_sigma; col <= spatial_sigma; col++) {
+                dist = sqrt((col*col) + (row*row));
+                if (dist <= spatial_alpha) {
+                    inside_area++;
+                    cout << "Inside: (" << row << ", " << col << ")\n";
+                }
+                else if (dist <= spatial_sigma) {
+                    outside_area++;
+                    cout << "Inside: (" << row << ", " << col << ")\n";
+                }
+            }
+        }
+        cout << "Inside = " << inside_area << endl; // debugging
+        cout << "Outside = " << outside_area << endl; // debugging
+        // calculate scaling of positive region (so that integral over kernel is zero)
+        unsharpCenterPaddleHeightSpatial = outside_area * spatial_height / inside_area;
+        cout << "Scaling = " << unsharpCenterPaddleHeightSpatial << endl;
         return &unsharpSpatialCorr;
-    
+    }
+            
     // should never reach this point
     assert(1);
     return NULL;
 }
-
+                    
 /*------------------------------------------------------------------------*/
 
 /* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr, with associated parameters needed
@@ -262,8 +285,13 @@ float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float tem
         return &topHatLongTailTemporalCorr;
     else if(typeOfTemporalCorr == 9)
         return &triangleTemporalCorr;
-    else if(typeOfTemporalCorr == 10)
+    else if(typeOfTemporalCorr == 10) {
+        // calculate scaling of positive region (so that integral over kernel is zero)
+        cout << "Parameters: " << temporal_sigma << ", " << temporal_alpha << ", " << temporal_height << endl;
+        unsharpCenterPaddleHeightTemporal = temporal_height * (temporal_sigma - temporal_alpha) / (temporal_alpha + 0.5);
+        cout << "Temporal Scaling = " << unsharpCenterPaddleHeightTemporal << endl;
         return &unsharpTemporalCorr;
+    }
     
     // should never reach this point
     assert(1);
