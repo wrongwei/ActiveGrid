@@ -585,9 +585,9 @@ int main (int argc , char * const argv[]) {
             
             else if (typeOfTemporalCorr == 10) {
                 cout << "Temporal Alpha? (This sets the radius of the positive portion of the unsharp kernel)\n";
-                cin >> spatial_alpha;
+                cin >> temporal_alpha;
                 cout << "Temporal Depth? (This sets the magnitude of the negative portion of the unsharp kernel, should be between 0 and 1)\n";
-                cin >> spatial_height;
+                cin >> temporal_height;
             }
             
             cout << "rms of angles? (0->50 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)

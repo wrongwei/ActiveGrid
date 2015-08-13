@@ -225,21 +225,12 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
         for (int row = -spatial_sigma; row <= spatial_sigma; row++) {
             for (int col = -spatial_sigma; col <= spatial_sigma; col++) {
                 dist = sqrt((col*col) + (row*row));
-                if (dist <= spatial_alpha) {
-                    inside_area++;
-                    cout << "Inside: (" << row << ", " << col << ")\n";
-                }
-                else if (dist <= spatial_sigma) {
-                    outside_area++;
-                    cout << "Inside: (" << row << ", " << col << ")\n";
-                }
+                if (dist <= spatial_alpha) inside_area++;
+                else if (dist <= spatial_sigma) outside_area++;
             }
         }
-        cout << "Inside = " << inside_area << endl; // debugging
-        cout << "Outside = " << outside_area << endl; // debugging
         // calculate scaling of positive region (so that integral over kernel is zero)
         unsharpCenterPaddleHeightSpatial = outside_area * spatial_height / inside_area;
-        cout << "Scaling = " << unsharpCenterPaddleHeightSpatial << endl;
         return &unsharpSpatialCorr;
     }
             
@@ -287,9 +278,10 @@ float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float tem
         return &triangleTemporalCorr;
     else if(typeOfTemporalCorr == 10) {
         // calculate scaling of positive region (so that integral over kernel is zero)
-        cout << "Parameters: " << temporal_sigma << ", " << temporal_alpha << ", " << temporal_height << endl;
+        float inside_area = 0;
+        float outside_area = 0;
+        // calculate areas of positive and negative sections of unsharp kernel
         unsharpCenterPaddleHeightTemporal = temporal_height * (temporal_sigma - temporal_alpha) / (temporal_alpha + 0.5);
-        cout << "Temporal Scaling = " << unsharpCenterPaddleHeightTemporal << endl;
         return &unsharpTemporalCorr;
     }
     
