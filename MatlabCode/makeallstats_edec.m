@@ -19,9 +19,12 @@ Example data file name: g2g1_0730_05_3.dat
 foldername = '/Users/kevin/Documents/Data/data08_13_15/';
 tests = 10; % number of data collection points along the tunnel
 calibfile = 'calib8_13.m';
-datafolderbase = ''; % standardized beginning of each data file
-outputfilebase = 'statscorr_th2.6th2_0813_0'; % standardized beginning of each workspace makeallstats will create
-testtemps = [22.65]; % temperatures measured at each point - leave empty if no temperature data was taken
+% standardized beginning of each data file
+datafolderbase = '';
+% standardized beginning of each workspace makeallstats will create
+outputfilebase = 'statscorr_th2.6th2_0813_0';
+% temperatures measured at each point - leave empty if no temperature data was taken
+testtemps = [22.62; 22.635; 22.65; 22.655; 22.68; 22.7; 22.71; 22.72; 22.735; 22.75];
 % -----------------------------------------------------------------------
 
 tstart = tic;
