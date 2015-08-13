@@ -278,9 +278,6 @@ float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float tem
         return &triangleTemporalCorr;
     else if(typeOfTemporalCorr == 10) {
         // calculate scaling of positive region (so that integral over kernel is zero)
-        float inside_area = 0;
-        float outside_area = 0;
-        // calculate areas of positive and negative sections of unsharp kernel
         unsharpCenterPaddleHeightTemporal = temporal_height * (temporal_sigma - temporal_alpha) / (temporal_alpha + 0.5);
         return &unsharpTemporalCorr;
     }
