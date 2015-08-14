@@ -19,7 +19,7 @@
 % MASN   - the histogram
 % 
 
-function [] = makeallstats(path, folder, calibfile, outputname, actualtemp)
+function [] = makeallstats(path, folder, calibfile, outputname, actualtemp, needU)
 
 if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
@@ -29,11 +29,12 @@ if (~exist('highorder')), highorder = 1; end
 % ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    path = '/Users/kevin/Documents/Data/data08_12_15/'; % location of calib file
-    folder = 'us3us2'; % name of folder containing data
-    outputname = 'statscorr_us3us2_0812.mat'; % name your .mat workspace!
-    calibfile = 'calib8_12.m'; % calibration file name (set here for convenience)
-    actualtemp = 22.3; % change this if you have a temperature measurement you want to use, otherwise should be []
+    path = '/Users/nathan/Documents/Data/data08_10_15/'; % location of calib file
+    folder = 'test'; % name of folder containing data
+    outputname = 'statscorr_test_0810.mat'; % name your .mat workspace!
+    calibfile = 'calib8_10.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.6; % change this if you have a temperature measurement you want to use, otherwise should be []
+    needU = false; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------
 
@@ -157,7 +158,9 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
-clear u; % u is not needed in workspace, but takes up a lot of space...
+if (~needU)
+    clear u; % u is needed in workspace only for error bars on edec runs
+end
 matfile = fullfile(fileparts(path), outputname);
 
 %structfile = fullfile(pathname, 'struct.fig');
