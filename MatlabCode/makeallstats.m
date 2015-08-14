@@ -20,7 +20,7 @@
 % MASN   - the histogram
 % 
 
-function [] = makeallstats(path, folder, calibfile, outputname, actualtemp)
+function [] = makeallstats(path, folder, calibfile, outputname, actualtemp, needU)
 
 if (~exist('computestructure')), computestructure = 1; end
 if (~exist('highorder')), highorder = 1; end
@@ -35,6 +35,7 @@ if (nargin == 0) % set up parameters if they're not provided
     outputname = 'statscorr_test_0810.mat'; % name your .mat workspace!
     calibfile = 'calib8_10.m'; % calibration file name (set here for convenience)
     actualtemp = 22.6; % change this if you have a temperature measurement you want to use, otherwise should be []
+    needU = false; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------
 
@@ -158,7 +159,9 @@ loglog(sepval,MASC,'o');
 %}
 fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
 tic;
-clear u; % u is not needed in workspace, but takes up a lot of space...
+if (~needU)
+    clear u; % u is needed in workspace only for error bars on edec runs
+end
 matfile = fullfile(fileparts(path), outputname);
 
 %structfile = fullfile(pathname, 'struct.fig');

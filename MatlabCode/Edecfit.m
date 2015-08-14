@@ -9,7 +9,7 @@
 % plots the fit on normal and loglog axes
 % Horace Zhang + Jessie Liu Summer 2014
 % Dependencies: none
-function [a, b, c, R2, conf] = Edecfit(dist, U, eps, b0, stderr)
+function [a, b, c, R2, conf] = Edecfit(dist, U, eps, b0, stderror)
 % xscale for plotting - was 0.13, but this is diagonal distance
 paddled = 0.115; % distance between two adjacent paddles (m)
 %normalize
@@ -53,7 +53,11 @@ h = gca;
 set(h,'XScale','log');
 set(h,'YScale','log');
 set(h,'Fontsize', 20);
-scatter(normd, normeps, 1000, 'b', '.')
+if (nargin < 5)
+    scatter(normd, normeps, 1000, 'b', '.')
+else
+    errorbar(normd, normeps, stderror, 'b.') % error bars
+end
 plot(xscale, b1(1).*(xscale - b1(2)).^b1(3), 'b' )
 ylabel('Normalized Energy   ');
 xlabel('Normalized Distance ');

@@ -3,13 +3,14 @@
 % necessary parameters for the Edecfit.m energy decay fit function
 % Written by Nathan Wei, summer 2015
 % Requirements: any number of .mat workspaces saved in a folder, with names
-% in format '...n.mat' (where n is the test number)
+%  in format '...n.mat' (where n is the test number). NOTE: make sure you
+%  comment out the line in makeallstats that clears u from the workspace!
 % Dependencies: Edecfit.m
 
 % -------------------------- PARAMETERS TO SET --------------------------
 pathname = fileparts('/Users/nathan/Documents/Data/data08_13_15/');
 %filebase = 'statscorr_th2.6th2_0813_0'; % files numbered 0 to tests-1
-filebase = 'statscorr_th3.9th3_0813_0';
+filebase = 'statscorr_th2.6th2_0813_0';
 tests = 10; % number of data collection points along the tunnel
 % record distance from active grid to probe (in meters) for each data set
 % note: the first distance should correspond to test 0, the 2nd to test 1,
@@ -47,7 +48,7 @@ for i = 1 : tests
         stderr(i) = sqrt(stderr(i)); % standard deviation of velocity fluctuations squared
         stderr(i) = stderr(i)/sqrt(length(vars.u)); % standard error of U^2
         stderr(i) = stderr(i)/(vars.MASvsm^2); % error normalized by mean velocity squared
-        disp(stderr(i));
+        %disp(stderr(i));
     end
     U_avg(i) = vars.MASvsm; % mean flow velocity
     eps_avg(i) = vars.MASvss^2; % rms velocity squared = average energy

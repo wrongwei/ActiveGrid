@@ -20,6 +20,7 @@ outputfilebase = 'statscorr_th2.6th2_0813_0';
 % temperatures measured at each point - leave empty if no temperature data was taken
 testtemps = [22.62; 22.635; 22.65; 22.655; 22.68; 22.7; 22.71; 22.72; 22.735; 22.75];
 %testtemps = [22.74; 22.75; 22.745; 22.73; 22.72; 22.71; 22.71; 22.735; 22.735; 22.735];
+needU = true; % save vector u in workspace if you want error bars in EdecfitClient.m
 % -----------------------------------------------------------------------
 
 tstart = tic;
@@ -33,7 +34,7 @@ for t = 1 : tests
     else
         temp = testtemps(tests);
     end
-    makeallstats(foldername, folderstring, calibfile, outputstring, temp); 
+    makeallstats(foldername, folderstring, calibfile, outputstring, temp, needU); 
     % note: makeallstats adds the final index and file extension
 end
 
