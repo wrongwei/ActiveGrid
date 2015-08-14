@@ -705,8 +705,16 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
      }
      anglefile << endl; */
     
-    // file header for all angles
-    // file to plot angles in function of time
+    // file to plot angles in function of time, with UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cM.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
+    
     anglefile.open("angleservo_cM.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 143; numero++){
      anglefile << "   Angle(" << numero << ")";
@@ -1057,7 +1065,17 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     double temps;
     long i=0;
     
-    anglefile.open("angleservo_cMs.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cMs.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
+    
+    anglefile.open("angleservo_cMs.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 129; numero++){
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
@@ -1173,8 +1191,17 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     float stored_positions[numberOfServos][numberofsteps];
     float stored_steps[numberOfServos][numberofsteps];
     
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cMp.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
     
-    anglefile.open("angleservo_cMp.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    anglefile.open("angleservo_cMp.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 129; numero++){
      anglefile << "   Angle(" << numero << ")";}
      anglefile << endl;*/
@@ -1399,7 +1426,17 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
      cout << numberOfSlices << endl;*/
     // end of debugging ----------
     
-    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cM_cIT.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
+    
+    anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc);
     
     // create (bake) Loaf object using constructor
     loaf freshLoaf = loaf(numberOfSlices);
@@ -1459,7 +1496,6 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
      */
     //-------
     
-    
     //timing:
     // timing uses the standard timeval structure. a timeval struct holds seconds and remaining microseconds. This time is the number of seconds and remaining microseconds since Jan 1st 1970. Note: once microseconds reaches 10000000, seconds increments and microseconds is set to zero
     timeval startTime; // declare a structure for holding the time that the last slice of angles was sent to the grid
@@ -1467,7 +1503,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     long usecElapsed; // a varaible for holding the difference between currentTime and startTime
     gettimeofday(&startTime,0); // initialize startTime with the current time
     
-    // debugging------------
+    // -------- (may not be necessary) --------
     gettimeofday(&currentTime,0);
     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
     while (usecElapsed <= updatetimeinmus){
@@ -1478,7 +1514,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
         gettimeofday(&currentTime,0);
         usecElapsed = (signed long)currentTime.tv_usec - (signed long)startTime.tv_usec;
     }
-    //----------
+    // ----------------------------------------
     
     // main loop: give angle orders
     while(0==0){
