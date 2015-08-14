@@ -14,12 +14,12 @@ calibfile = 'calib8_13.m';
 % generic name of folder holding each data point - can include subfolder
 % here if it exists. Ex. 'folder0' for data folder in directory, or
 % 'subfolder/datafolder0' for data folder in sub-folder.
-datafolderbase = 'th2.6th2/';
+datafolderbase = 'th3.9th3/';
 % standardized beginning of each workspace makeallstats will create
-outputfilebase = 'statscorr_th2.6th2_0813_0';
+outputfilebase = 'statscorr_th3.9th3_0813_0';
 % temperatures measured at each point - leave empty if no temperature data was taken
-testtemps = [22.62; 22.635; 22.65; 22.655; 22.68; 22.7; 22.71; 22.72; 22.735; 22.75];
-%testtemps = [22.74; 22.75; 22.745; 22.73; 22.72; 22.71; 22.71; 22.735; 22.735; 22.735];
+%testtemps = [22.62; 22.635; 22.65; 22.655; 22.68; 22.7; 22.71; 22.72; 22.735; 22.75]; % th2.6th2
+testtemps = [22.74; 22.75; 22.745; 22.73; 22.72; 22.71; 22.71; 22.735; 22.735; 22.735]; % th3.9th3
 needU = true; % save vector u in workspace if you want error bars in EdecfitClient.m
 % -----------------------------------------------------------------------
 
