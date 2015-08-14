@@ -17,6 +17,8 @@ path = fileparts('/Users/kevin/Documents/Data/data08_10_15/');
 addpath(path);
 path = fileparts('/Users/kevin/Documents/Data/data08_11_15/');
 addpath(path);
+path = fileparts('/Users/kevin/Documents/Data/data08_12_15/');
+addpath(path);
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
 % workspaceArray
@@ -27,37 +29,34 @@ fprintf('***********************************************************************
 fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('Loading workspaces... ');
 tic;
-%workspace1 = load('statscorr_lt1.3lt1_h0.8_Re_0807.mat');
 
-%workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
-%workspace1 = load('statscorr_lt3.9lt3_h0.05_0810.mat');
-%workspace2 = load('statscorr_lt3.9lt3_h0.05_0811.mat');
-workspace1 = load('statscorr_lt3.9lt3_h0_0811.mat');
-%workspace4 = load('statscorr_lt1.3lt1_h0.05_rms40_0806.mat');
-workspace2 = load('statscorr_lt3.9lt3_h0.05_0811.mat');
-%workspace3 = load('statscorr_lt3.9lt3_h0.1_0811.mat');
-workspace3 = load('statscorr_lt3.9lt3_h0.1_0811.mat');
-%workspace4 = load('statscorr_lt3.9lt3_h0.2_0811.mat');
-workspace4 = load('statscorr_lt3.9lt3_h0.2_0811.mat');
-%workspace5 = load('statscorr_lt3.9lt3_h0.4_0811.mat');
-workspace5 = load('statscorr_lt3.9lt3_h0.4_0811.mat');
-%workspace3 = load('statscorr_lt3.9lt3_h0.8_0810.mat');
-workspace6 = load('statscorr_lt3.9lt3_h0.8_0811.mat');
-%workspace4 = load('statscorr_lt3.9lt3_h0.8_0811.mat');
+%workspace1 = load('statscorr_lt5.2lt4_0812.mat');
+%workspace2 = load('statscorr_lt5.2lt50_0812.mat');
+%workspace3 = load('statscorr_th2.6th2_0812.mat');
+%workspace4 = load('statscorr_th3.9th3_0812.mat');
+%workspace5 = load('statscorr_us3us2_0812.mat');
 
-workspaceArray = [workspace1, workspace2,workspace3,workspace4,workspace5,workspace6];
-%
-workspaceNames = {'Height 0',...
-    'Height 0.05','Height 0.1',...
-    'Height 0.2','Height 0.4','Height 0.8'};
-%workspaceNames = {'lt1.3lt1 Height 0','lt3.9lt3 Height 0', 'lt3.9lt3 Height 0',...
-%    'lt1.3lt1 Height 0.05','lt3.9lt3 Height 0.05', 'lt3.9lt3 Height 0.05'};
-%workspaceNames = {'lt1.3lt1 Height 0.05','lt3.9lt3 Height 0.05','lt1.3lt1 Height 0.2',...
-%    'lt3.9lt3 Height 0.2','lt1.3lt1 Height 0.8','lt3.9lt3 Height 0.8'};
-%workspaceNames = {'rms 40 Height 0','rms 40 Height 0.05','rms 40 Height 0.1',...
- %   'rms 40 Height 0.2'};
-%,'rms 40 Height 0.4','rms 40 Height 0.8'   
-chartTitle = 'Correlation Functions for Top Hat Long Tail, lt3.9lt3, rms 40, not constant area';  
+workspaceArray = [...
+    workspace1...
+    ,...
+    workspace2...
+    ,...
+    workspace3...
+    ,...
+    workspace4...
+    ,...
+    workspace5...
+    ];
+
+workspaceNames = {...
+    'Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1',...
+    'Spatial LT Sigma5.2, Temporal LT Sigma50, Height0.1'...
+    'Spatial TH Sigma2.6, Temporal TH Sigma2',...
+    'Spatial TH Sigma3.9, Temporal TH Sigma3',...
+    'Spatial US Sigma3 Alpha1.5, Temporal US Sigma2 Alpha1, Height0.5',...
+    };
+
+chartTitle = 'Velocity Correlations for 5 Different Paddle Correlation Kernels. Reynolds Number Constant (within 5%)';  
 %chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=3.9, TemporalSigma=.3sec';
 
 %{
@@ -113,6 +112,23 @@ for j = 1 : length(workspaceArray)
     MASCc = workspaceArray(j).MASC(1: cutoff); % the cut off structure function
     sepvalc = workspaceArray(j).sepval(1:cutoff); %the cut off sepval 
 
+    % Find the distance where MASC reaches the correlation value of 1/e.
+    % We call this distance the oneOverEScale
+    % We wait till a value less than 1/e has happened twice, just incase
+    % there is 1 crazy point
+    count = 0; 
+    n = 2;
+    for i=1:length(workspaceArray(j).MASC)
+        if(workspaceArray(j).MASC(i) <= exp(-1) ) 
+            count = count + 1;
+        end;
+        if(count >= n)
+            oneOverEScale = i; 
+            break;
+        end;
+
+    end;
+    
     nu = 15.11e-6; % kinematic viscosity of air
     % calculate energy dissipation
     epsilon = 0.5 * (workspaceArray(j).MASvss^3) / L; % 0.5 is constant prefactor
@@ -141,10 +157,25 @@ for j = 1 : length(workspaceArray)
 
     H2 = figure(2);
     set(gca, 'fontsize', 12);
+    hax = gca;
+    ylabel('correlation   ');
+    
     %loglog(sepvalc/L,MASCc,'*');
-    %semilogx(sepvalc/L,MASCc);
-    semilogx(sepvalc/L,MASCc,'LineWidth',2);
+    %semilogy(sepvalc/L,MASCc);
+    %semilogy(sepvalc/L,MASCc,'LineWidth',2);
+    %hax = gca; 
+    %ylabel('correlation   ');
+    %xlabel('distance (m/L)  ');
+    %xlim([0 4]);
+    %ylim([0 1]);
+    semilogy(sepvalc/oneOverEScale,MASCc,'LineWidth',2);
+    xlabel('distance (m/oneOverEScale)');
+    xlim([0 .00021]);
+    ylim([.05 1]);
     %plot(sepvalc/taylorL,MASCc);
+    %xlabel('distance (m/L)');
+    %xlim([0 4]);
+    %ylim([0 1]);
     %semilogx(sepvalc/eta,MASCc);
     hold on;
     samplePoints = 5:30; % make a vector of the first 26 points excluding noise
@@ -168,11 +199,6 @@ for j = 1 : length(workspaceArray)
     turbRe = workspaceArray(j).MASvss*taylorL/nu;
     fprintf('Turbulent Reynolds Number = %f\n', turbRe);
 
-    hax = gca; 
-    ylabel('correlation   ');
-    xlabel('distance (m/L)  ');
-    xlim([0 4]);
-    ylim([0 1]);
     %title('Correlation Function loglog');
     title(chartTitle);
 

@@ -3,8 +3,7 @@
 %makeallstats.m
 % can be run as script or called as function (implemented summer 2015)
 % 
-% must exist: 
-% u      - the velocity
+% must exis% u      - the velocity
 % deltaT - the intersample time
 % rCmax  - the upper limit in samples of separations for the correlation function
 % rs     - the separations for the structure functions
@@ -30,11 +29,11 @@ if (~exist('highorder')), highorder = 1; end
 % ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    path = '/Users/nathan/Documents/Data/data08_10_15/'; % location of calib file
-    folder = 'test'; % name of folder containing data
-    outputname = 'statscorr_test_0810.mat'; % name your .mat workspace!
-    calibfile = 'calib8_10.m'; % calibration file name (set here for convenience)
-    actualtemp = 22.6; % change this if you have a temperature measurement you want to use, otherwise should be []
+    path = '/Users/kevin/Documents/Data/data08_12_15/'; % location of calib file
+    folder = 'us3us2'; % name of folder containing data
+    outputname = 'statscorr_us3us2_0812.mat'; % name your .mat workspace!
+    calibfile = 'calib8_12.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.3; % change this if you have a temperature measurement you want to use, otherwise should be []
 end
 % -------------------------------------------------------------------------
 

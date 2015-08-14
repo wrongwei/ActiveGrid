@@ -9,10 +9,10 @@ clear all;
 close all;
 
 % MODIFY THIS ------------------------------------------------------------------
-pathstring = fileparts('/Users/nathan/Documents/Code/PaddleCode/');
+pathstring = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
 %pathstring = fileparts('/Users/nathan/Documents/Data/data07_30_15/');
 addpath(pathstring);
-A = load('angleservo_cM_cIT.txt'); %load in the angle data file generated from menuII (with the angle header removed)
+A = load('angles_lt1.3lt1_h0.4_Re_0807.txt'); %load in the angle data file generated from menuII (with the angle header removed)
 %choose paddle with which you want to see the correlation of other paddles 
 padrow = 7;
 padcol = 7;
