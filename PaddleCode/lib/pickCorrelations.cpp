@@ -190,7 +190,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
     spatialAlphaLimit = spatial_alpha;
     spatialHeight = spatial_height;
     twoTimesSpatialSigmaSquared = 2 * spatial_sigma * spatial_sigma;
-    unsharpCenterPaddleHeightSpatial = 0;
+    unsharpCenterPaddleHeightSpatial = 1;
     
     if(typeOfSpatialCorr == 0)
         return &randomSpatialCorr;
@@ -225,7 +225,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr, float spatial_sigma, float spatia
             }
         }
         // calculate scaling of positive region (so that integral over kernel is zero)
-        unsharpCenterPaddleHeightSpatial = outside_area * spatial_height / inside_area;
+        //unsharpCenterPaddleHeightSpatial = outside_area * spatial_height / inside_area;
         return &unsharpSpatialCorr;
     }
             
@@ -249,7 +249,7 @@ float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float tem
     temporalAlphaLimit = temporal_alpha;
     temporalHeight = temporal_height;
     twoTimesTemporalSigmaSquared = 2 * temporal_sigma * temporal_sigma;
-    unsharpCenterPaddleHeightTemporal = 0;
+    unsharpCenterPaddleHeightTemporal = 1;
     
     if(typeOfTemporalCorr == 0)
         return &randomTemporalCorr;
@@ -273,7 +273,7 @@ float (*pickTemporalCorr(int typeOfTemporalCorr, float temporal_sigma, float tem
         return &triangleTemporalCorr;
     else if(typeOfTemporalCorr == 10) {
         // calculate scaling of positive region (so that integral over kernel is zero)
-        unsharpCenterPaddleHeightTemporal = temporal_height * (temporal_sigma - temporal_alpha) / (temporal_alpha + 0.5);
+        //unsharpCenterPaddleHeightTemporal = temporal_height * (temporal_sigma - temporal_alpha) / (temporal_alpha + 0.5);
         return &unsharpTemporalCorr;
     }
     
