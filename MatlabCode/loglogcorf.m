@@ -223,9 +223,11 @@ end
 legend(workspaceNames);
 rmpath(path);
 
-% play sound to alert user to end of data processing
+% play sound to alert sleeping user to end of data processing
 t = 0:(1/8000):0.25;
 y1 = sin(2*pi*440*t);
-y2 = sin(2*pi*880*t);
-y = [y1 y2 y1 y1];
+y2 = sin(2*pi*554.37*t);
+y3 = sin(2*pi*659.25*t);
+y4 = sin(2*pi*880*t);
+y = [y1 y2 y3 y4 y1 y1];
 sound(y, 8000);
