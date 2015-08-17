@@ -1326,18 +1326,28 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float bo
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
-                        // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        //                  col = count % 13;
-                        //row = count / 13;
+		        
                         //crumb = myLoaf[t+halfLoaf][(k+row+7)*27 + (j+col+7)];
-                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
-                        //crumb = randslice[j+col+7][k+row+7];
+		      
+		        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+
+		        /* This code is for absolute value correlations			
+                        if (crumb < 0)
+			  crumb = -crumb;
+			*/
+
+			//crumb = randslice[j+col+7][k+row+7];
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
                         newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k) * pfTemporalCorr(t));
                     }
                 }
             }
+	    /* This code is for absolute value correlations
+	    crumb = myLoaf->Loaf_access(col, row, halfLoaf);
+	    if (crumb < 0)
+	      newslice[col][row] = -newslice[col][row];
+	    */
             newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
         }
     }
