@@ -166,8 +166,9 @@ float unsharpSpatialCorr(int j, int k){
     float dist = sqrt(j*j + k*k);
     if (dist <= spatialAlphaLimit)
         return unsharpCenterPaddleHeightSpatial;
+    //the negative sign for the tail is added by special logic in runcorr
     if (dist <= spatialSigmaLimit)
-        return -spatialHeight;
+        return spatialHeight;
     return 0;
 }
 
@@ -175,8 +176,9 @@ float unsharpTemporalCorr(int t){
     if (t <= temporalAlphaLimit){
         return unsharpCenterPaddleHeightTemporal;
     }
+    //the negative sign for the tail is added by special logic in runcorr
     if (t <= temporalSigmaLimit)
-        return -temporalHeight;
+        return temporalHeight;
     return 0;
 }
 
