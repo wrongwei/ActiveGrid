@@ -1366,9 +1366,9 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float bo
 			//crumb = randslice[j+col+7][k+row+7];
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
-                        newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k) * pfTemporalCorr(t));
-			if (j*j + k*k > spatial_alpha_squared){
-			  if (t*t > temporal_alpha_squared){
+                        newslice[col][row] += -(correction * crumb * pfSpatialCorr(j, k) * pfTemporalCorr(t));
+			if (j*j + k*k <= spatial_alpha_squared){
+			  if (t*t <= temporal_alpha_squared){
 			    newslice[col][row] = -newslice[col][row];
 			  }
 			}
