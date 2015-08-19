@@ -37,6 +37,7 @@ if (nargin == 0) % set up parameters if they're not provided
     needU = true; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------
+samplingFrequency = 20000; % Hz
 
 % add necessary paths and load data files from folder
 files = dir(strcat(path, folder, '/*.dat'));
@@ -55,14 +56,14 @@ fprintf('velocity extracted.\n');
 fprintf('Basic velocity computations... ');
 
 %this is 1/ the sampling frequency
-deltaT = 1/20000;
+deltaT = 1/samplingFrequency;
 
 %histX = 35;
 
 % number of correlation function separations starting from one in samples: 
 rCmax = length(u);
 
-sepval = [1:rCmax]/(20000)*mean(u);
+sepval = [1:rCmax]/(samplingFrequency)*mean(u);
  
   % structure function separations in samples: 
 %rs = makelogtime(1, 10000, 50); 

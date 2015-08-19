@@ -8,7 +8,7 @@
 % Dependencies: Edecfit.m
 
 % -------------------------- PARAMETERS TO SET --------------------------
-pathname = fileparts('/Users/kevin/Documents/Data/data08_19_15/');
+pathname = fileparts('/Users/nathan/Documents/Data/data08_19_15/');
 %filebase = 'statscorr_th2.6th2_0813_0'; % files numbered 0 to tests-1
 filebase = 'statscorr_lt5.2lt50_0819_0';
 tests = 10; % number of data collection points along the tunnel
@@ -29,8 +29,9 @@ dist = [9.638704324;8.345409279;7.225645035;6.256127701;5.416697557;4.68989986;4
 
 % initial parameters for curve fit (suggested: 1 3 -1)
 b0 = [1, 3, -1];
-errorbars = false; % calculate and plot error bars on graphs if true
+errorbars = true; % calculate and plot error bars on graphs if true
 samplingFrequency = 20000; % hz
+paddled = 0.115; % distance between two adjacent paddles (m)
 % -----------------------------------------------------------------------
 
 addpath(pathname);
@@ -44,6 +45,7 @@ fprintf('Loading data from .mat files... \n');
 
 U_avg = zeros(tests, 1); % array for storing mean velocities
 eps_avg = zeros(tests, 1); % array for storing mean energy (U^2)
+oneOverEscales = zeros(tests, 1); % array for storing corr. function length scales
 stderr = zeros(tests, 1); % array for calculating and storing standard error
 
 for i = startingTestNumberPlus1 : tests
@@ -54,10 +56,11 @@ for i = startingTestNumberPlus1 : tests
         % error of velocity flucuations
         stderr(i) = vars.MASvss*sqrt(vars.oneOverEScale*samplingFrequency/vars.rCmax/vars.MASvsm);
         %error of energy normalized by mean velocity squared
-        stderr(i) = (stderr(i)/vars.MASvsm)^2
+        stderr(i) = (stderr(i)/vars.MASvsm)^2;
     end
     U_avg(i) = vars.MASvsm; % mean flow velocity
     eps_avg(i) = vars.MASvss^2; % rms velocity squared = average energy
+    oneOverEscales(i) = vars.oneOverEScale;
 end
 
 fprintf(' done in %.1f seconds. \nSending data to Edecfit for processing.', round(10*toc)/10);
@@ -66,3 +69,10 @@ if (errorbars)
 else
     result = Edecfit(dist, U_avg, eps_avg, b0);
 end
+
+% plot 1/e scale against distance down tunnel
+figure;
+plot(dist,oneOverEscales);
+xlabel('Normalized Distance');
+ylabel('1/e Length Scale');
+title('Evolution of 1/e Length Scale with Distance along Tunnel');
