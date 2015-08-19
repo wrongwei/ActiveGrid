@@ -51,7 +51,8 @@ for i = 1 : length(files)
     u = cat(1, u, newU);
 end
 clear newU;
-fprintf('velocity extracted \n');
+fprintf('velocity extracted.\n');
+fprintf('Basic velocity computations... ');
 
 %this is 1/ the sampling frequency
 deltaT = 1/20000;
@@ -78,23 +79,21 @@ MASvsm = mean(u);
 MASvss = std(u);
 fprintf('  done in %.1f seconds.    \n', round(10*toc)/10); 
 
-tic
-
 %figure;
 %histogram(u);
 
   % compute spectrum: 
-tic
+%tic
 %[MASp MASf] = hwspectrum(u-MASvsm, deltaT); 
 %fprintf('spectrum...  done in %.1f seconds.\n', round(10*toc)/10); 
 
   % compute correlation functions (as a check, since already computed
   % through S2):
+tic;
+fprintf('correlation functions... ');
 temp = xcorr(u-MASvsm, rCmax, 'coeff'); 
 MASC = single(temp(rCmax + (1:rCmax))); 
-fprintf('correlation functions...    done in %.1f seconds.\n', round(10*toc)/10); 
-
-% compute structure functions: 
+fprintf(' done in %.1f seconds.\n', round(10*toc)/10); 
 
 tic
 
@@ -102,6 +101,7 @@ tic
 % We call this distance the oneOverEScale
 % We wait till a value less than 1/e has happened twice, just incase
 % there is 1 crazy point
+fprintf('computing 1/e scale... ');
 count = 0; 
 n = 2;
 for i=1:length(MASC)
@@ -113,7 +113,9 @@ for i=1:length(MASC)
         break;
     end;
 end;
-fprintf('oneOverEscale done in %.1f seconds.\n', round(10*toc)/10);
+fprintf(' done in %.1f seconds.\n', round(10*toc)/10);
+
+% compute structure functions: 
 
 tic
 %{
