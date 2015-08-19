@@ -29,12 +29,12 @@ if (~exist('highorder')), highorder = 1; end
 % ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    path = '/Users/nathan/Documents/Data/data08_10_15/'; % location of calib file
-    folder = 'test'; % name of folder containing data
-    outputname = 'statscorr_test_0810.mat'; % name your .mat workspace!
-    calibfile = 'calib8_10.m'; % calibration file name (set here for convenience)
-    actualtemp = 22.6; % change this if you have a temperature measurement you want to use, otherwise should be []
-    needU = false; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
+    path = '/Users/kevin/Documents/Data/data08_12_15/'; % location of calib file
+    folder = 'th2.6th2'; % name of folder containing data
+    outputname = 'statscorr_th2.6th2_0812.mat'; % name your .mat workspace!
+    calibfile = 'calib8_12.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.275; % change this if you have a temperature measurement you want to use, otherwise should be []
+    needU = true; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------
 
@@ -76,7 +76,9 @@ MASvsm = mean(u);
 
   % compute standard deviation / RMSD: 
 MASvss = std(u);
-fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10); 
+fprintf('  done in %.1f seconds.    \n', round(10*toc)/10); 
+
+tic
 
 %figure;
 %histogram(u);
@@ -84,17 +86,36 @@ fprintf('  done in %.1f seconds.  spectrum...  \n', round(10*toc)/10);
   % compute spectrum: 
 tic
 %[MASp MASf] = hwspectrum(u-MASvsm, deltaT); 
-%fprintf('  done in %.1f seconds.  correlation functions...  \n', round(10*toc)/10); 
+%fprintf('spectrum...  done in %.1f seconds.\n', round(10*toc)/10); 
 
   % compute correlation functions (as a check, since already computed
   % through S2):
 temp = xcorr(u-MASvsm, rCmax, 'coeff'); 
 MASC = single(temp(rCmax + (1:rCmax))); 
-fprintf('  done in %.1f seconds.  structure functions...  \n', round(10*toc)/10); 
+fprintf('correlation functions...    done in %.1f seconds.\n', round(10*toc)/10); 
 
-  % compute structure functions: 
+% compute structure functions: 
+
 tic
 
+% Find the distance where MASC reaches the correlation value of 1/e.
+% We call this distance the oneOverEScale
+% We wait till a value less than 1/e has happened twice, just incase
+% there is 1 crazy point
+count = 0; 
+n = 2;
+for i=1:length(MASC)
+    if(MASC(i) <= exp(-1) ) 
+        count = count + 1;
+    end;
+    if(count >= n)
+        oneOverEScale = sepval(i); 
+        break;
+    end;
+end;
+fprintf('oneOverEscale done in %.1f seconds.\n', round(10*toc)/10);
+
+tic
 %{
 if computestructure
 	MASS2 = structfunc1mex(u', rs, 2); 
@@ -112,7 +133,7 @@ else
 
 	MASS2 = 0; MASS3 = 0; MASS3a = 0; MASS4 = 0; MASS6 = 0; 
 end
-fprintf('  done in %.1f seconds.  histogram...  \n', round(10*toc)/10); 
+fprintf('structure functions...  done in %.1f seconds.  histogram...  \n', round(10*toc)/10); 
 
   % compute histogram: 
 tic
@@ -156,7 +177,7 @@ loglog(sepval,MASC,'o');
 %save
 
 %}
-fprintf('  done in %.1f seconds.  Saving data...  \n', round(10*toc)/10); 
+fprintf('  done in %.1f seconds.\n  Saving data...', round(10*toc)/10); 
 tic;
 if (~needU)
     clear u; % u is needed in workspace only for error bars on edec runs

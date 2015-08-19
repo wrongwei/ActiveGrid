@@ -9,58 +9,83 @@
 
 path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
 addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
-addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
-addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_10_15/');
-addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_11_15/');
-addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_12_15/');
-addpath(path);
-path = fileparts('/Users/kevin/Documents/Data/data08_17_15/');
-addpath(path);
+path1 = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
+addpath(path1);
+path2 = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
+addpath(path2);
+path3 = fileparts('/Users/kevin/Documents/Data/data08_10_15/');
+addpath(path3);
+path4 = fileparts('/Users/kevin/Documents/Data/data08_11_15/');
+addpath(path4);
+path5 = fileparts('/Users/kevin/Documents/Data/data08_12_15/');
+addpath(path5);
+path6 = fileparts('/Users/kevin/Documents/Data/data08_17_15/');
+addpath(path6);
+path7 = fileparts('/Users/kevin/Documents/Data/data08_18_15/');
+addpath(path7);
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
 % workspaceArray
 % -----------------------------------------------------------------------
-close all;
+
 fprintf('\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('*****************************************************************************\n');
 fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('Loading workspaces... ');
 tic;
 
-workspace1 = load('statscorr_lt5.2lt50_0817.mat');
-%workspace1 = load('statscorr_lt5.2lt4_0812.mat');
-%workspace2 = load('statscorr_lt5.2lt50_0812.mat');
-%workspace3 = load('statscorr_th2.6th2_0812.mat');
-%workspace4 = load('statscorr_th3.9th3_0812.mat');
-%workspace5 = load('statscorr_us3us2_0812.mat');
-
-
+%workspace1 = load('statscorr_lt5.2lt4_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace2 = load('statscorr_lt5.2lt50_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+%workspace3 = load('statscorr_th2.6th2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+%{
+workspace4 = load('statscorr_th3.9th3_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace5 = load('statscorr_us3us2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace6 = load('statscorr_us3us2_oldimp_newus_0818.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace7 = load('statscorr_th3th2_oldimp_abs_0818.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace8 = load('statscorr_us3us2_oldimp_abs_0818.mat','MASC','sepval','MASvss','oneOverEScale');
+%}
 workspaceArray = [...
-    workspace1...
+    
+    %workspace1...
     %,...
-    %workspace2...
+    workspace2...
+    
     %,...
     %workspace3...
-    %,...
-    %workspace4...
-    %,...
-    %workspace5...
+    %{
+    ,...
+    workspace4...
+    ,...
+    workspace5...
+    ,...
+    workspace6...
+    ,...
+    workspace7...
+    ,...
+    workspace8...
+    %}
     ];
 
 workspaceNames = {...
-    %'Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1',...
-    'Spatial LT Sigma5.2, Temporal LT Sigma50, Height0.1'
-    %,...
-    %'Spatial TH Sigma2.6, Temporal TH Sigma2',...
-    %'Spatial TH Sigma3.9, Temporal TH Sigma3',...
-    %'Spatial US Sigma3 Alpha1.5, Temporal US Sigma2 Alpha1, Height0.5',...
+    %'lt5.2lt4',...
+    'lt5.2lt50'
+    %,..
+    %'th2.6th2',...
+    %{
+    'th3.9th3',...
+    'us3us2'...
+    ,...
+    'us3us2 new',...
+    'th3th2 abs',...
+    'us3us2 abs'
+    %}
     };
-
+%manual command line legend: legend('us3us2_new','th3th2_oldimp_abs','us3us2_oldimp_abs','Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1','Spatial LT Sigma5.2, Temporal LT Sigma50, Height0.1','Spatial TH Sigma2.6, Temporal TH Sigma2','Spatial TH Sigma3.9, Temporal TH Sigma3','Spatial US Sigma3 Alpha1.5, Temporal US Sigma2 Alpha1, Height0.5')
+%'Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1',...
+%'Spatial LT Sigma5.2, Temporal LT Sigma50, Height0.1',...
+%'Spatial TH Sigma2.6, Temporal TH Sigma2',...
+%'Spatial TH Sigma3.9, Temporal TH Sigma3',...
+%'Spatial US Sigma3 Alpha1.5, Temporal US Sigma2 Alpha1, Height0.5',...
 chartTitle = 'Velocity Correlations for 5 Different Paddle Correlation Kernels. Reynolds Number Constant (within 5%)';  
 %chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=3.9, TemporalSigma=.3sec';
 
@@ -116,23 +141,6 @@ for j = 1 : length(workspaceArray)
     end;
     MASCc = workspaceArray(j).MASC(1: cutoff); % the cut off structure function
     sepvalc = workspaceArray(j).sepval(1:cutoff); %the cut off sepval 
-
-    % Find the distance where MASC reaches the correlation value of 1/e.
-    % We call this distance the oneOverEScale
-    % We wait till a value less than 1/e has happened twice, just incase
-    % there is 1 crazy point
-    count = 0; 
-    n = 2;
-    for i=1:length(workspaceArray(j).MASC)
-        if(workspaceArray(j).MASC(i) <= exp(-1) ) 
-            count = count + 1;
-        end;
-        if(count >= n)
-            oneOverEScale = i; 
-            break;
-        end;
-
-    end;
     
     nu = 15.11e-6; % kinematic viscosity of air
     % calculate energy dissipation
@@ -173,11 +181,12 @@ for j = 1 : length(workspaceArray)
     %xlabel('distance (m/L)  ');
     %xlim([0 4]);
     %ylim([0 1]);
-    semilogy(sepvalc/oneOverEScale,MASCc,'LineWidth',2);
+    h = semilogy(sepvalc/workspaceArray(j).oneOverEScale,MASCc,'LineWidth',2);
     xlabel('distance (m/oneOverEScale)');
-    xlim([0 .00021]);
+    xlim([0 4]);
     ylim([.05 1]);
-    %plot(sepvalc/taylorL,MASCc);
+    set(h, 'DisplayName', workspaceNames{j}); 
+    %plot(sepvalc/L,MASCc);
     %xlabel('distance (m/L)');
     %xlim([0 4]);
     %ylim([0 1]);
@@ -214,14 +223,22 @@ for j = 1 : length(workspaceArray)
     saveas(H2, logcorf);
     
     % print results
+    fprintf('One over e scale = %f\n',workspaceArray(j).oneOverEScale);
     fprintf('Energy dissipation rate (W) = %f \n', epsilon);
     fprintf('Kolmogorov length scale (m) = %f \n', eta);
     fprintf('Maximum fluctuation frequency (Hz) = %f \n', freq);
     hold on;
 end
     
-legend(workspaceNames);
+%legend(workspaceNames);
 rmpath(path);
+rmpath(path1);
+rmpath(path2);
+rmpath(path3);
+rmpath(path4);
+rmpath(path5);
+rmpath(path6);
+rmpath(path7);
 
 % play sound to alert sleeping user to end of data processing
 t = 0:(1/8000):0.25;
