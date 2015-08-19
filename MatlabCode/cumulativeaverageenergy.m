@@ -2,43 +2,56 @@
 %workspace = load('/Users/kevin/Documents/Data/data08_17_15/statscorr_lt5.2lt50_0817_08.mat','u','MASvsm');
 %workspace = load('/Users/kevin/Documents/Data/data08_14_15/statscorr_lt5.2lt50_0814_00.mat','u','MASvsm');
 %workspace = load('/Users/kevin/Documents/Data/data08_14_15/statscorr_lt5.2lt50_0814_09.mat','u','MASvsm');
-workspace = load('/Users/kevin/Documents/Data/data08_18_15/statscorr_lt5.2lt50_0818_05.mat','u','MASvsm');
-samplesPerGroup = 200000;
-samplesPerMinute = 20000*60;
-cumulativeAverage = zeros(length(workspace.u)/samplesPerGroup,1);
-%movingAverageArray = zeros(length(workspace.u)/samplesPerGroup,1);
-numberOfMinutes = (1:length(workspace.u)/samplesPerGroup);
-numberOfMinutes = numberOfMinutes*samplesPerGroup/samplesPerMinute;
+workspace1 = load('/Users/kevin/Documents/Data/data08_19_15/statscorr_lt5.2lt50_0819_00.mat','u','MASvsm');
+workspace2 = load('/Users/kevin/Documents/Data/data08_19_15/statscorr_lt5.2lt50_0819_01.mat','u','MASvsm');
+workspace3 = load('/Users/kevin/Documents/Data/data08_19_15/statscorr_lt5.2lt50_0819_02.mat','u','MASvsm');
+workspace4 = load('/Users/kevin/Documents/Data/data08_19_15/statscorr_lt5.2lt50_0819_03.mat','u','MASvsm');
+workspace5 = load('/Users/kevin/Documents/Data/data08_19_15/statscorr_lt5.2lt50_0819_04.mat','u','MASvsm');
 
-%{
-for j = 1 : length(workspace.u)/samplesPerGroup
-    cumulativeAverage(j) =  mean((workspace.u(1:j*samplesPerGroup)-workspace.MASvsm).^2); 
+workspaceArray = [workspace1, workspace2,workspace3,workspace4,workspace5];
+
+for i = 1 : length(workspaceArray)
+    samplesPerGroup = 200000;
+    samplesPerMinute = 20000*60;
+    cumulativeAverage = zeros(length(workspaceArray(i).u)/samplesPerGroup,1);
+    %movingAverageArray = zeros(length(workspaceArray(i).u)/samplesPerGroup,1);
+    numberOfMinutes = (1:length(workspaceArray(i).u)/samplesPerGroup);
+    numberOfMinutes = numberOfMinutes*samplesPerGroup/samplesPerMinute;
+
+    %{
+    for j = 1 : length(workspaceArray(i).u)/samplesPerGroup
+        cumulativeAverage(j) =  mean((workspaceArray(i).u(1:j*samplesPerGroup)-workspaceArray(i).MASvsm).^2); 
+    end
+    %}
+
+
+    %special case for j=1
+    cumulativeAverage(1) = mean((workspaceArray(i).u(1:samplesPerGroup)-workspaceArray(i).MASvsm).^2);
+    fprintf('cumulativeAverage(1) = %f\n',cumulativeAverage(1));
+    movingAverage = 0;
+    %movingAverageArray(1) = cumulativeAverage(1);
+    %calculate the new average energy
+    for j = 2 : length(workspaceArray(i).u)/samplesPerGroup
+        movingAverage = mean((workspaceArray(i).u((j-1)*samplesPerGroup:j*samplesPerGroup)-workspaceArray(i).MASvsm).^2);
+        %movingAverageArray(j) = movingAverage;
+        cumulativeAverage(j) = (cumulativeAverage(j-1)*(j-1) + movingAverage) / (j);
+    end
+
+
+    %plot the cumulative average
+    figure(6);
+    plot(numberOfMinutes, cumulativeAverage/workspaceArray(i).MASvsm^2);
+    xlabel('Minutes of Data');
+    ylabel('Normalized Energy');
+    title('Convergence of cumulative average energy over 10 minutes');
+    hold on;
+    %{
+    %plot the moving average
+    figure(5);
+    plot(numberOfMinutes, movingAverageArray/workspaceArray(i).MASvsm^2);
+    xlabel('Minutes of Data');
+    ylabel('Normalized Energy');
+    title('Moving average energy over 10 minutes');
+    %}
+
 end
-%}
-
-%special case for j=1
-cumulativeAverage(1) = mean((workspace.u(1:samplesPerGroup)-workspace.MASvsm).^2);
-fprintf('cumulativeAverage(1) = %f\n',cumulativeAverage(1));
-movingAverage = 0;
-%movingAverageArray(1) = cumulativeAverage(1);
-%calculate the new average energy
-for j = 2 : length(workspace.u)/samplesPerGroup
-    movingAverage = mean((workspace.u((j-1)*samplesPerGroup:j*samplesPerGroup)-workspace.MASvsm).^2);
-    %movingAverageArray(j) = movingAverage;
-    cumulativeAverage(j) = (cumulativeAverage(j-1)*(j-1) + movingAverage) / (j);
-end
-
-%plot the cumulative average
-figure(6);
-plot(numberOfMinutes, cumulativeAverage/workspace.MASvsm^2);
-xlabel('Minutes of Data');
-ylabel('Normalized Energy');
-title('Convergence of cumulative average energy over 10 minutes');
-%{
-%plot the moving average
-figure(5);
-plot(numberOfMinutes, movingAverageArray/workspace.MASvsm^2);
-xlabel('Minutes of Data');
-ylabel('Normalized Energy');
-title('Moving average energy over 10 minutes');
-%}

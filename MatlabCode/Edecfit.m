@@ -28,6 +28,7 @@ CI = nlparci(b1, R, 'covar', covb);
 exponent_error = diff(CI(3,:))/2;
 
 %the fit on normal axes
+%{
 figure(1);
 hold on;
 grid on;
@@ -36,17 +37,17 @@ set(h,'XScale','linear');
 set(h,'YScale','linear');
 set(h,'Fontsize', 20);
 if (nargin < 5)
-    scatter(normd, normeps, 1000, 'b', '.') % no error bars
+    scatter(normd, normeps, 1000, '.') % no error bars
 else
-    errorbar(normd, normeps, stderror, 'b.') % error bars
+    errorbar(normd, normeps, stderror, 'b.') % y error bars
 end
 plot(xscale, b1(1).*(xscale - b1(2)).^b1(3), 'b')
 ylabel('Normalized Energy   ');
 xlabel('Normalized Distance ');
-
+%}
 
 % the fit on loglog axes
-figure(2);
+figure(1);
 hold on;
 grid on;
 h = gca;
@@ -54,11 +55,18 @@ set(h,'XScale','log');
 set(h,'YScale','log');
 set(h,'Fontsize', 20);
 if (nargin < 5)
-    scatter(normd, normeps, 1000, 'b', '.')
+    scatter(normd, normeps, 1000, '.')
 else
-    errorbar(normd, normeps, stderror, 'b.') % error bars
+    % y error bars
+    errorbar(normd, normeps, stderror, '.') 
+    % x error limits
+    %xMeasurementUncertainty = 0.03; % uncertainty in our distance measurement in m
+    %normdErrorMax = (dist+xMeasurementUncertainty)/paddled;
+    %normdErrorMin = (dist-xMeasurementUncertainty)/paddled;
+    %scatter(normdErrorMax, normeps,50,'<','r')
+    %scatter(normdErrorMin, normeps,50,'>','r')
 end
-plot(xscale, b1(1).*(xscale - b1(2)).^b1(3), 'b' )
+plot(xscale, b1(1).*(xscale - b1(2)).^b1(3))
 ylabel('Normalized Energy   ');
 xlabel('Normalized Distance ');
 
