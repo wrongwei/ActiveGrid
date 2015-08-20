@@ -29,7 +29,7 @@ dist = [9.638704324;8.345409279;7.225645035;6.256127701;5.416697557;4.68989986;4
 
 % initial parameters for curve fit (suggested: 1 3 -1)
 b0 = [1, 3, -1];
-errorbars = false; % calculate and plot error bars on graphs if true
+errorbars = true; % calculate and plot error bars on graphs if true
 samplingFrequency = 20000; % hz
 % -----------------------------------------------------------------------
 
@@ -49,12 +49,17 @@ stderr = zeros(tests, 1); % array for calculating and storing standard error
 for i = startingTestNumberPlus1 : tests
     filestr = strcat(filebase, num2str(i-1), '.mat'); % find file name
     disp(filestr);
-    vars = load(filestr,'MASvsm','MASvss','rCmax','oneOverEScale');
+    vars = load(filestr,'MASvsm','MASvss','rCmax','oneOverEScale','u');
     if (errorbars)
         % error of velocity flucuations
-        stderr(i) = vars.MASvss*sqrt(vars.oneOverEScale*samplingFrequency/vars.rCmax/vars.MASvsm);
+        %stderr(i) = vars.MASvss*sqrt(vars.oneOverEScale*samplingFrequency/vars.rCmax/vars.MASvsm);
         %error of energy normalized by mean velocity squared
-        stderr(i) = (stderr(i)/vars.MASvsm)^2
+        
+        numberOfCorrLengths = vars.rCmax * vars.MASvsm / vars.oneOverEScale / samplingFrequency;
+        stddev = sqrt(   mean(    ((vars.u-vars.MASvsm).^2 - vars.MASvss^2).^2   )  )
+        
+        stderr(i) = stddev / sqrt(numberOfCorrLengths);
+        stderr(i) = stderr(i)/vars.MASvsm^2
     end
     U_avg(i) = vars.MASvsm; % mean flow velocity
     eps_avg(i) = vars.MASvss^2; % rms velocity squared = average energy
