@@ -7,12 +7,13 @@ clear all;
 
 % -------------------------- PARAMETERS TO SET -------------------------- %
 path = '/Users/nathan/Documents/Data/lt5.2lt50_all/'; % path
-searchstring = '*05.mat'; % regular expression for files you want to merge
-outputname = 'lt5.2lt50_merged_05.mat';
+searchstring = '*09.mat'; % regular expression for files you want to merge
+outputname = 'lt5.2lt50_merged_09.mat';
 % ----------------------------------------------------------------------- %
 addpath(fileparts(path));
 
 fprintf('Extracting and combining velocities from these files:\n');
+tic;
 
 files = dir(strcat(path, searchstring)); % find all files matching searchstring
 oneOverEScale = 0;
@@ -27,9 +28,7 @@ for i = 1 : length(files)
 end
 clear files; % don't let these get into our workspace
 clear temp;
-fprintf('Velocities merged. Basic velocity computations... ');
-
-% ---------- the rest is copied from makeallstats.m ---------- %
+fprintf(' Velocities merged in %.1f seconds.\nRunning computations...', round(10*toc)/10); 
 
 % double check that u is a single and not a double
 u = single(u);
@@ -38,7 +37,7 @@ u = single(u);
 rCmax = single(length(u));
 
 tic
-% compute mean: 
+% compute mean: (weird names are carry-over from makeallstats.m)
 MASvsm = single(mean(u)); 
 
 % compute standard deviation / RMSD: 
@@ -47,7 +46,7 @@ MASvss = single(std(u));
 % compute 1/e scale from weighted average of previous values
 oneOverEScale = oneOverEScale / rCmax;
 
-fprintf('  done in %.1f seconds.\n  Saving data...', round(10*toc)/10); 
+fprintf(' done in %.1f seconds.\nSaving data...', round(10*toc)/10); 
 tic;
 
 matfile = fullfile(fileparts(path), outputname);
@@ -64,6 +63,6 @@ y4 = sin(2*pi*880*t);
 yfull = [y1 y2 y3 y4 y3 y2 y1 y2 y3 y4 y3 y2 y1];
 sound(yfull, 8000);
 
-fprintf('  done in %.1f seconds.\n', round(10*toc)/10);
+fprintf(' done in %.1f seconds.\n', round(10*toc)/10);
 %close all; 
 
