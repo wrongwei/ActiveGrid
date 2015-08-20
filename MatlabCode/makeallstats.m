@@ -118,7 +118,7 @@ for i=1:length(MASC)
         break;
     end;
 end;
-fprintf(' done in %.1f seconds.\n', round(10*toc)/10);
+%fprintf(' done in %.1f seconds.\n', round(10*toc)/10);
 
 % compute structure functions: 
 
