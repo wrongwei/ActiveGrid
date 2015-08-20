@@ -49,7 +49,7 @@ u = [];
 for i = 1 : length(files)
     disp(files(i).name); % debugging
     %cast double to float
-    newU = loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp);
+    newU = single(loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp));
     u = cat(1, u, newU);
 end
 clear newU;
@@ -57,7 +57,7 @@ fprintf('velocity extracted.\n');
 fprintf('Basic velocity computations... ');
 
 % double check that u is a single and not a double
-%u = single(u);
+u = single(u);
 
 %this is 1/ the sampling frequency
 deltaT = 1/samplingFrequency;
@@ -65,9 +65,9 @@ deltaT = 1/samplingFrequency;
 %histX = 35;
 
 % number of correlation function separations starting from one in samples: 
-rCmax = length(u);
+rCmax = single(length(u));
 
-sepval = [1:rCmax]/(samplingFrequency)*mean(u);
+sepval = single([1:rCmax]/(samplingFrequency)*mean(u));
  
   % structure function separations in samples: 
 %rs = makelogtime(1, 10000, 50); 
@@ -75,13 +75,13 @@ sepval = [1:rCmax]/(samplingFrequency)*mean(u);
 
 tic
   % compute mean: 
-MASvsm = mean(u); 
+MASvsm = single(mean(u)); 
 
   % compute rms velocity: THIS IS COMPLETELY NUTS - rms = std
 %rmsvelocity = rms(u);
 
   % compute standard deviation / RMSD: 
-MASvss = std(u);
+MASvss = single(std(u));
 fprintf('  done in %.1f seconds.    \n', round(10*toc)/10); 
 
 %figure;
@@ -96,7 +96,7 @@ fprintf('  done in %.1f seconds.    \n', round(10*toc)/10);
   % through S2):
 tic;
 fprintf('correlation functions... ');
-temp = xcorr(u-MASvsm, rCmax, 'coeff'); 
+temp = single(xcorr(u-MASvsm, rCmax, 'coeff')); 
 MASC = single(temp(rCmax + (1:rCmax))); 
 fprintf(' done in %.1f seconds.\n', round(10*toc)/10); 
 
