@@ -47,12 +47,16 @@ addpath(fileparts(strcat(path, folder, '/')));
 u = [];
 for i = 1 : length(files)
     disp(files(i).name); % debugging
+    %cast double to float
     newU = loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp);
     u = cat(1, u, newU);
 end
 clear newU;
 fprintf('velocity extracted.\n');
 fprintf('Basic velocity computations... ');
+
+% double check that u is a single and not a double
+%u = single(u);
 
 %this is 1/ the sampling frequency
 deltaT = 1/20000;
