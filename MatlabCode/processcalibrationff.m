@@ -87,7 +87,7 @@ end
 %R = mean(std(Rtemp-thisE)./thisE); %this line of code causes errors
 
   % ---- plot the data, if requested: 
-if (nargin > 5)
+if (nargin >= 5)
 	  % make figures
 	  % one figure for each probe
 	if (figs == 0)
