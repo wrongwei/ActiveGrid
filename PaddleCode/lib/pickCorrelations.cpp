@@ -24,107 +24,106 @@
 // random. In other words, no correlation
 // We have not implemented randomTemporalCorr in menuII because this would lead to many angles
 // being asked to move more than 40 degrees per sec
-float randomSpatialCorr(int j, int k, float spatial_sigma, float height){
+float randomSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     if (j == 0 && k == 0)
         return 1;
     return 0;
 }
 
-float randomTemporalCorr(int t, float temporal_sigma, float height){
+float randomTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     if (t == 0)
         return 1;
     return 0;
 }
 
 // Gaussian convolution function
-float gaussianSpatialCorr(int j, int k, float spatial_sigma, float height){
+float gaussianSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
 }
 
-float gaussianTemporalCorr(int t, float temporal_sigma, float height){
+float gaussianTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
 }
 
 // 1/r^2 convolution function
-float inverseSquareSpatialCorr(int j, int k, float spatial_sigma, float height){
+float inverseSquareSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return pow( (sqrt(j*j + k*k) + 1) , -2);
 }
 
-float inverseSquareTemporalCorr(int t, float temporal_sigma, float height){
+float inverseSquareTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return pow( (abs(t) + 1) , -2);
 }
 
 // 1/r^3 convolution function
-float inverseCubeSpatialCorr(int j, int k, float spatial_sigma, float height){
+float inverseCubeSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return pow( (sqrt(j*j + k*k) + 1) , -3);
 }
 
-float inverseCubeTemporalCorr(int t, float temporal_sigma, float height){
+float inverseCubeTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return pow( (abs(t) + 1) , -3);
 }
 
 // 1/r^4 convolution function
-float inverseQuarticSpatialCorr(int j, int k, float spatial_sigma, float height){
+float inverseQuarticSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return pow( (sqrt(j*j + k*k) + 1) , -4);
 }
 
-float inverseQuarticTemporalCorr(int t, float temporal_sigma, float height){
+float inverseQuarticTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return pow( (abs(t) + 1) , -4);
 }
 
 // top hat convolution function
-float topHatSpatialCorr(int j, int k, float spatial_sigma, float height){
+float topHatSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     double dist = sqrt((j*j) + (k*k));
     if (dist <= spatial_sigma) return 1.0;
     else return 0;
 }
 
-float topHatTemporalCorr(int t, float temporal_sigma, float height){
+float topHatTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     if (abs(t) <= temporal_sigma) return 1.0;
     else return 0;
 }
 
 // true top hat with one main paddle, no wrapping around
-float trueTopHatSpatialCorr(int j, int k, float spatial_sigma, float height){
+float trueTopHatSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return 0;
 }
 
-float trueTopHatTemporalCorr(int t, float temporal_sigma, float height){
+float trueTopHatTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return 0;
 }
 
 // true top hat with one randomly chosen paddle
-float trueTopHatRandomSpatialCorr(int j, int k, float spatial_sigma, float height){
+float trueTopHatRandomSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return 0;
 }
 
-float trueTopHatRandomTemporalCorr(int t, float temporal_sigma, float height){
+float trueTopHatRandomTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     return 0;
 }
 
-float topHatLongTailSpatialCorr(int j, int k, float alpha, float height){
-    //double dist = sqrt((j*j)+(k*k));
-    //if (dist <= alpha) return 1.0;
-    if (j == 0 && k == 0)
-        return 1;
-    else return height;
+float topHatLongTailSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
+    float dist = sqrt((j*j)+(k*k));
+    if (dist <= spatial_alpha) return 1.0;
+    if (dist <= spatial_sigma) return height;
+    return 0;
 }
 
-float topHatLongTailTemporalCorr(int t, float alpha, float height){
-    //if (abs(t) <= alpha) return 1.0;
-    if (t == 0)
-        return 1;
-    return height;
+float topHatLongTailTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
+    float abs_t = abs(t);
+    if (abs_t <= temporal_alpha) return 1.0;
+    if (abs_t <= temporal_sigma) return height;
+    return 0;
 }
 
-float triangleSpatialCorr(int j, int k, float spatial_sigma, float height){
+float triangleSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_sigma)
         return ((-1) / spatial_sigma * dist + 1);
     return 0;
 }
 
-float triangleTemporalCorr(int t, float temporal_sigma, float height){
+float triangleTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     if (abs(t) <= temporal_sigma)
         return ((-1) / temporal_sigma * abs(t) + 1);
     return 0;
@@ -137,30 +136,24 @@ float triangleTemporalCorr(int t, float temporal_sigma, float height){
 // as a form of image processing it makes the image sharper, which is the opposite
 // of the gaussian (which blurs the image)
 // Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
-// NOTE: currently hard-coded as alpha = 1.5, since we didn't get private global variables to work (see note in algo.cpp)
-float unsharpSpatialCorr(int j, int k, float spatial_sigma, float height){
+float unsharpSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     float dist = sqrt(j*j + k*k);
-    if (dist <= 1.5)
-        return 1;
-    if (dist <= spatial_sigma)
-        return -height;
+    if (dist <= spatial_alpha) return 1;
+    if (dist <= spatial_sigma) return -height;
     return 0;
     //return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma))); // previous Gaussian implementation
 }
 
-float unsharpTemporalCorr(int t, float temporal_sigma, float height){
-    if (t <= 1){
-        return 1;
-    }
-    if (t <= temporal_sigma)
-        return -height;
+float unsharpTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
+    if (t <= temporal_alpha) return 1;
+    if (t <= temporal_sigma) return -height;
     return 0;
     //return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma))); // previous Gaussian implementation
 }
 
 /*------------------------------------------------------------------------*/
 
-float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float height){
+float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float spatial_alpha, float height){
     // validate parameters
     assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
     
@@ -199,7 +192,7 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
  * and returns a float)
  * In other words, this function returns a correlation function.
  */
-float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, float height){
+float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, float temporal_alpha, float height){
     // validate parameters
     assert (typeOfTemporalCorr >= 0 && typeOfTemporalCorr <= 10);
     
