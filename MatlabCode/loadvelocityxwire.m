@@ -13,10 +13,6 @@ fprintf('  loading raw data from files: \n    %s\n    %s  \n',...
 E1 = loadLabviewbin(file1);
 E2 = loadLabviewbin(file2);
 
-% debugging
-E1 = E1(1:100000);
-E2 = E2(1:100000);
-
 % Preventative error handling (we assume length(E1) = length(E2))
 if length(E1) ~= length(E2)
     error('X-wire data set length mismatch for files %s and %s \n', file1, file2);
