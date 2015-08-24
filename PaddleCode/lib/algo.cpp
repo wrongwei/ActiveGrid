@@ -1527,6 +1527,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     }
     // ----------
     
+    bool firstTime = true; // prevent timing error message from showing up during first iteration
     // main loop: give angle orders
     while(0==0){
         
@@ -1546,34 +1547,21 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 if (newslice[col][row]>90){
                     newslice[col][row]=90;
                     over90orminus90count++;
-                    cout << "+";
+                    //cout << "+";
                 }
                 else if (newslice[col][row]<-90){
                     newslice[col][row]=-90;
                     over90orminus90count++;
-                    cout << "-";
+                    //cout << "-";
                 }
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
                 if (fabs(amplitude)/(max_speed) > SPACING) {
-                    cout << "*";
-                    //cout << "Constraining (" << col << ", " << row << ") ";
-                    //cout << fabs(amplitude) << "/" << max_speed << "=" << fabs(amplitude)/(max_speed) << "\n"; DEBUGGING
+                    cout << "*"; // constraining histogram
                     outOfBoundsCount++;
                     if (amplitude > 0) step_size[col][row] = max_speed;
                     else if (amplitude < 0) step_size[col][row] = -max_speed;
                 }
-                /*else { // this is the "get there fast and wait for the slowpokes" implementation (i.e. maximize speed and down time)
-                 // assign speeds based on min number of legal steps it will take to get to the target angle
-                 step_size[col][row] = amplitude/(1 + floor(fabs(amplitude)/(max_speed)));
-                 }*/
-                // this is the "as slow and steady as possible" implementation (i.e. minimize speed and down time)
-                /*else if (fabs(amplitude/(min_speed)) >= SPACING) step_size[col][row] = amplitude/(SPACING); // move in 5 steps
-                 else if (amplitude >= min_speed) { // set angles between 10 and 50 degrees using maximum number of steps possible (<5)
-                 step_size[col][row] = amplitude/(floor(fabs(amplitude)/(min_speed)));
-                 }
-                 else step_size[col][row] = amplitude; // for small angles, move in one step and sleep on the remaining 4 steps
-                 */
                 else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
             }
         }
@@ -1600,7 +1588,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             gettimeofday(&currentTime,0); // set currentTime to hold the current time
             usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);// useconds elapsed since startTime
             
-            if (usecElapsed > updatetimeinmus){ // no need to wait because runcorr took more than .1 sec
+            if (usecElapsed > updatetimeinmus && !firstTime){ // no need to wait because runcorr took more than .1 sec
                 cout << "Time Elapsed is greater than .1 sec.  Time Elapsed = " << usecElapsed;
                 //cout << "---Did not wait---------------------------------------------------------------\n\n\n";
             }
@@ -1608,7 +1596,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
                 assert(0); // assert because something bizzare happened, like maybe the timer overflowed some how
             }
             else {
-                cout << usecElapsed;
+                cout << " " << usecElapsed << "\u03BCs";
                 while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
@@ -1618,6 +1606,8 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             // record the time when the loop started (for timing purposes)
             gettimeofday(&startTime,0);
+            
+            if (firstTime) firstTime = false; // set to false for remainder of run
             
             //old timing-------
             /*
