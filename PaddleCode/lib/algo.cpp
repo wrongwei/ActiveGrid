@@ -705,15 +705,27 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
      }
      anglefile << endl; */
     
-    // file header for all angles
     // file to plot angles in function of time
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cM.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
     anglefile.open("angleservo_cM.txt", ios::out | ios::trunc);
     /*for (int numero=0; numero < 143; numero++){
      anglefile << "   Angle(" << numero << ")";
      }
      anglefile << endl;*/
     
-    // Declare function pointers for the spatial correlation functions
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfCorr to a function with 2 arguments j and k, plus associated parameters needed for correlation function operation (currently just sigma and height).
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp).
+     This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfCorr(j, k). */
     float (*pfCorr)(int j, int k, float sigma, float height);
     pfCorr = pickSpatialCorr(mode);
     
@@ -725,9 +737,12 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     else bound = sigma;
     if (mode == 8) sigmaOrAlpha = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
-    for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
-        for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-            norm1 += pfCorr(j, k, sigmaOrAlpha, height);
+    if (mode == 6 || mode == 7) norm1 = 1; // no normalization necessary for modes 6 and 7
+    else {
+        for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
+            for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
+                norm1 += pfCorr(j, k, sigmaOrAlpha, height);
+            }
         }
     }
     
@@ -1055,6 +1070,15 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     double temps;
     long i=0;
     
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cMs.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
     anglefile.open("angleservo_cMs.txt", ios::out | ios::trunc); // file to plot angles in function of time
     /*for (int numero=0; numero < 129; numero++){
      anglefile << "   Angle(" << numero << ")";}
@@ -1161,7 +1185,15 @@ int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float
     float stored_positions[numberOfServos][numberofsteps];
     float stored_steps[numberOfServos][numberofsteps];
     
-    
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cMp.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
     anglefile.open("angleservo_cMp.txt", ios::out | ios::trunc); // file to plot angles in function of time
     /*for (int numero=0; numero < 129; numero++){
      anglefile << "   Angle(" << numero << ")";}
@@ -1323,18 +1355,23 @@ void algo::runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float sp
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
-                        // angle at (col, row) is function of surrounding angles within the correlation kernel
-                        //                  col = count % 13;
-                        //row = count / 13;
-                        //crumb = myLoaf[t+halfLoaf][(k+row+7)*27 + (j+col+7)];
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
-                        //crumb = randslice[j+col+7][k+row+7];
+                        /* This code is for absolute value correlations
+                        if (crumb < 0)
+                            crumb = -crumb;
+                        */
+                        
                         //cout << (pfTemporalCorr(t, timeSigma, height) * pfSpatialCorr(j, k, spaceSigma, height)) << endl; // debugging
                         // multiply original angle by correction factor, spatial correlation function, and temporal correlation function
                         newslice[col][row] += (correction * crumb * pfSpatialCorr(j, k, spaceSigma, spaceHeight) * pfTemporalCorr(t, timeSigma, timeHeight));
                     }
                 }
             }
+            /* This code is for absolute value correlations
+            crumb = myLoaf->Loaf_access(col, row, halfLoaf);
+            if (crumb < 0)
+                newslice[col][row] = -newslice[col][row];
+            */
             newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
         }
     }
@@ -1396,6 +1433,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
      cout << numberOfSlices << endl;*/
     // end of debugging ----------
     
+    // UI to avoid accidentally overwriting angle files
+    ifstream ifile("angleservo_cM_cIT.txt");
+    int overwriteFile;
+    if (ifile) {
+        cout << "WARNING: An angle file for this program already exists. 1: continue and overwrite file, 0: kill program" << endl;
+        cin >> overwriteFile;
+        if (!overwriteFile)
+            exit(0);
+    }
+    
     anglefile.open("angleservo_cM_cIT.txt", ios::out | ios::trunc); // file to plot angles in function of time
     
     // create (bake) Loaf object using constructor
@@ -1420,7 +1467,16 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
     float bound;
     if (typeOfSpatialCorr <= 4 || typeOfSpatialCorr == 10 || typeOfSpatialCorr == 0) bound = range_of_corr;
     else bound = spatial_sigma;
-    // Declare function pointers for the spatial and temporal correlation functions
+    /* Declare function pointers for the spatial correlation functions
+     First, we declare a pointer *pfSpatial/TemporalCorr to a function with 2 arguments j and k (or 1 argument t), plus parameters necessary for function operation (currently sigma and height, though more may need to be added if different kernels or a customizable unsharp are to be implemented).
+     Then we call the function pickSpatialCorr (from pickCorrelations.cpp). This function returns a pointer to the function of choice (determined by 'mode'),
+     which can then be used by simply calling pfSpatial/TemporalCorr(j, k). */
+    
+    /* NOTE: We attempted to import sigma, alpha, and height using the pickSpatialCorr/pickTemporalCorr functions, saving them as private global variables in pickCorrelations.cpp.
+     This allowed us to simply call pfSpatialCorr(j, k) and pfTemporalCorr(t), removing excess arguments from the runcorr and computermscorr functions, and changing the implementation so that (except in the periodic case) the function pointers would only be created once and then would be passed to the necessary methods as arguments.
+     We found this method to be much cleaner, but unfortunately we introduced a bug somewhere along the line. Rather than spend days trying to track it down, we reverted to our previous version and continued taking data. It might be worth re-implementing this feature, if you have time and want to make the code more streamlined. For reference, our previous attempt should still be in a series of commits on GitHub. ~ Nathan Wei and Kevin Griffin
+     */
+    
     float (*pfSpatialCorr)(int j, int k, float spatial_sigma, float spatial_height);
     float (*pfTemporalCorr)(int t, float temporal_sigma, float temporal_height);
     pfSpatialCorr = pickSpatialCorr(typeOfSpatialCorr);
@@ -1569,7 +1625,7 @@ int algo::correlatedMovement_correlatedInTime(int constantArea, float spatial_si
             }
             else {
                 cout << usecElapsed;
-		while (usecElapsed < updatetimeinmus){ // we need to wait
+                while (usecElapsed < updatetimeinmus){ // we need to wait
                     gettimeofday(&currentTime,0);
                     usecElapsed = (currentTime.tv_sec - startTime.tv_sec)*1000000 + ((signed long)currentTime.tv_usec - (signed long)startTime.tv_usec);
                 }

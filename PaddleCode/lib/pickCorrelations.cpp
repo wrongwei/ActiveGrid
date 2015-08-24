@@ -106,27 +106,27 @@ float topHatLongTailSpatialCorr(int j, int k, float alpha, float height){
     //double dist = sqrt((j*j)+(k*k));
     //if (dist <= alpha) return 1.0;
     if (j == 0 && k == 0)
-	return 1;
+        return 1;
     else return height;
 }
 
 float topHatLongTailTemporalCorr(int t, float alpha, float height){
     //if (abs(t) <= alpha) return 1.0;
     if (t == 0)
-	return 1;
+        return 1;
     return height;
 }
 
 float triangleSpatialCorr(int j, int k, float spatial_sigma, float height){
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_sigma)
-	return ((-1) / spatial_sigma * dist + 1);
+        return ((-1) / spatial_sigma * dist + 1);
     return 0;
 }
 
 float triangleTemporalCorr(int t, float temporal_sigma, float height){
     if (abs(t) <= temporal_sigma)
-	return ((-1) / temporal_sigma * abs(t) + 1);
+        return ((-1) / temporal_sigma * abs(t) + 1);
     return 0;
 }
 
@@ -137,29 +137,25 @@ float triangleTemporalCorr(int t, float temporal_sigma, float height){
 // as a form of image processing it makes the image sharper, which is the opposite
 // of the gaussian (which blurs the image)
 // Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
+// NOTE: currently hard-coded as alpha = 1.5, since we didn't get private global variables to work (see note in algo.cpp)
 float unsharpSpatialCorr(int j, int k, float spatial_sigma, float height){
     float dist = sqrt(j*j + k*k);
     if (dist <= 1.5)
-	return 29.0/9 * height; // 29 is size of kernel, 9 is size of center of kernel
-	//return 225; //(7*2+1)*(7*2+1) width of spatial ker squared
+        return 1;
     if (dist <= spatial_sigma)
-	return -height;
+        return -height;
     return 0;
-    //return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma)));
+    //return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma))); // previous Gaussian implementation
 }
 
 float unsharpTemporalCorr(int t, float temporal_sigma, float height){
     if (t <= 1){
-	return 5.0/3*height; // 5 is size of kernel. 3 is size of center part of kernel
-	//int widthOfTempKer = ceil(6*temporal_sigma)+1;
-	//if (widthOfTempKer % 2)
-	//    widthOfTempKer++;
-	//return widthOfTempKer;
+        return 1;
     }
     if (t <= temporal_sigma)
-	return -height;
+        return -height;
     return 0;
-    //return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma)));
+    //return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma))); // previous Gaussian implementation
 }
 
 /*------------------------------------------------------------------------*/
