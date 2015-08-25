@@ -1,6 +1,29 @@
+%{
+---------------------------------------------------------------------------
+Data processing script for x-wire probes
+Receives 2 data files of the same length (strings), a calibration file name
+(string), a probe number (int), and a test temperature value (double) as
+arguments
+Returns vectors of streamwise (vx) and normal (vy) velocities, as well as
+the number of points at which the calibration failed ('sorry')
 
-% loads hot wire bridge voltages, uses calibrations to return velocities.
-% calib8_21a.m -> velocity_calibration_8_21_1.txt
+Called from CheckIsoV2.m
+Dependencies: processcalibrationxwire.m (which depends on an x-wire
+calibration file and several velocity calibration .txt files),
+extractprobeinfo.m, extractcalibdata.m, loadLabviewbin.m,
+applytempcorrection.m
+
+Nathan Wei, Willem van de Water, and Kevin Griffin
+August 2015
+
+NOTE: code currently operates on a 2nd-order polynomial fit for the
+calibration curves. This is set in the calibration file, but is also
+hard-coded into this program (rather than using the slow polyval function).
+We do not recommend changing this, since higher-order polyfits could make
+the calibration algorithm break down due to poor resemblance outside the
+range of calibration.
+---------------------------------------------------------------------------
+%}
 
 function [vx,vy,sorry] = loadvelocityxwire(file1, file2, calibrationfilename,...
     probenumber, actualtemp)
@@ -75,8 +98,13 @@ for i = 1 : length(E1)
     % use calibration curve fits and the given voltage to get one possible
     % velocity for every calibration angle
     for z = 1 : length(calibdata.angles)
-        vel1(z) = polyval(params1(z,:),E1(i)); % processcalibrationxwire polyfits
-        vel2(z) = polyval(params2(z,:),E2(i));
+        %vel1(z) = polyval(params1(z,:),E1(i)); % processcalibrationxwire polyfits
+        %vel2(z) = polyval(params2(z,:),E2(i));
+        % Using basic algebra instead of polyval is a lot faster for 2nd
+        % order fits. Rewrite this if you use a higher-order fit (but why
+        % would you want to do that anyway?)
+        vel1(z) = params1(z,1)*(E1(i)^2)+params1(z,2)*(E1(i))+params1(z,3);
+        vel2(z) = params2(z,1)*(E2(i)^2)+params2(z,2)*(E2(i))+params2(z,3);
         diff(z) = vel2(z) - vel1(z); % subtract two curves at each point
     end
     
