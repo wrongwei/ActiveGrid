@@ -51,7 +51,7 @@ if ~isempty(actualtemp)  % temperature correction
     Rw = Rc * (1 + probeinfo.probe(probenumber).sensor(sensornumber).overheat);
     calibtemp = mean(calibdata.calibtemp);
 	E = applytempcorrection(E, actualtemp, calibtemp, Rw, Rc, ...
-        probeinfo.probe(probenumber).sensor(sensornumber).alpha);
+        probeinfo.alpha);
 	toc 
 end
 

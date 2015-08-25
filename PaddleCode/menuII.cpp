@@ -521,14 +521,14 @@ int main (int argc , char * const argv[]) {
                 cin >> typeOfSpatialCorr;
             }
             
-            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr == 10){
-                cout << "Spatial Sigma? ";
+            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr > 4){
+                cout << "Spatial Sigma? (0->7) "; // maximum length of 7 because this is the biggest sigma loaf can handle at the moment
                 cin >> spatial_sigma;
-            }
-            if (typeOfSpatialCorr == 5 || typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7 ||
-                typeOfSpatialCorr == 8 || typeOfSpatialCorr == 9 ){
-                cout << "Spatial Sigma? ";
-                cin >> spatial_sigma;
+                while (spatial_sigma < 0 || spatial_sigma > 7) {
+                    cout << "Spatial sigma must be between 0 and 7. Try an acceptable value!" <<endl;
+                    cout << "\nSpatial Sigma? (0->7) ";
+                    cin >> spatial_sigma;
+                }
             }
             if (typeOfSpatialCorr == 8){
                 cout << "Spatial Alpha? This is the width of part with correlation of 1 (usually spatial_alpha=0)\n";
@@ -598,7 +598,7 @@ int main (int argc , char * const argv[]) {
                 cin >> target_rms;
             }
             
-            cout << "Should the area be kept constant? (1,0) ";
+            cout << "Should the area be kept constant? (1,0) \n*** NOTE: This has been known to cause bouts of periodic freezing in the grid. Use at your own peril. *** ";
             cin >> constantArea;
             while (constantArea < 0 || constantArea > 1){
                 cout << "Choose zero or 1\n";
