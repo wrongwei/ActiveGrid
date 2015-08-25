@@ -1,3 +1,15 @@
+%{
+---------------------------------------------------------------------------
+This program reads velocities from a .mat file and plots a cumulative
+average over time. This plot represents the fluctuations of the average
+over the time of data collection, and gives us an idea of the convergence
+of the average velocity readings (i.e. when the curve settles down and
+becomes steady, the velocity readings have converged on a stable value).
+
+Written by Kevin Griffin, August 2015
+---------------------------------------------------------------------------
+%}
+
 % load the workspace 
 %workspace = load('/Users/kevin/Documents/Data/data08_17_15/statscorr_lt5.2lt50_0817_08.mat','u','MASvsm');
 %workspace = load('/Users/kevin/Documents/Data/data08_14_15/statscorr_lt5.2lt50_0814_00.mat','u','MASvsm');
