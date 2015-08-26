@@ -2,17 +2,17 @@
  
  Methods and functions for temporal correlation control code
  These functions were adapted from the old algo.cpp / algo.h, which was
-   written before 2015 and debugged/refactored/optimized July-August 2015.
+ written before 2015 and debugged/refactored/optimized July-August 2015.
  The old programs and new programs only share the method "area," which is
-   accessed here through inclusion of algo.h.
+ accessed here through inclusion of algo.h.
  Both files are accessed by menuII.cpp, which handles routing depending on
-   user inputs. They both depend on pickCorrelations.cpp/pickCorrelations.h,
-   which contain function pointers to the different correlation kernels.
+ user inputs. They both depend on pickCorrelations.cpp/pickCorrelations.h,
+ which contain function pointers to the different correlation kernels.
  Note that this file contains multiple versions of runcorr_3D. This is because
-   our computers were not fast enough to run the function pointer implementation
-   for very large temporal kernels (sigma = 50). This workaround should ONLY be
-   used for specific kernels where speed is an issue; otherwise, the standard
-   function pointer runcorr_3D should be used for readability and simplicity.
+ our computers were not fast enough to run the function pointer implementation
+ for very large temporal kernels (sigma = 50). This workaround should ONLY be
+ used for specific kernels where speed is an issue; otherwise, the standard
+ function pointer runcorr_3D should be used for readability and simplicity.
  
  Dependencies: pickCorrelations.cpp/.h, algo.cpp/.h, activegrid.cpp/.h, loaf.cpp/.h
  
@@ -76,7 +76,7 @@ int setanglestoallservosIII(float angles[13][11], float steps[13][11], int const
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
 void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
-                      float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
+                float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     //For debugging this will let you use a random array instead of loaf
     /*float randslice[27][25] = {0};
@@ -182,6 +182,57 @@ void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, 
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
 }
 
+// Modified version of runcorr_3D, for unsharp in both directions
+// Necessary to avoid issue with 2 unsharps having negative signs that multiply to become positive
+void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceDepth, float timeDepth, float correction) {
+    
+    // convolution to create correlation between paddles
+    // periodic boundary conditions are used
+    float crumb;
+    float dist;
+    float abs_t;
+    float spatialCorrFactor;
+    float temporalCorrFactor;
+    
+    // Loop through servos and calculate/create correlations, using helper methods
+    for (int row = 0; row < 11; row++) {
+        for (int col = 0; col < 13; col++){
+            newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
+            for (int j = -spaceSigma; j <= spaceSigma; j++) { // range of neighbours used to compute convolution
+                for (int k = -spaceSigma; k <= spaceSigma; k++) { // j and k refer to the shift
+                    for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
+                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        dist = sqrt((j*j)+(k*k));
+                        //spatial correlation inlined for top hat long tail
+                        if (dist <= spaceAlpha)
+                            spatialCorrFactor = 1;
+                        else if (dist <= spaceSigma)
+                            spatialCorrFactor = -spaceDepth;
+                        else spatialCorrFactor = 0;
+                        //cout << spatialCorrFactor;
+                        //temporal correlation inlined for top hat long tail
+                        abs_t = abs(t);
+                        if (abs_t <= timeAlpha)
+                            temporalCorrFactor = 1;
+                        else if (abs_t <= timeSigma) {
+                            temporalCorrFactor = -timeDepth;
+                            if (dist > spaceAlpha)
+                                crumb = -crumb; // flip sign if outside alphas but inside sigmas
+                        }
+                        else
+                            temporalCorrFactor = 0;
+                        //cout << " " << temporalCorrFactor << " ";
+                        newslice[col][row] += (correction * crumb * spatialCorrFactor * temporalCorrFactor);
+                    }
+                }
+            }
+            // normalization by coefficient calculated in correlatedMovement_correlatedInTime
+            newslice[col][row] = newslice[col][row] / norm;
+        }
+    }
+    myLoaf->Loaf_slice(); // remove oldest slice and add new slice
+}
+
 /* takes a random 3D sequence and computes its std dev. It's useful for the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
 float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf) {
@@ -237,14 +288,22 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
      cout << numberOfSlices << endl;*/
     // end of debugging ----------
     
+    // special method selection (for slow or unconventional kernels that need to be inlined)
     bool ltfast_on = false;
-    // special method selection (for slow kernels that need to be inlined to improve performance)
+    bool unsharp_on = false;
     if (typeOfSpatialCorr == 8 && typeOfTemporalCorr == 8) {
         cout << "\n***********************************\n";
         cout << "*      Running ltfast method      *";
         cout << "\n***********************************" << endl;
         ltfast_on = true;
     }
+    if (typeOfSpatialCorr == 10 && typeOfTemporalCorr == 10) {
+        cout << "\n************************************\n";
+        cout << "*      Running double unsharp      *";
+        cout << "\n************************************" << endl;
+        unsharp_on = true;
+    }
+    // NOTE: if you're interested, you could re-implement true top hats by inlining them here as well
     
     // UI to avoid accidentally overwriting angle files
     ifstream ifile("angleservo_cM_cIT.txt");
@@ -355,10 +414,13 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
         // get new slice of angles (using either inlined algorithm or standard function pointer algorithm)
         if (ltfast_on)
             ltfast(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
-                       spatial_height, temporal_height, correction);
+                   spatial_height, temporal_height, correction);
+        else if (unsharp_on)
+            unsharp(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
+                    spatial_height, temporal_height, correction);
         else
             runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
-                   spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
+                       spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
         
         // store necessary servo speeds after carrying out safety checks
         for (int row = 0; row < 11; row++) {
