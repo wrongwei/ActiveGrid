@@ -127,7 +127,56 @@ void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSig
              if (crumb < 0)
              newslice[col][row] = -newslice[col][row];
              */
-            newslice[col][row] = newslice[col][row] / norm; // normalization by coefficient calculated in correlatedMovement_correlatedInTime
+            // normalization by coefficient calculated in correlatedMovement_correlatedInTime
+            newslice[col][row] = newslice[col][row] / norm;
+        }
+    }
+    myLoaf->Loaf_slice(); // remove oldest slice and add new slice
+}
+
+// Faster version of runcorr_3D, for long tail in both directions
+// Necessary to avoid timing issues when running tests on lt5.2lt50
+void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, float correction) {
+    
+    // convolution to create correlation between paddles
+    // periodic boundary conditions are used
+    float crumb;
+    float dist;
+    float abs_t;
+    float spatialCorrFactor;
+    float temporalCorrFactor;
+    
+    // Loop through servos and calculate/create correlations, using helper methods
+    for (int row = 0; row < 11; row++) {
+        for (int col = 0; col < 13; col++){
+            newslice[col][row] = 0; // start each angle at zero, then add in results of correlation
+            for (int j = -spaceSigma; j <= spaceSigma; j++) { // range of neighbours used to compute convolution
+                for (int k = -spaceSigma; k <= spaceSigma; k++) { // j and k refer to the shift
+                    for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
+                        crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        dist = sqrt((j*j)+(k*k));
+                        //spatial correlation inlined for top hat long tail
+                        if (dist <= spaceAlpha)
+                            spatialCorrFactor = 1;
+                        else if (dist <= spaceSigma)
+                            spatialCorrFactor = spaceHeight;
+                        else spatialCorrFactor = 0;
+                        //cout << spatialCorrFactor;
+                        //temporal correlation inlined for top hat long tail
+                        abs_t = abs(t);
+                        if (abs_t <= timeAlpha)
+                            temporalCorrFactor = 1;
+                        else if (abs_t <= timeSigma)
+                            temporalCorrFactor = timeHeight;
+                        else
+                            temporalCorrFactor = 0;
+                        //cout << " " << temporalCorrFactor << " ";
+                        newslice[col][row] += (correction * crumb * spatialCorrFactor * temporalCorrFactor);
+                    }
+                }
+            }
+            // normalization by coefficient calculated in correlatedMovement_correlatedInTime
+            newslice[col][row] = newslice[col][row] / norm;
         }
     }
     myLoaf->Loaf_slice(); // remove oldest slice and add new slice
@@ -187,6 +236,15 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
      cout << target_rms << endl;
      cout << numberOfSlices << endl;*/
     // end of debugging ----------
+    
+    bool ltfast_on = false;
+    // special method selection (for slow kernels that need to be inlined to improve performance)
+    if (typeOfSpatialCorr == 8 && typeOfTemporalCorr == 8) {
+        cout << "\n***********************************\n";
+        cout << "*      Running ltfast method      *";
+        cout << "\n***********************************" << endl;
+        ltfast_on = true;
+    }
     
     // UI to avoid accidentally overwriting angle files
     ifstream ifile("angleservo_cM_cIT.txt");
@@ -294,8 +352,12 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
         //freshLoaf.Loaf_printFullArray(); // debugging
         cout << "\nGrid #" << i << " "; // print grid number
         i += 1;
-        // get new slice of angles
-        runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
+        // get new slice of angles (using either inlined algorithm or standard function pointer algorithm)
+        if (ltfast_on)
+            ltfast(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
+                       spatial_height, temporal_height, correction);
+        else
+            runcorr_3D(newslice, &freshLoaf, halfLoaf, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha,
                    spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, 0, 0, correction);
         
         // store necessary servo speeds after carrying out safety checks
