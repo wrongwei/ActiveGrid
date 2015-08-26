@@ -6,6 +6,9 @@ Greg Bewley
 October 2009
  */
 
+#ifndef SD84TOOLS_INCLUDED
+#define SD84TOOLS_INCLUDED
+
 #include "SD84.h"
 
 void pollposition(SD84 *board, int servnum, double interval, int count)
@@ -38,3 +41,5 @@ int SD84::smoothmove(int servo_number, double angle)
 	
 	return 1; 
 }
+
+#endif // SD84TOOLS_INCLUDED

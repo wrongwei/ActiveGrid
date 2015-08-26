@@ -5,6 +5,9 @@ Greg Bewley
 September 2009
 */
 
+#ifndef SD84CONSTANTS_INCLUDED
+#define SD84CONSTANTS_INCLUDED
+
 #define MAXSERVOS  84     // maximum number of servos the board controls.  
 #define CYCLETIME  20     // [milliseconds] between servo pulses.  
 #define DWMAX      255    // maximum pulse width increment, 
@@ -43,3 +46,5 @@ enum Commands
     GET_BULK,         // used for factory testing
     TEST              // used for factory testing
   }; 
+
+#endif // SD84CONSTANTS_INCLUDED

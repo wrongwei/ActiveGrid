@@ -32,6 +32,9 @@ Greg Bewley
 September 2009
  */
 
+#ifndef SD84_INCLUDED
+#define SD84_INCLUDED
+
 #include <iostream>
 #include <string>
 #include <cmath>
@@ -40,9 +43,6 @@ using namespace std;
 
 #include "gbserialFlo.h"
 #include "SD84constants.h"
-
-//#ifndef SD84
-//#define SD84
 
   // servo angle conversion constants: 
   // angle  90 corresponds to counterclockwise extreme.  
@@ -252,3 +252,5 @@ inline double SD84::dwpc2rr(int dw)
 {
 	return (double) (dw * 1000.0) / (2.0 * msp180deg * CYCLETIME); 
 }
+
+#endif // SD84_INCLUDED

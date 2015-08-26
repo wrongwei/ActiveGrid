@@ -37,6 +37,8 @@ April 2011
 
  */
 
+#ifndef ACTIVEGRID_INCLUDED
+#define ACTIVEGRID_INCLUDED
 
 #include <iostream>
 #include <string>
@@ -48,9 +50,6 @@ using namespace std;
 
 #define numberOfServos 143 // nb of servos on the rectangular grid
 #define Fictive -100 //value of angle for non-existent paddle, e.g. (1,1), (1,13)
-
-//#ifndef ACTIVEGRID
-//#define ACTIVEGRID
 
 class activegrid
 {
@@ -155,3 +154,5 @@ inline activegrid::activegrid(){
   //starting position: set all angles to 0
   opengrid();  
 };
+
+#endif // ACTIVEGRID_INCLUDED
