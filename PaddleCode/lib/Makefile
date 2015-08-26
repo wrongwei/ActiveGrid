@@ -11,6 +11,7 @@ all:  \
 	SD84 \
 	activegrid \
 	algo \
+	algo3d \
 	loaf \
 	testloaf \
 	pickCorrelations
@@ -51,11 +52,17 @@ SD84: SD84.cpp SD84.h
 activegrid: activegrid.cpp activegrid.h
 	$(CPP) $(FLAGS) -c activegrid.cpp
 
-algo: algo.cpp algo.h loaf.h 
+algo: algo.cpp algo.h pickCorrelations.h loaf.h
 	@echo "==============================================================================================="
 	@echo "Compiling algo.cpp"
 	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c algo.cpp
+
+algo3d: algo3d.cpp algo3d.h algo.h pickCorrelations.h loaf.h
+	@echo "==============================================================================================="
+	@echo "Compiling algo3d.cpp"
+	@echo "==============================================================================================="
+	$(CPP) $(FLAGS) -c algo3d.cpp
 
 loaf: loaf.cpp loaf.h
 	@echo "==============================================================================================="

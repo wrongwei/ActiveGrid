@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "lib/algo.h"
+#include "lib/algo3d.h"
 
 /*--------------------------------------------------------------------*/
 
@@ -597,14 +598,14 @@ int main (int argc , char * const argv[]) {
                 cout << "\n rms of angles? (0->50 degrees) ";
                 cin >> target_rms;
             }
-            
-            cout << "Should the area be kept constant? (1,0) \n*** NOTE: This has been known to cause bouts of periodic freezing in the grid. Use at your own peril. *** ";
+            /* NOT IMPLEMENTED - CAUSES PERIODIC FREEZING ISSUES IN THE GRID
+            cout << "Should the area be kept constant? (1,0) ";
             cin >> constantArea;
             while (constantArea < 0 || constantArea > 1){
                 cout << "Choose zero or 1\n";
                 cout << "Should the area be kept constant? (1,0)" << endl;
                 cin >> constantArea;
-            }
+            }*/
             
             // calculate width of temporal kernel (number of time-slices to analyze at a time)
             if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
@@ -626,7 +627,7 @@ int main (int argc , char * const argv[]) {
             
             cout << "\nInitializing preliminary computations...\n" << endl;
             
-            alg.correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
+            correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
         }
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
