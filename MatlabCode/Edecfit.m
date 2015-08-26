@@ -23,7 +23,7 @@ func = @(b,x)b(1).*(x-b(2)).^b(3); %the power law y = a(x-b)^c
 initb = b0;
 [b1, R, J, covb, mse] = nlinfit(normd,normeps, func, initb);
 CI = nlparci(b1, R, 'covar', covb);
-
+disp(CI);
 % this is roughly the plus/minus variation away from the mean (half the interval):
 exponent_error = diff(CI(3,:))/2;
 
@@ -67,8 +67,8 @@ else
     %scatter(normdErrorMin, normeps,50,'>','r')
 end
 plot(xscale, b1(1).*(xscale - b1(2)).^b1(3))
-ylabel('Normalized Energy   ');
-xlabel('Normalized Distance ');
+ylabel('Normalized Energy (u^2 / U^2)');
+xlabel('Normalized Distance (x / paddle width)');
 
 
 a = b1(1);
