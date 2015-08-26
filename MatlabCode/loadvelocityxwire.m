@@ -54,8 +54,8 @@ if ~isempty(actualtemp)
     Rw2 = Rc2 * (1 + probeinfo.probe(probenumber).sensor(2).overheat);
     % mean calibration temperature over all angles and velocities
     calibtemp = mean2(calibdata.calibtemp);
-    E1 = applytempcorrection(E1, actualtemp, calibtemp, Rw1, Rc1, probeinfo.alpha);
-    E2 = applytempcorrection(E2, actualtemp, calibtemp, Rw2, Rc2, probeinfo.alpha);
+    E1 = applytempcorrection(E1, actualtemp, calibtemp, Rw1, Rc1, probeinfo.probe(probenumber).alpha);
+    E2 = applytempcorrection(E2, actualtemp, calibtemp, Rw2, Rc2, probeinfo.probe(probenumber).alpha);
 end
 
 % Process calibration data

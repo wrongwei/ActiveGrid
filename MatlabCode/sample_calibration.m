@@ -30,10 +30,10 @@ fluidinfo.dens   = dens;         % [kg/m^3] fluid density.
 probeinfo.notes = '1 P11 wire.  '; 
 probeinfo.samplerate = 20;       % [kHz] rate at which samples were collected (StreamWare signal conditioner) 
 probeinfo.numsmpls = 512;        % number of samples collected at each calibration point
-probeinfo.alpha = 3.6e-3;        % temperature coefficient of resistance for wire
 
   % info about each probe: 
 probeinfo.probe(1).probename = 'S'; 
+probeinfo.probe(1).alpha = 3.6e-3; % temperature coefficient of resistance for wire
 
   % info about each sensor: 
 probeinfo.probe(1).sensor(1).channel    = 1;      % will throw errors if not = 1
