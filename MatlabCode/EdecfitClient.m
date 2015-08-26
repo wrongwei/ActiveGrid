@@ -1,18 +1,26 @@
-% Client program for using Edecfit
-% This program takes data from multiple .mat workspaces, and extracts
-% necessary parameters for the Edecfit.m energy decay fit function
-% Written by Nathan Wei, summer 2015
-% Requirements: any number of .mat workspaces saved in a folder, with names
-%  in format '...n.mat' (where n is the test number). NOTE: make sure you
-%  comment out the line in makeallstats that clears u from the workspace!
-% Dependencies: Edecfit.m
+%{
+---------------------------------------------------------------------------
+Client program for using Edecfit
+This program takes data from multiple .mat workspaces and extracts
+necessary parameters for the Edecfit.m energy decay fit function.
+This also calculates and stores error bar magnitudes (calculated from the
+standard error of the normalized energy)
+
+Written by Nathan Wei and Kevin Griffin, summer 2015
+
+Requirements: any number of .mat workspaces saved in a folder, with names
+ in format '...n.mat' (where n is the test number). NOTE: make sure you
+ comment out the line in makeallstats that clears u from the workspace!
+Dependencies: Edecfit.m
+---------------------------------------------------------------------------
+%}
 
 % -------------------------- PARAMETERS TO SET --------------------------
 pathname = fileparts('/Users/nathan/Documents/Data/data08_19_15/');
 %filebase = 'statscorr_th2.6th2_0813_0'; % files numbered 0 to tests-1
 filebase = 'statscorr_lt5.2lt50_0819_0';
 tests = 10; % number of data collection points along the tunnel
-startingTestNumberPlus1 = 1;
+startingTestNumberPlus1 = 1; % test to start analysis at, plus 1
 %startingTestNumberPlus1 = 6;
 % record distance from active grid to probe (in meters) for each data set
 % note: the first distance should correspond to test 0, the 2nd to test 1,
@@ -20,7 +28,7 @@ startingTestNumberPlus1 = 1;
 
 %dist for 0813 spacing
 %dist = [9.638704324;7.465134961;5.938044201;4.865151737;4.111366651;3.581777736;3.209702958;2.948293331;2.764634032;2.6356];
-%dist for 0814 spacing
+%dist for 0814 spacing (in meters from grid)
 dist = [9.638704324;8.345409279;7.225645035;6.256127701;5.416697557;4.68989986;4.060621894;3.515778729;3.044041133;2.6356];
 % dist for tests 0-4
 %dist = [9.638704324;8.345409279;7.225645035;6.256127701;5.416697557];
@@ -52,21 +60,23 @@ for i = startingTestNumberPlus1 : tests
     filestr = strcat(filebase, num2str(i-1), '.mat'); % find file name
     disp(filestr);
     vars = load(filestr,'MASvsm','MASvss','rCmax','oneOverEScale','u');
+    % error of energy normalized by mean velocity squared        
     if (errorbars)
-        % error of velocity flucuations
-        %stderr(i) = vars.MASvss*sqrt(vars.oneOverEScale*samplingFrequency/vars.rCmax/vars.MASvsm);
-        %error of energy normalized by mean velocity squared        
-        numberOfCorrLengths = vars.rCmax * vars.MASvsm / vars.oneOverEScale / samplingFrequency;
-        stddev = sqrt(   mean(    ((vars.u-vars.MASvsm).^2 - vars.MASvss^2).^2   )  )
-        
+        numberOfCorrLengths = vars.rCmax * vars.MASvsm / vars.oneOverEScale...
+            / samplingFrequency; % effective number of samples (corr. lengths)
+        % standard deviation of energy (velocity fluctuations squared,
+        % compared to the RMS fluctuation velocity)
+        stddev = sqrt(mean(((vars.u-vars.MASvsm).^2 - vars.MASvss^2).^2));
+        % calculate standard error using above parameters
         stderr(i) = stddev / sqrt(numberOfCorrLengths);
-        stderr(i) = stderr(i)/vars.MASvsm^2
+        stderr(i) = stderr(i)/vars.MASvsm^2 % normalize by mean velocity ^2
     end
     U_avg(i) = vars.MASvsm; % mean flow velocity
     eps_avg(i) = vars.MASvss^2; % rms velocity squared = average energy
-    oneOverEscales(i) = vars.oneOverEScale;
+    oneOverEscales(i) = vars.oneOverEScale; % 1/e scale
 end
 
+% call Edecfit.m with these calculated parameters
 fprintf(' done in %.1f seconds. \nSending data to Edecfit for processing.', round(10*toc)/10);
 if (errorbars)
     result = Edecfit(dist, U_avg, eps_avg, b0, stderr);

@@ -28,18 +28,19 @@ function [iso] = checkIso(pn, inp)
  pn = strcat(pn,'/');
  pathname = fileparts(pn);
  addpath(pathname) 
+ temperature = 22.2; % temperature (degrees C)
  % load in velocities-------------------------------------------------------
- [u1 a1 b1 n1] = loadvelocityff('xpos100_ypos100_evts0-2999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2); 
- u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
- u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
- u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
- u = [u1;u2;u3;u4];
+ [u1 a1 b1 n1] = loadvelocityxwire('xpos100_ypos100_evts0-2999999XCh2_Ch4.dat', 'calib8_21b.m', 1, 2, temperature); 
+% u2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
+ %u3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
+ %u4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999XCh2_Ch4.dat', 'Calibxwire7_18.m', 1, 2);
+ u = [u1];
 
- [v1 a2 b2 n2]  = loadvelocityff('xpos100_ypos100_evts0-2999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
- v2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
- v3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
- v4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
- v = [v1;v2;v3;v4];
+ [v1 a2 b2 n2]  = loadvelocityxwire('xpos100_ypos100_evts0-2999999XCh1_Ch1.dat', 'calib8_21b.m', 1, 1, temperature);
+ %v2 = loadvelocityff('xpos100_ypos100_evts3000000-5999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
+ %v3 = loadvelocityff('xpos100_ypos100_evts6000000-8999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
+ %v4 = loadvelocityff('xpos100_ypos100_evts9000000-11999999XCh1_Ch1.dat', 'Calibxwire7_18.m', 1, 1);
+ v = [v1];
  rmpath(pathname);
  
  %Calibration angles (manually entered) -------------------------------------------
@@ -47,8 +48,8 @@ function [iso] = checkIso(pn, inp)
  
  %Voltages for calibration angles (manually entered)-----------------------------------
  
- dv1 = [1.769 1.760 1.750 1.738 1.724 1.713 1.700];
- dv2 = [1.626 1.638 1.649 1.661 1.672 1.687 1.689];
+ dv1 = [7.711 7.263 6.728 6.222 5.7242 5.256 4.799];
+ dv2 = [5.263 5.589 5.941 6.303 6.789 7.243 7.675];
  % ------------------------------------------------------------------------------------
  %the wire angles
 

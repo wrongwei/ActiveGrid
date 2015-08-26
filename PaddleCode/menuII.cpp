@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <time.h>
 #include "lib/algo.h"
+#include "lib/algo3d.h"
 
 /*--------------------------------------------------------------------*/
 
@@ -521,14 +522,14 @@ int main (int argc , char * const argv[]) {
                 cin >> typeOfSpatialCorr;
             }
             
-            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr == 10){
-                cout << "Spatial Sigma? ";
+            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr > 4){
+                cout << "Spatial Sigma? (0->7) "; // maximum length of 7 because this is the biggest sigma loaf can handle at the moment
                 cin >> spatial_sigma;
-            }
-            if (typeOfSpatialCorr == 5 || typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7 ||
-                typeOfSpatialCorr == 8 || typeOfSpatialCorr == 9 ){
-                cout << "Spatial Sigma? ";
-                cin >> spatial_sigma;
+                while (spatial_sigma < 0 || spatial_sigma > 7) {
+                    cout << "Spatial sigma must be between 0 and 7. Try an acceptable value!" <<endl;
+                    cout << "\nSpatial Sigma? (0->7) ";
+                    cin >> spatial_sigma;
+                }
             }
             if (typeOfSpatialCorr == 8){
                 cout << "Spatial Alpha? This is the width of part with correlation of 1 (usually spatial_alpha=0)\n";
@@ -597,17 +598,17 @@ int main (int argc , char * const argv[]) {
                 cout << "\n rms of angles? (0->50 degrees) ";
                 cin >> target_rms;
             }
-            
+            /* NOT IMPLEMENTED - CAUSES PERIODIC FREEZING ISSUES IN THE GRID
             cout << "Should the area be kept constant? (1,0) ";
             cin >> constantArea;
             while (constantArea < 0 || constantArea > 1){
                 cout << "Choose zero or 1\n";
                 cout << "Should the area be kept constant? (1,0)" << endl;
                 cin >> constantArea;
-            }
+            }*/
             
             // calculate width of temporal kernel (number of time-slices to analyze at a time)
-            if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel / unsharp kernel
+            if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
                 numberOfSlices = ceil(6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
             }
             else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
@@ -618,15 +619,15 @@ int main (int argc , char * const argv[]) {
                     cin >> numberOfSlices;
                 }
             }
-            else { // top hats, triangle, etc. - return values of 0 outside one standard deviation
+            else { // top hats, triangle, etc. - return values of 0 outside of one standard deviation
                 numberOfSlices = (2 * temporal_sigma) + 1; // so kernel just needs to have 1 standard deviation on either side of the middle slice
             }
-            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd (for 1/r^n kernels)
+            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
             cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\nNote: one time-step is equal to 'SPACING' grid positions, where the value of SPACING is set manually in algo.cpp. \nEach grid position lasts 0.1 seconds." << endl;
             
             cout << "\nInitializing preliminary computations...\n" << endl;
             
-            alg.correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
+            correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
         }
         
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column

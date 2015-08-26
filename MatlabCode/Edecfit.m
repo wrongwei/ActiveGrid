@@ -1,14 +1,20 @@
 % Uses nlinfit to determine coefficients in power law fit
 % y = a(x-b)^c
 % U is the mean velocity vector
-% eps is the energy vector u^2
+% eps is the energy vector u^2 (where u is the point velocity minus the
+%   mean velocity = velocity of fluctuations)
 % d is the distances vector (meters)
 % b0 = [a0,b0,c0] intial paramters for nonlinear power law fit
+% stderror is an array of same length as dist, U, and eps, holding error
+%   bar magnitudes (calculated in EdecfitClient.m)
 % outputs are the coefficients, the R^2  value of the fit, and a 95%
 % confidence interval on the value of c (the exponent in the power law)
 % plots the fit on normal and loglog axes
 % Horace Zhang + Jessie Liu Summer 2014
+% (error bars added by Nathan Wei and Kevin Griffin, August 2015)
 % Dependencies: none
+% Called by EdecfitClient.m if you're too lazy to use the command line
+
 function [a, b, c, R2, conf] = Edecfit(dist, U, eps, b0, stderror)
 % xscale for plotting - was 0.13, but this is diagonal distance
 paddled = 0.115; % distance between two adjacent paddles (m)

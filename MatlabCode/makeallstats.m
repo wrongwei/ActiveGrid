@@ -1,9 +1,10 @@
 
 % script to return standard statistics of a hot wire signal
-%makeallstats.m
+% makeallstats.m
 % can be run as script or called as function (implemented summer 2015)
 % 
-% must exis% u      - the velocity
+% must exist
+% u      - the velocity
 % deltaT - the intersample time
 % rCmax  - the upper limit in samples of separations for the correlation function
 % rs     - the separations for the structure functions
@@ -18,6 +19,13 @@
 % MASS2, MASS3, MASS3a, MASS4, MASS6 - the structure functions
 % MASN   - the histogram
 % 
+% Arguments (for function operation): path name of main directory (string),
+% folder containing data (string), calibration file name (string), output
+% name (string - for .mat file), temperature, boolean determining whether u
+% will be saved in the .mat file (saves time and space if not, but might be
+% needed down the line for error bars or something else)
+% Dependencies: loadvelocityff.m (and all its dependencies)
+% Called by makeallstats_edec.m (runs this 10 times for energy decay runs)
 
 function [] = makeallstats(path, folder, calibfile, outputname, actualtemp, needU)
 
@@ -29,11 +37,11 @@ if (~exist('highorder')), highorder = 1; end
 % ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    path = '/Users/nathan/Documents/Data/data08_12_15/'; % location of calib file
-    folder = 'th2.6th2'; % name of folder containing data
-    outputname = 'test_again.mat'; % name your .mat workspace!
-    calibfile = 'calib8_12.m'; % calibration file name (set here for convenience)
-    actualtemp = 22.275; % change this if you have a temperature measurement you want to use, otherwise should be []
+    path = '/Users/nathan/Documents/Data/data08_24_15/'; % location of calib file
+    folder = 'th3.9th3_pos03'; % name of folder containing data
+    outputname = 'statscorr_th3.9th3_03_test.mat'; % name your .mat workspace!
+    calibfile = 'calib8_24a.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.4; % change this if you have a temperature measurement you want to use, otherwise should be []
     needU = true; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------

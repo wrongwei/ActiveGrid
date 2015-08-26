@@ -27,9 +27,7 @@
 
 #define range_of_corr 7
 
-//declare the testloaf function
-void testloaf(void);
-
+/*
 // declare a structure for holding the parameters of the correlation
 struct CorrParameters {
     int typeOfCorrelation;
@@ -40,6 +38,7 @@ struct CorrParameters {
     int mcol;
     int mrow;
 };
+ */
 
 // declare the algo class
 class algo{
@@ -62,7 +61,6 @@ public:
     // principle functions to pass the angle orders
     int setanglestoallservos(float * positions, float * anglesteps, int combine, int constant, float rms);
     int setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms);// light version
-    int setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms);// 3d version
     
     // functions computing "complicated" motions
     int allperiodic(double angle, double frequency);
@@ -70,7 +68,6 @@ public:
     int correlatedMovement (int constant, float sigma, float alpha, double height, int mode, int mrow, int mcol, float target_rms);
     int correlatedMovement_steps (int constant, float sigma1, float sigma2, int mode, float target_rms1, float target_rms2, double period, double duty_cycle);
     int correlatedMovement_periodic (int constant, float sigma, int mode, float target_rms, int numberofsteps);
-    int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices);
     
     //keeps the projected area constant
     void area(double actpos[14][12], float rms);
@@ -81,7 +78,7 @@ public:
     ofstream anglefile;
     ofstream angleperiod;
     
-    // computation of convolution used for corrleated motion is easier with arrays,
+    // computation of convolution used for correlated motion is easier with arrays,
     // so we reintroduce temporarily array notations. Conversion tools follow.
     int columns[numberOfServos];
     int rows[numberOfServos];
@@ -104,12 +101,12 @@ public:
     void updateOneWing(int WingNumber);
     void updateOneWing2(int WingNumber);
     void run(float actpos[], float actstep[], int option);
-    void runcorr(float actpos[], float actstep[], float sigma, float(*pfCorr)(int, int), int mode, int mrow, int mcol, float correction,
+    void runcorr(float actpos[], float actstep[], float sigma, float alpha,
+		 double height, int mode, int mrow, int mcol, float correction,
 		 float norm, float oldpos[], float oldstep[], float err[]);
-    void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float bound, float(*pfSpatialCorr)(int, int), float(*pfTemporalCorr)(int), float correction);
     float compute_rms(int option);
-    float compute_rmscorr(float sigma, int mode, float(*pfCorr)(int, int), int mrow, int mcol);
-    float compute_rmscorr_3D(float bound, int spaceMode, int timeMode, int halfLoaf, float(*pfSpatialCorr)(int, int), float(*pfTemporalCorr)(int));
+    float compute_rmscorr(float sigma, int mode, float alpha, double height,
+			  int mrow, int mcol);
     
     // helper methods for correlation procedures
     void initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i);
