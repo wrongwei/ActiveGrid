@@ -44,7 +44,7 @@
 // type CTRL-backslash to exit immediately
 
 // private global variables used by the signal handler to keep track of out of bounds paddles
-char * myLoaf = NULL;
+char * myLoaf = NULL; //necessary?????
 static int outOfBoundsCount = 0; // number of paddles that try to move more than 40 degrees per time step
 static int over90orminus90count = 0; // numer of paddles that try to move to angles > 90 or angles < -90
 static int numberOfAnglesSet = 0; // total number of angles set. Allows you to calcuate percent of paddles out of bounds
