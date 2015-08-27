@@ -206,6 +206,11 @@ void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma,
                 for (int k = -spaceSigma; k <= spaceSigma; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
+                        // This code is for absolute value correlations (i.e. 47 degrees is seen as perfectly correlated with -47 degrees)
+			if (crumb < 0)
+			     crumb = -crumb;
+                         
+			
                         dist = sqrt((j*j)+(k*k));
                         //spatial correlation inlined for top hat long tail
                         if (dist <= spaceAlpha)
@@ -229,6 +234,11 @@ void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma,
                     }
                 }
             }
+            // This code is for absolute value correlations
+	    crumb = myLoaf->Loaf_access(col, row, halfLoaf);
+	    if (crumb < 0)
+		newslice[col][row] = -newslice[col][row];
+	    
             // normalization by coefficient calculated in correlatedMovement_correlatedInTime
             newslice[col][row] = newslice[col][row] / norm;
         }
