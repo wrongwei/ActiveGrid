@@ -32,12 +32,6 @@ enum {NUMBER_OF_COLUMNS = NUMBER_OF_GRID_COLUMNS + 2*HALF_OF_KERNEL};
 // number of servos
 enum {NUMBER_OF_SERVOS = NUMBER_OF_COLUMNS * NUMBER_OF_ROWS};
 
-// minimum random angle. used for initializing the slices
-enum {MIN_ANGLE = -90};
-
-// minimum random angle. used for initializing the slices
-enum {MAX_ANGLE = 90};
-
 /*------------------------------------------------------------------------*/
 
 /* High Level Comment:
@@ -95,7 +89,7 @@ loaf::loaf(int numberOfSlices)
       for (iServo = 0; iServo < NUMBER_OF_SERVOS; iServo++)
 	{
 	  myLoaf[iSlice][iServo] = ((float)rand()/RAND_MAX)*
-	    ((float)MAX_ANGLE-(float)MIN_ANGLE) + (float)MIN_ANGLE;
+	    (1.0-(-1.0)) - 1.0; // a random angle between -1 and 1 that will be scaled by computer_rms
 	}
     }
   //  return myLoaf;
@@ -176,7 +170,7 @@ void loaf::Loaf_slice(/*Loaf_T myLoaf*/)
   for (iServo = 0; iServo < NUMBER_OF_SERVOS; iServo++)
     {
       newSlice[iServo] = ((float)rand()/RAND_MAX)*
-	((float)MAX_ANGLE-(float)MIN_ANGLE) + (float)MIN_ANGLE;
+	(1.0-(-1.0)) - 1.0; // a random angle between -1 and 1 that will be scaled by computer_rms
     }
   
   // Free the memory used by the oldest slice
