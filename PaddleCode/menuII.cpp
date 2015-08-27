@@ -20,6 +20,9 @@
  Driver from FTDI for usb/serial port must be installed.
  check names of devices in /dev and in activegrid.h
  
+ Dependencies: algo.h, algo3d.h (which rely on pickCorrelations.h, loaf.h,
+   activegrid.h, SD84.h, and SD84constants.h, and all the associated .cpp files)
+ 
  */
 /*--------------------------------------------------------------------*/
 
@@ -122,8 +125,8 @@ int main (int argc , char * const argv[]) {
         " 13 - chaotic correlated\n"
         " 14 - chaotic correlated (2 alternating amplitudes)\n"
         " 15 - chaotic correlated (periodic pattern)\n\n"
-        " 16 - chaotic correlated in space and correlated in time\n\n"
-        " 17 - test the paddles by opening and closing each row and then each column\n\n"
+        " 16 - correlated in space and correlated in time\n\n"
+        " 17 - grid test protocol\n\n"
         " 18 - set boundary paddles to constant angle\n\n"
         " 19 - test loaf object\n\n"
         " 20 - end program\n\n";
@@ -291,8 +294,6 @@ int main (int argc , char * const argv[]) {
                 cout << "\n Choose the correlation function: \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n 5 - top hat \n 6 - top hat with one main paddle \n 7 - top hat with random main paddle \n 8 - top hat with long tail \n 9 - triangular function \n";
                 cin >> mode;
             }
-            
-            //NEED TO FIX THIS LATER TO MAKE RANGE OF CORRELATION MORE GENERAL FOR ALL FUNCTIONS
             
             if ((int)mode == 1){ // for gaussian
                 cout << "Sigma? ";

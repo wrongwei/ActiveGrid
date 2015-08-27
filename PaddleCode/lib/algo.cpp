@@ -332,7 +332,7 @@ int  algo::setanglestoallservos(float * positions, float * anglesteps, int combi
 
 
 // to set differents angles to all servos (without combination between neighbours)
-// light version for correlated motion (less computational time)
+// light version for correlated motion (less computational time), used in all spatial correlation methods
 int algo::setanglestoallservosII(float * positions, float * anglesteps, int constant, float rms){
     double newangle[14][12];
     double newangleperstep[14][12];
@@ -636,13 +636,13 @@ void algo::updateOneWing2(int WingNumber){
     //entire sequence for one servo is calculated including positions and steps
     for(int k=0;k< nbofsteps ;k++){ //Total number of steps
         actualangle += speed;
-        
+        // put nbofsteps entries onto positions and steps vectors
         positions_random[WingNumber].push_back(actualangle);
         steps_random[WingNumber].push_back(speed);
     }
     //cout << endl;
     //end:
-    positions_random[WingNumber].push_back(-100);
+    positions_random[WingNumber].push_back(-100); // mark end of sequence with -100 (so system knows angle has been reached)
     steps_random[WingNumber].push_back(-100);
     actualpositioninvector[WingNumber]=0;
     old_angle[WingNumber]=new_angle[WingNumber]; // == actualangle
@@ -688,16 +688,16 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     pfCorr = pickSpatialCorr(mode);
     
     // compute normalization for any convolution formula
-    norm1 = 0;
-    float bound;
-    if (mode <= 4) bound = range_of_corr;
+    norm1 = 0; // stored in algo.h (for accessibility)
+    float bound; // set bounds of correlation kernel
+    if (mode <= 4) bound = range_of_corr; // = 7, defined in algo.h
     else bound = sigma;
     // Note: this is different from the previous implementation, which had mysteriously different logic for each function
     if (mode == 6 || mode == 7) norm1 = 1; // no normalization necessary for modes 6 and 7
     else {
         for (int j = -bound; j <= bound; j++) { // range of neighbors used to compute normalization/convolution
             for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
-                norm1 += pfCorr(j, k, sigma, alpha, height);
+                norm1 += pfCorr(j, k, sigma, alpha, height); // normalization is sum of values of kernel function across the range of the kernel
             }
         }
     }
@@ -728,14 +728,14 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
     // main loop: give angle orders
     while(0==0){
         
-        //getpositions of each servo:
+        //getpositions of each servo: (i.e. run correlation functions using runcorr method)
         runcorr(positions,anglesteps,sigma,alpha,height,mode,mrow,mcol,correction,norm1,old_positions,old_steps,err);
         
         //setposition of each servo:
         time_usec += updatetimeinmus;  // add the 0.1 sec to the stopwatch
         gettimeofday(&testtime,0);   // update the abolute time
         if(time_usec>1000000)time_usec-=1000000; // if the stopwatch is greater than 1 sec, subtract 1 sec
-        if(testtime.tv_usec > time_usec) { // if the absolute time > the stopwatch, there is a problem
+        if(testtime.tv_usec > time_usec) { // if the absolute time > the stopwatch, there is a problem (runcorr took too long)
             cout << "---------------------------------Problem!!!------------------------------" << endl;
             cout << "difference: " << (time_usec - testtime.tv_usec) << " mu sec, testtime: " << testtime.tv_usec <<  " - time_usec: " << time_usec <<  endl;
         }
@@ -745,8 +745,8 @@ int algo::correlatedMovement(int constant, float sigma, float alpha, double heig
                 break;
             }
         }
-        setanglestoallservosII(positions,anglesteps,constant,target_rms); // for motion
-        cout << i << "\n";
+        setanglestoallservosII(positions,anglesteps,constant,target_rms); // for motion - send resulting angles stored in positions vector to the grid
+        cout << i << "\n"; // print index of iteration (for UI purposes)
         i += 1;
         
     }
@@ -798,14 +798,14 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     
     for(int i=0;i<numberOfServos;i++){
         //get current positions:
-        if(positions_random[i].at(actualpositioninvector[i])==-100){
-            updateOneWing2(i);
+        if(positions_random[i].at(actualpositioninvector[i])==-100){ // if the end of the positions vector is reached
+            updateOneWing2(i); // get more random angles for this servo from updateOneWing2, along with steps
         }
-        interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]);
+        interpos[columns[i]][rows[i]]=positions_random[i].at(actualpositioninvector[i]); // convert these angles from vector form into 2d array form
         //interstep[columns[i]][rows[i]]=steps_random[i].at(actualpositioninvector[i]); // unused
-        actualpositioninvector[i]++;
+        actualpositioninvector[i]++; // move position counter up one, to mark next angle (for next iteration)
     }
-    // Declare function pointers for the spatial correlation functions
+    // Declare function pointers for the spatial correlation functions (see note in correlatedMovement)
     float (*pfCorr)(int j, int k, float sigma, float alpha, float height);
     pfCorr = pickSpatialCorr(mode);
     
@@ -824,9 +824,10 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
         mcol = modulo(columns[r],13); // set mcol and mrow to denote random paddle
         mrow = modulo(rows[r],11);
     }
-    else if (mode == 8) sigma = alpha; // need to feed in alpha somehow, and sigma isn't used after setting bounds
     
     // Loop through servos and calculate/create correlations, using helper methods (below)
+    // for a given servo: take the dot product of the kernel (centered at the given paddle) with
+    // the angles lying within the range of the kernel, then normalize the result to get new correlated angle
     for (int i = 0; i < numberOfServos; i++) {
         
         initialize_pos_step(actpos, actstep, oldpos, oldstep, i); // set up old/act arrays
@@ -836,7 +837,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
             actpos[i] = 0; // keep it functional for now
             truetophat2d(actpos, oldpos, actstep, correction, interpos, sigma, mrow, mcol, i);
         }
-        // master loop for modular functions (can remove else once we get true top hat modularized)
+        // master loop for modular functions (can remove else if true top hat becomes modularized)
         else {
             for (int j = -bound; j <= bound; j++) { // range of neighbours used to compute convolution
                 for (int k = -bound; k <= bound; k++) { // j and k refer to the shift
@@ -855,7 +856,7 @@ void algo::runcorr(float actpos[], float actstep[], float sigma, float alpha, do
     }
 }
 
-// Correlation helper methods (only accessible to other functions in algo.cpp)
+// Correlation helper methods
 
 // initializes arrays to zero
 void algo::initialize_pos_step(float actpos[], float actstep[], float oldpos[], float oldstep[], int i) {
@@ -911,6 +912,7 @@ void algo::safety_check(float actpos[], float actstep[], float err[], bool isGau
 }
 
 // function to keep the projected area of the grid constant
+// (NOTE: this is known to cause grid freezing issues when running 3D correlations with constant area)
 void algo::area(double actpos[14][12], float rms) {
     //second attempt to keep the projected area constant
     angle_constant_area = 129 * (100*sin((rms/1.22) * (M_PI / 180))); // 24.4779
@@ -1016,7 +1018,7 @@ void algo::area(double actpos[14][12], float rms) {
 }
 
 
-
+// 2-step correlated motion between paddles (choice 14 in menuII)
 int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int mode, float target_rms1, float target_rms2, double period, double duty_cycle){
     
     float rms1, rms2;
@@ -1125,7 +1127,7 @@ int algo::correlatedMovement_steps(int constant, float sigma1, float sigma2, int
     return 0;
 }
 
-// chaotic motion with correlation between paddles
+// chaotic motion with correlation between paddles (choice 15 in menuII)
 int algo::correlatedMovement_periodic(int constant, float sigma, int mode, float target_rms, int numberofsteps){
     
     float rms;

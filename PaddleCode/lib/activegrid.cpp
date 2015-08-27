@@ -47,10 +47,11 @@ int  activegrid::setanglesII(double newangle[14][12]){
     for(int row=0;row<12;row++){
         for(int col=0;col<14;col++){
             angle[col][row]=newangle[col][row];
-            if (fabs(angle[col][row]) > 80 && servo[col][row] != 0) count++; // count how many angles exceed 45 degrees
+            if (fabs(angle[col][row]) > 80 && servo[col][row] != 0) count++; // count how many angles exceed 80 degrees
         }
     }
-    // safety check: no more than 80 paddles should have angles in excess of 45 degrees
+    // safety check: no more than 80 paddles should have angles in excess of 80 degrees
+    // moved from 45 degrees to 80 degrees to allow for more drastic grid motions, summer 2015
     if (count > 80) {
         error(); // throw error method (below)
         return -23; // flee in terror rather than set potentially dangerous angles

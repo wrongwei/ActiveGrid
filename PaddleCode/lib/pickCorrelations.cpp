@@ -8,28 +8,30 @@
 #include <assert.h>
 #include <cmath>
 /*------------------------------------------------------------------------*/
-/* For details of how to use this module, please see testPickCorrelations.cpp
+/* For details of how to use this module, please see testPickCorrelations.cpp.
  * The basic idea is that you have an int that specifies which type of correlation
- * you want to perform in the spatial dimension. You call pickSpatialCorr and
+ * you want to perform in the spatial dimension. You call pickSpatialCorr, which
  * accepts that int as an arg and retruns you a ptr to the appropriate correlation
  * for that integer. For example, let's say you pass pickSpatialCorr the integer 1.
  * pickSpatialCorr will return a ptr to the function gaussianSpatialCorrelation.
- * pcikTemporalCorr works in the same way but returns a ptr to the appropriate
- * temporal correlation function. So, which the argument 1, it returns a ptr to
- * gaussian TemporalCorr.
+ * pickTemporalCorr works in the same way but returns a ptr to the appropriate
+ * temporal correlation function. So, given the argument 5, it returns a ptr to
+ * topHatTemporalCorr.
+ * NOTE: All correlation functions require the parameters sigma, alpha, and height
+ * in order for the function pointer implementation to work (even if they're not used)
  */
 /*------------------------------------------------------------------------*/
 
 
-// random. In other words, no correlation
+// Random (i.e. no correlation)
 // We have not implemented randomTemporalCorr in menuII because this would lead to many angles
-// being asked to move more than 40 degrees per sec
+// being asked to move more than 40 degrees per 0.1 seconds (i.e. lots of constraining and problems)
 float randomSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     if (j == 0 && k == 0)
         return 1;
     return 0;
 }
-
+// WEIRD AND DANGEROUS: USE AT YOUR OWN RISK
 float randomTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
     if (t == 0)
         return 1;
@@ -84,7 +86,7 @@ float topHatTemporalCorr(int t, float temporal_sigma, float temporal_alpha, floa
     else return 0;
 }
 
-// true top hat with one main paddle, no wrapping around
+// true top hat with one main paddle, no wrapping around (NOT IMPLEMENTED IN 3D)
 float trueTopHatSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return 0;
 }
@@ -93,7 +95,7 @@ float trueTopHatTemporalCorr(int t, float temporal_sigma, float temporal_alpha, 
     return 0;
 }
 
-// true top hat with one randomly chosen paddle
+// true top hat with one randomly chosen paddle (NOT IMPLEMENTED IN 3D)
 float trueTopHatRandomSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     return 0;
 }
@@ -102,6 +104,7 @@ float trueTopHatRandomTemporalCorr(int t, float temporal_sigma, float temporal_a
     return 0;
 }
 
+// top hat with center height of 1 (width alpha) and tails between alpha and sigma of height 'height'
 float topHatLongTailSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     float dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_alpha) return 1.0;
@@ -116,6 +119,7 @@ float topHatLongTailTemporalCorr(int t, float temporal_sigma, float temporal_alp
     return 0;
 }
 
+// triangular correlation function, with max height of 1 and base of width sigma
 float triangleSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
     double dist = sqrt((j*j)+(k*k));
     if (dist <= spatial_sigma)
@@ -130,29 +134,35 @@ float triangleTemporalCorr(int t, float temporal_sigma, float temporal_alpha, fl
 }
 
 // unsharp correlations. Unsharp correlations are equal to the image in the
-// center and are equal to a negative gaussian everywhere else.
+// center and have a negative long tail outside alpha (but within sigma).
 // The effect for this correlation is that the grid is made less correlated,
 // because panels will be made more different to the neighbors; if you think of it
 // as a form of image processing it makes the image sharper, which is the opposite
 // of the gaussian (which blurs the image)
-// Height is the scaling sharpness. Higher height means a sharper image (or sharper contrast)
-float unsharpSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float height){
+// Depth is the scaling sharpness (0->1). Larger depth means a sharper image (or sharper contrast)
+float unsharpSpatialCorr(int j, int k, float spatial_sigma, float spatial_alpha, float depth){
     float dist = sqrt(j*j + k*k);
     if (dist <= spatial_alpha) return 1;
-    if (dist <= spatial_sigma) return -height;
+    if (dist <= spatial_sigma) return -depth;
     return 0;
     //return height * -expf(-(((j*j) + (k*k)) / (2 * spatial_sigma*spatial_sigma))); // previous Gaussian implementation
 }
 
-float unsharpTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float height){
+float unsharpTemporalCorr(int t, float temporal_sigma, float temporal_alpha, float depth){
     if (t <= temporal_alpha) return 1;
-    if (t <= temporal_sigma) return -height;
+    if (t <= temporal_sigma) return -depth;
     return 0;
     //return height * -expf(-((t*t) / (2 * temporal_sigma*temporal_sigma))); // previous Gaussian implementation
 }
 
 /*------------------------------------------------------------------------*/
 
+/* The function pickSpatialCorr accepts an integer named typeOfSpatialCorr
+ * and returns a pointer to a function (which accepts 2 ints and 3 floats as parameters
+ * and returns a float)
+ * In other words, this function returns a correlation function, which can then be used
+ *  as an ordinary function (by calling it with the pointer name and feeding it arguments)
+ */
 float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sigma, float spatial_alpha, float height){
     // validate parameters
     assert (typeOfSpatialCorr >= 0 && typeOfSpatialCorr <= 10);
@@ -188,9 +198,9 @@ float (*pickSpatialCorr(int typeOfSpatialCorr)) (int j, int k, float spatial_sig
 /*------------------------------------------------------------------------*/
 
 /* The function pickTemporalCorr accepts an integer named typeOfTemporalCorr
- * and returns a pointer to a function (which accepts an int, int, float*,float as parameters
+ * and returns a pointer to a function (which accepts an int and 3 floats as parameters
  * and returns a float)
- * In other words, this function returns a correlation function.
+ * In other words, this function returns a correlation function (see above).
  */
 float (*pickTemporalCorr(int typeOfTemporalCorr)) (int t, float temporal_sigma, float temporal_alpha, float height){
     // validate parameters
