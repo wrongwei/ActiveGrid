@@ -58,7 +58,7 @@ algo: algo.cpp algo.h pickCorrelations.h loaf.h
 	@echo "==============================================================================================="
 	$(CPP) $(FLAGS) -c algo.cpp
 
-algo3d: algo3d.cpp algo3d.h algo.h pickCorrelations.h loaf.h
+algo3d: algo3d.cpp algo3d.h pickCorrelations.h loaf.h
 	@echo "==============================================================================================="
 	@echo "Compiling algo3d.cpp"
 	@echo "==============================================================================================="

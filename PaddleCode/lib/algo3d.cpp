@@ -312,20 +312,23 @@ float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int t
  */
 int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
 
-    // To install mySignalHandler (which prints statistics when you type CTRL-C) you must make sure that CTRL-C signals are not blocked.
+    /* To install mySignalHandler (which prints statistics when you type CTRL-C)
+    you must make sure that CTRL-C signals are not blocked.
+    If you are having problems with the signal handler (i.e. CTRL-C signals are blocked)
+    you can just comment out the following block and the block after this one where the signal handler is actually installed.*/
     void (*pfRet)(int);
     sigset_t sSet;
     int iRet;
     iRet = sigemptyset(&sSet);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    if (iRet == -1) {perror("ERROR installing signal handler in correlatedMovement_correlatedInTime"); exit(EXIT_FAILURE); }
     iRet = sigaddset(&sSet, SIGINT);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    if (iRet == -1) {perror("ERROR installing signal handler in correlatedMovement_correlatedInTime"); exit(EXIT_FAILURE); }
     iRet = sigprocmask(SIG_UNBLOCK, &sSet, NULL);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    if (iRet == -1) {perror("ERROR installing signal handler in correlatedMovement_correlatedInTime"); exit(EXIT_FAILURE); }
     
     // Install mySignalHandler as the handler for CTRL-C signals.
     pfRet = signal(SIGINT, mySignalHandler);
-    if (pfRet == SIG_ERR) {perror(argv[0]); exit(EXIT_FAILURE); }
+    if (pfRet == SIG_ERR) {perror("error installing signal handler in correlatedMovement_correlatedInTime"); exit(EXIT_FAILURE); }
 
     // special method selection (for slow or unconventional kernels that need to be inlined)
     bool ltfast_on = false;
