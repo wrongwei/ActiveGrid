@@ -17,7 +17,8 @@
  used for specific kernels where speed is an issue; otherwise, the standard
  function pointer runcorr_3D should be used for readability and simplicity.
  
- Dependencies: pickCorrelations.h, algo.h, activegrid.h, loaf.h
+ Dependencies: pickCorrelations.h/.cpp, activegrid.h/.cpp, loaf.h/.cpp
+    (only first order dependencies are listed)
  
  Written by Kevin Griffin and Nathan Wei, July-August 2015
  
@@ -28,10 +29,38 @@
 #include <time.h>
 #include <curses.h>
 
-//global variables for info messages in menuII
-int outOfBoundsCount = 0;
-int numberOfAnglesSet = 0;
-int over90orminus90count = 0;
+/*--------------------------------------------------------------------*/
+
+//Headers needed for signal handling
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+
+/*--------------------------------------------------------------------*/
+// Install a signal handler to make the program print out some useful
+// statistics before terminating.
+// If you want to terminate the program without calling the signal handler,
+// type CTRL-backslash to exit immediately
+
+// private global variables used by the signal handler to keep track of out of bounds paddles
+char * myLoaf = NULL;
+static int outOfBoundsCount = 0; // number of paddles that try to move more than 40 degrees per time step
+static int over90orminus90count = 0; // numer of paddles that try to move to angles > 90 or angles < -90
+static int numberOfAnglesSet = 0; // total number of angles set. Allows you to calcuate percent of paddles out of bounds
+
+// install the signal handler
+static void mySignalHandler(int iSignal){
+    cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
+    cout << "Percent of angles that wanted to be > 90 or < -90 but were clipped: " << ((float)over90orminus90count / numberOfAnglesSet) * 100 << "%" << endl;
+    cout << "\nRemember to save the angle file!" << endl;
+    // Kill the program
+    cout << "Exiting the program.\n";
+    fflush(NULL);
+    exit(0);
+}
+
+/*--------------------------------------------------------------------*/
 
 // global variables needed for algo3d method operation
 // (in place of algo.h variable storage implementation in the 2D version)
@@ -61,7 +90,7 @@ int setanglestoallservosIII(float angles[13][11], float steps[13][11], int const
         }
     }
     
-    //if(constant==1) {area(newangle, rms);} // NOT IMPLEMENTED
+    //if(constant==1) {area(newangle, rms);} // NOT IMPLEMENTED because it caused periodic freezing of the grid
     
     // set speeds and angles to grid (methods in activegrid.cpp)
     grid.setspeeds(newangleperstep);
@@ -77,24 +106,14 @@ int setanglestoallservosIII(float angles[13][11], float steps[13][11], int const
     return 1;
 }
 
-// determines the positions of the servos by do a 3D correlation. Stores these
+// determines the positions of the servos by doing a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
 void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
                 float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
-    //For debugging this will let you use a random array instead of loaf
-    /*float randslice[27][25] = {0};
-     int randI;//debugging
-     int randJ;//debugging
-     for (randI = 0; randI < 27; randI++){
-     for (randJ=0; randJ < 25; randJ++){
-	    randslice[randJ][randI] = (((float)rand()/RAND_MAX)*(max_angle-min_angle))+min_angle;
-     }
-     }*/
-    
     // convolution to create correlation between paddles
-    // periodic boundary conditions are used
+    // periodic boundary conditions are used. For explanation of auto/cross-correlation see wikipedia
     
     float crumb = 0;
     float bound;
@@ -283,7 +302,22 @@ float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int t
  *  not reach their target destinations. This was a necessary comprimise in order to maximize the grid's correlation computation rate.
  */
 int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
+
+    // To install mySignalHandler (which prints statistics when you type CTRL-C) you must make sure that CTRL-C signals are not blocked.
+    void (*pfRet)(int);
+    sigset_t sSet;
+    int iRet;
+    iRet = sigemptyset(&sSet);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    iRet = sigaddset(&sSet, SIGINT);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
+    iRet = sigprocmask(SIG_UNBLOCK, &sSet, NULL);
+    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
     
+    // Install mySignalHandler as the handler for CTRL-C signals.
+    pfRet = signal(SIGINT, mySignalHandler);
+    if (pfRet == SIG_ERR) {perror(argv[0]); exit(EXIT_FAILURE); }
+
     // special method selection (for slow or unconventional kernels that need to be inlined)
     bool ltfast_on = false;
     bool unsharp_on = false;

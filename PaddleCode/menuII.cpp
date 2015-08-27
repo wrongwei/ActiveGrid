@@ -35,14 +35,6 @@
 
 /*--------------------------------------------------------------------*/
 
-//Headers needed for signal handling
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-
-/*--------------------------------------------------------------------*/
-
 using namespace std;
 
 //functions:
@@ -58,52 +50,12 @@ void wait(float seconds) {
     while (clock() < endwait) {}
 }
 
-char * myLoaf = NULL;
-extern int outOfBoundsCount;
-extern int numberOfAnglesSet;
-extern int over90orminus90count;
-/*--------------------------------------------------------------------*/
-// Install a signal handler to make sure that when the user types
-// CTRL-C that memory is freed before the program is terminated
-// If you want to terminate the program immediately, type CTRL-backslash
-static void mySignalHandler(int iSignal){
-    // Free any used memory
-    cout << "\nFreeing memory in use\n";
-    if (myLoaf != NULL){
-        free(myLoaf);
-    }
-    cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
-    cout << "Percent of angles that wanted to be > 90 or < -90 but were clipped: " << ((float)over90orminus90count / numberOfAnglesSet) * 100 << "%" << endl;
-    cout << "\nRemember to save the angle file!" << endl;
-    // Kill the program
-    cout << "Exiting with code 0.\n";
-    fflush(NULL);
-    exit(0);
-}
-
-/*--------------------------------------------------------------------*/
-
 int main (int argc , char * const argv[]) {
     // create an algo object
     algo alg;
     int choice=-1;
     int i=1;
-    
-    // Make sure CTRL-C signals are not blocked.
-    void (*pfRet)(int);
-    sigset_t sSet;
-    int iRet;
-    iRet = sigemptyset(&sSet);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
-    iRet = sigaddset(&sSet, SIGINT);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
-    iRet = sigprocmask(SIG_UNBLOCK, &sSet, NULL);
-    if (iRet == -1) {perror(argv[0]); exit(EXIT_FAILURE); }
-    
-    // Install mySignalHandler as the handler for CTRL-C signals.
-    pfRet = signal(SIGINT, mySignalHandler);
-    if (pfRet == SIG_ERR) {perror(argv[0]); exit(EXIT_FAILURE); }
-    
+        
     // Welcome
     cout << endl << "Welcome to " << argv[0] << endl;
     cout << "This is the program to run the software of the activegrid." << endl;
