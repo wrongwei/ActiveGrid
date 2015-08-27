@@ -188,6 +188,7 @@ void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, 
 
 // Modified version of runcorr_3D, for unsharp in both directions
 // Necessary to avoid issue with 2 unsharps having negative signs that multiply to become positive
+// Also, in order for unsharp to work (i.e. not look like top hat long tail), it needs the absolute value definition of correlation
 void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceDepth, float timeDepth, float correction) {
     
     // convolution to create correlation between paddles
@@ -206,11 +207,9 @@ void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma,
                 for (int k = -spaceSigma; k <= spaceSigma; k++) { // j and k refer to the shift
                     for (int t = -halfLoaf; t <= halfLoaf; t++) { // t taken from the center of the loaf
                         crumb = myLoaf->Loaf_access(j + col, k + row, t + halfLoaf);
-                        // This code is for absolute value correlations (i.e. 47 degrees is seen as perfectly correlated with -47 degrees)
-			if (crumb < 0)
-			     crumb = -crumb;
-                         
-			
+                        // Implement absolute value correlations (i.e. 47 degrees is seen as perfectly correlated with -47 degrees)
+                        if (crumb < 0)
+                            crumb = -crumb; // make everything positive before correlating
                         dist = sqrt((j*j)+(k*k));
                         //spatial correlation inlined for top hat long tail
                         if (dist <= spaceAlpha)
@@ -234,11 +233,11 @@ void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma,
                     }
                 }
             }
-            // This code is for absolute value correlations
-	    crumb = myLoaf->Loaf_access(col, row, halfLoaf);
-	    if (crumb < 0)
-		newslice[col][row] = -newslice[col][row];
-	    
+            // Absolute value correlations: after correlating on positive angles, return negative signs where necessary
+            crumb = myLoaf->Loaf_access(col, row, halfLoaf);
+            if (crumb < 0)
+                newslice[col][row] = -newslice[col][row]; // if angle was originally negative, make it so again
+            
             // normalization by coefficient calculated in correlatedMovement_correlatedInTime
             newslice[col][row] = newslice[col][row] / norm;
         }
@@ -487,7 +486,7 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
             gettimeofday(&startTime,0);
             
             if (firstTime) firstTime = false; // set to false for remainder of run
-
+            
             //----------------
             setanglestoallservosIII(oldslice, step_size, constantArea, target_rms); // for motion - send generated 2D arrays to grid communication method
         }
