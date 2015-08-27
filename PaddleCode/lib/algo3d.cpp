@@ -51,7 +51,7 @@ static int numberOfAnglesSet = 0; // total number of angles set. Allows you to c
 
 // install the signal handler
 static void mySignalHandler(int iSignal){
-    cout << "Frequency of out-of-bounds paddles: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
+    cout << "Percent of paddles that wanted to move more than 40 degrees in .1 seconds but were constrained: " << ((float)outOfBoundsCount / numberOfAnglesSet) * 100 << "%" << endl;
     cout << "Percent of angles that wanted to be > 90 or < -90 but were clipped: " << ((float)over90orminus90count / numberOfAnglesSet) * 100 << "%" << endl;
     cout << "\nRemember to save the angle file!" << endl;
     // Kill the program
