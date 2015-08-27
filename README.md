@@ -1,8 +1,15 @@
 # ActiveGrid
 
 ###### GitHub repository created by Nathan Wei and Kevin Griffin, Summer 2015
+###### Original grid control code developed by Dr. Gregory Bewley, Florian Koehler, Florent Lachaussée, and others, 2009-2013
 
 ##Welcome to the ActiveGrid repository on GitHub!
+
+#### Summary of Contents:
+- MatlabCode: stores MATLAB calibration and data processing scripts
+- OriginalCode: copy of the active grid control code as it existed before July 2015
+- PaddleCode: control methods and algorithms for operating the active grid
+  - lib: grid control algorithms and functions used by the main user interface program
 
 #### Compiling and Running Code (from PaddleCode folder):
 1. make cleaner - _this command removes temporary and localized files, so they don't cause merge conflicts on the server_
