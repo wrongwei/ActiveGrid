@@ -1,26 +1,34 @@
 Short Explanation of the Active Grid Code
 
 The scheme of the classes in /lib is the following:
-    	   gbserialFlo.h 	 (most inner software)
-	   SD84.h     	 (software to communicate with an SD84 board (using gbserialFlo.h))
-	   activegrid.h	 (software of the activegrid (using SD84.h))
+	gbserialFlo.h 	(most inner software)
+	SD84.h     	 	(software to communicate with an SD84 board (using gbserialFlo.h))
+	activegrid.h	 	(software of the activegrid (using SD84.h))
+	algo.h 			(algorithms for control of grid motions in spatial dimension)
+	algo3d.h		(algorithms for control of grid motions in both spatial and temporal dimensions)
+	pickCorrelations.h	(function pointer program; this is where correlation functions are coded and accessed)
+	loaf.h			(custom-built and optimized 3D random number generating and storage structure)
+	
 
 The main idea is the following:
 If you want to write software for the active grid you only use the methods from activegrid.h. So you don't need to worry about the real hardware-software communication done in gbserialFlo.h and SD84.h.
 
-To use the activegrid at the moment you work with menuII.cpp. Here you can choose different movements of the active grid. (option "12" is the most complex movement at the movement).
+To use the active grid at the moment you work with menuII.cpp. Here you can choose different movements of the active grid. (option "16” is the most complex movement, involving correlation functions both across the grid and in time).
 
-Methods for movement algorithms are programmed in menu.h.
+Methods for movement algorithms are programmed in algo.cpp (controls all basic grid motions) and algo3d.cpp (controls temporally correlated grid motions).
 
-That's it.
+pickCorrelations.cpp contains the functions accessed by function pointers in algo.cpp and algo3d.cpp (see comments in pickCorrelations.cpp).
 
+loaf.cpp is used by algo3d.cpp to store random numbers for correlation computations in a more efficient way (see comments in loaf.cpp).
+
+Also included are a few test clients that allow more straightforward debugging of the loaf and pickCorrelations implementations.
 
 
 Other remarks:
 
 -safety: For safety reasons (so that the active grid is not too closed so that it doesn't b break) the method "checkangles()" exists in activegrid.h which should be called before every movement of the servos. At the moment this method works in this way:
-	 1. it counts the number of servos with an angle > 45 degrees
-	 2. if this number is > 80 you should look for another servo movement
+	 1. it counts the number of servos with an angle > 80 degrees
+	 2. if this number is > 80 then the program will refuse to set the given angles, print a message, and wait for another set to come in
 
 -how to start the program:
      source source.txt 
@@ -42,6 +50,12 @@ florian.koehler.email@googlemail.com
 
 Florian Koehler,
 September 2011
+
+
+Questions regarding function pointers, loaf, and temporal correlations may be directed to Kevin Griffin and Nathan Wei:
+kevinpg@princeton.edu
+nwei@princeton.edu
+README updated by Nathan Wei, August 2015
 
 
 technical info: 

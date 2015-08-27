@@ -3,18 +3,21 @@
  Methods and functions for temporal correlation control code
  These functions were adapted from the old algo.cpp / algo.h, which was
  written before 2015 and debugged/refactored/optimized July-August 2015.
+ 
  The old programs and new programs only share the method "area," which is
  accessed here through inclusion of algo.h.
+ 
  Both files are accessed by menuII.cpp, which handles routing depending on
  user inputs. They both depend on pickCorrelations.cpp/pickCorrelations.h,
  which contain function pointers to the different correlation kernels.
+ 
  Note that this file contains multiple versions of runcorr_3D. This is because
  our computers were not fast enough to run the function pointer implementation
  for very large temporal kernels (sigma = 50). This workaround should ONLY be
  used for specific kernels where speed is an issue; otherwise, the standard
  function pointer runcorr_3D should be used for readability and simplicity.
  
- Dependencies: pickCorrelations.cpp/.h, algo.cpp/.h, activegrid.cpp/.h, loaf.cpp/.h
+ Dependencies: pickCorrelations.h, algo.h, activegrid.h, loaf.h
  
  Written by Kevin Griffin and Nathan Wei, July-August 2015
  
@@ -269,7 +272,16 @@ float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int t
     return rms;
 }
 
-// movement of the paddles that is correlated in space and in time
+/* Movement of the paddles that is correlated in space and in time
+ * This method currently operates on a time-schedule of 1 new correlation computation to the grid every 0.1 seconds.
+ * In principle, this can be easily modified to separate the time-scale of the grid from the time-scale of the correlations
+ *  (e.g. by running one correlation every 0.5 seconds but still sending angles to the grid every 0.1 seconds). The current schedule
+ *  gives the highest rate of correlation computations we can handle, given the nature of the runcorr_3D algorithm and our current computers.
+ * We define the term "constraining" as the occasion when a paddle is given a new angle to move to that it cannot reach without exceeding the
+ *  limits of its servo (e.g. an amplitude of 60 degrees when the maximum angular distance it can travel in 0.1 seconds is 42.8 degrees). Such
+ *  noncompliant paddles will be "constrained" to move at the greatest allowed servo speed (e.g. 4.28 deg/s instead of 6 deg/s) and thus will
+ *  not reach their target destinations. This was a necessary comprimise in order to maximize the grid's correlation computation rate.
+ */
 int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha, float temporal_alpha, float spatial_height, float temporal_height, int typeOfSpatialCorr, int typeOfTemporalCorr, float target_rms, int numberOfSlices){
     
     // special method selection (for slow or unconventional kernels that need to be inlined)
@@ -411,28 +423,29 @@ int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, f
                 }
                 
                 amplitude = newslice[col][row] - oldslice[col][row]; // calculate the amplitude between the old and the new angles
-                if (fabs(amplitude)/(max_speed) > SPACING) {
+                if (fabs(amplitude)/(max_speed) > SPACING) { // constrain paddles that have to move too far for the servos to handle
                     cout << "*"; // constraining histogram - 1 * = 1 paddle constrained by max speed
-                    outOfBoundsCount++;
+                    outOfBoundsCount++; // keep track of number of constrained paddles
                     if (amplitude > 0) step_size[col][row] = max_speed;
                     else if (amplitude < 0) step_size[col][row] = -max_speed;
                 }
-                else step_size[col][row] = amplitude/(SPACING); // this is the "no min_speed" implementation (assuming servos can move by very small steps)
+                // move at constant speed (equal-sized steps over SPACING interpolations) to the target angle
+                // this implemenation assumes that servos don't have a minimum speed or angle
+                else step_size[col][row] = amplitude/(SPACING);
             }
         }
         
-        /* Create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession
-         * This ensures the servos will not exceed their maximum speeds, and also means we only need to call the computationally-expensive
-         * runcorr_3D method once every SPACING grid configurations 
+        /* Create SPACING timeslices to separate old and new configurations, and feed each one to the grid in succession.
+         * This decouples the grid updating timescale from the correlation computation timescale, and also means we call the
+         *   computationally-expensive runcorr_3D method once every SPACING grid configurations.
          * SPACING is currently set to 1, in order to get the highest frequency of correlations possible. With faster computers or a more efficient
-         * runcorr_3D algorithm, increasing SPACING to improve the resolution of the grid motions (while still running 10 correlations per second)
-         * might be possible.
-         */
+         *   runcorr_3D algorithm, increasing SPACING to improve the resolution of the grid motions (while still running 10 correlations per second)
+         *   might be possible. */
         for (int t = 0; t < SPACING; t++) {
-            
             //cout << " " << (t+1); // print interpolation number
             
             // compute new intermediate grid position, with steps necessary to attain it
+            // adding the calculated servo speed every 0.1 seconds SPACING times guarantees the angle will reach its target by the end of the iteration
             for (int row = 0; row < 11; row++) {
                 for(int col = 0; col < 13; col++){
                     if (step_size[col][row] != 0) { // don't bother checking servos that have already arrived

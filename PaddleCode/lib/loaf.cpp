@@ -64,6 +64,7 @@ enum {MAX_ANGLE = 90};
  * Servos in a 2D array are referred to by order pair (column,row)
  * starting with 0,0 in the bottom right (looking upstream of the wind tunnel)
  * 1,0 is immediately to the right of 0,0
+ * Spatial correlations will have a maximum radius (sigma) of 7 paddles
  */
 
 /*------------------------------------------------------------------------*/
