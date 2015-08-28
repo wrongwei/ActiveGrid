@@ -1,7 +1,11 @@
 
 /*
- menu program to select grid motions related to correlations in time, via terminal
- compilation and execution:
+ User interface program to select grid motions related to correlations in time, via terminal.
+ This program runs in a separate executable from menuII, called menu3d.
+ Thus, it functions independently from menuII.cpp and algo.h. This keeps the two different
+   implementations of grid control methods cleaner and (hopefully) easier to understand.
+ 
+ Compilation and execution:
  source source.txt
  ./menu3d
  

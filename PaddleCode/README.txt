@@ -11,11 +11,13 @@ The scheme of the classes in /lib is the following:
 	
 
 The main idea is the following:
-If you want to write software for the active grid you only use the methods from activegrid.h. So you don't need to worry about the real hardware-software communication done in gbserialFlo.h and SD84.h.
+The real hardware-software communication is done in gbserialFlo.h and SD84.h. Communication between these low-level programs and high-level algorithms and user interface occurs through activegrid.h. Algorithms that generate servo angles and speeds are contained in algo.h and algo3d.h. Finally, the user interfaces (UI) for the basic/spatially correlated and temporally correlated program sets are run by menuII.cpp and menu3d.cpp, respectively.
 
-To use the active grid at the moment you work with menuII.cpp. Here you can choose different movements of the active grid. (option "16” is the most complex movement, involving correlation functions both across the grid and in time).
+To use the active grid in 2D (basic and spatially correlated movements) you work with menuII.cpp. Here you can choose different movements of the active grid. These currently run on an older implementation involving vectors to store angles and other intricate devices which were not possible to recycle for the 3D case.
 
-Methods for movement algorithms are programmed in algo.cpp (controls all basic grid motions) and algo3d.cpp (controls temporally correlated grid motions).
+Methods for these 2D movement algorithms are programmed in algo.cpp. To run these functions on the grid, first compile (using source source.txt - see below), then run the executable menuII.
+
+The executable menu3d runs the user interface program menu3d.cpp. Selecting choice 10 from this interface grants the user access to the spatial and temporal correlations coded in algo3d.cpp.
 
 pickCorrelations.cpp contains the functions accessed by function pointers in algo.cpp and algo3d.cpp (see comments in pickCorrelations.cpp).
 
@@ -33,7 +35,7 @@ Other remarks:
 -how to start the program:
      source source.txt 
      ./menuII
-     (!!!attention: There are two Makefiles at the moment: one for all classes in /lib and one for ./menuII. If you use source.txt both Makefiles are called and everything is fine If you have changed something in the classes in /lib you have to run both Makefiles!!!)
+     (Attention: There are two Makefiles at the moment: one for all classes in /lib and one for ./menuII. If you use source.txt both Makefiles are called and everything is fine. If you have changed something in the classes in /lib you have to run both Makefiles. Also, both executables - menuII and menu3d - are compiled in the makefiles, so there is no need to compile them separately.)
 
 -------------------
 
