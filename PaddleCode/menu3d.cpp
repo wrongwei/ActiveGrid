@@ -29,10 +29,14 @@
 
 using namespace std;
 
-//functions:
+//functions declarations
 void wait(float seconds);
 int main(int argc, char * const argv[]);
 double angle_check(double angle);
+void setsameangletoallservos(float angle);
+void setanglesofonecolumn(int tunedcol, float tunedangle);
+void setanglesofonerow(int tunedrow, float tunedangle);
+
 
 /* note: you can only have one activegrid object at a time; otherwise, the multiple
 instances fight for communication rights with the real grid, and errors get thrown */
@@ -95,16 +99,8 @@ int main (int argc , char * const argv[]) {
             cin >> angle;
             angle=angle_check(angle);
             cout << endl;
-            
-	    //this could be a function call
-	    double newangle[14][12];
-	    for(int row=0;row<12;row++){
-		for(int col=0;col<14;col++){
-		    if(grid.servo[col][row]!=0) newangle[col][row]= angle; //if you want all angles to have same sign then you can implement checkorientationofservo from algo.cpp
-		    else newangle[col][row]= Fictive;
-		}
-	    }
-	    grid.setanglesII(newangle);
+	    
+	    setsameangletoallservos(angle);
         }
 	
 	//set one paddle to have some angle
@@ -152,18 +148,7 @@ int main (int argc , char * const argv[]) {
             tunedangle=angle_check(tunedangle);
             cout << endl;
 	    
-	    // this could be a function call
-	    double newangle[14][12];
-	    for(int row=0;row<12;row++){
-		for(int col=0;col<14;col++){
-		    if(grid.servo[col][row]!=0){
-			if(col==tunedcol)newangle[col][row]=tunedangle;
-			else newangle[col][row]=grid.angle[col][row];
-		    }
-		    else newangle[col][row]=Fictive;
-		}
-	    }
-	    grid.setanglesII(newangle);
+	    setanglesofonecolumn(tunedcol, tunedangle);
         }
 	
         
@@ -179,19 +164,9 @@ int main (int argc , char * const argv[]) {
             cin >> tunedangle;
             tunedangle=angle_check(tunedangle);
             cout << endl;
-          
-	    // this could be a function call
-	    double newangle[14][12];
-	    for(int row=0;row<12;row++){
-		for(int col=0;col<14;col++){
-		    if(grid.servo[col][row]!=0){
-			if(row==tunedrow)newangle[col][row]=tunedangle;
-			else newangle[col][row]=grid.angle[col][row];
-		    }
-		    else newangle[col][row]=Fictive;
-		}
-	    }
-	    grid.setanglesII(newangle);
+	    
+	    setanglesofonerow(tunedrow, tunedangle);
+	    
         }
 
 	// Close half of the grid
@@ -379,7 +354,6 @@ int main (int argc , char * const argv[]) {
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
          one at a time */
         
-	/* need to write algo3d setanaglesofonecolumn first
 	else if((int)choice==11){
             int NUMBER_OF_ROWS = 11;
             int NUMBER_OF_COLUMNS = 13;
@@ -395,21 +369,20 @@ int main (int argc , char * const argv[]) {
             
             for (i = 1; i <= NUMBER_OF_COLUMNS; i++)
             {
-                alg.setanglesofonecolumn(i, closedAngle);
+                setanglesofonecolumn(i, closedAngle);
                 wait(2.0);
-                alg.setanglesofonecolumn(i, openAngle);
+                setanglesofonecolumn(i, openAngle);
             }
             for (j = 1; j <= NUMBER_OF_ROWS; j++)
             {
-                alg.setanglesofonerow(j, closedAngle2);
+                setanglesofonerow(j, closedAngle2);
                 wait(2.0);
-                alg.setanglesofonerow(j, openAngle);
+                setanglesofonerow(j, openAngle);
             }
         }
-	*/
 	
-	/* need to write setanglesofonerow in algo3d
-        else if((int)choice==12){
+	
+	else if((int)choice==12){
             int topRow = 11;
             double topAngle = 0;
             int bottomRow = 1;
@@ -427,12 +400,11 @@ int main (int argc , char * const argv[]) {
             topAngle = angle_check(topAngle);
             bottomAngle = angle_check(bottomAngle);
             gridAngle = angle_check(gridAngle);
-            alg.setsameangletoallservos(gridAngle);
-            alg.setanglesofonerow(topRow,topAngle);
-            alg.setanglesofonerow(bottomRow,bottomAngle);
+            setsameangletoallservos(gridAngle);
+            setanglesofonerow(topRow,topAngle);
+            setanglesofonerow(bottomRow,bottomAngle);
         }
-	*/
-        
+	        
         else if((int)choice==13){
             testloaf();
             i = 0;
@@ -443,7 +415,7 @@ int main (int argc , char * const argv[]) {
     return 0;
     
 }
-
+    
 double angle_check (double angle) {
     if (fabs(angle)>90) {
         cout << "Maximum angle is +-90 degrees!! Angle set to +-90 degrees.";
@@ -451,4 +423,43 @@ double angle_check (double angle) {
         else return -90;
     }
     else return angle;
+}
+
+void setsameangletoallservos(float angle){
+    double newangle[14][12];
+    for(int row=0;row<12;row++){
+	for(int col=0;col<14;col++){
+	    if(grid.servo[col][row]!=0) newangle[col][row]= angle; //if you want all angles to have same sign then you can implement checkorientationofservo from algo.cpp
+	    else newangle[col][row]= Fictive;
+	}
+    }
+    grid.setanglesII(newangle);
+} 
+
+void setanglesofonecolumn(int tunedcol, float tunedangle){
+    double newangle[14][12];
+    for(int row=0;row<12;row++){
+	for(int col=0;col<14;col++){
+	    if(grid.servo[col][row]!=0){
+		if(col==tunedcol)newangle[col][row]=tunedangle;
+		else newangle[col][row]=grid.angle[col][row];
+	    }
+	    else newangle[col][row]=Fictive;
+	}
+    }
+    grid.setanglesII(newangle);
+}
+
+void setanglesofonerow(int tunedrow, float tunedangle){
+    double newangle[14][12];
+    for(int row=0;row<12;row++){
+	for(int col=0;col<14;col++){
+	    if(grid.servo[col][row]!=0){
+		if(row==tunedrow)newangle[col][row]=tunedangle;
+		else newangle[col][row]=grid.angle[col][row];
+	    }
+	    else newangle[col][row]=Fictive;
+	}
+    }
+    grid.setanglesII(newangle);
 }
