@@ -8,7 +8,7 @@
  functions are different enough to merit a separate, cleaner executable.
  
  These methods are accessed by menu3d.cpp, which handles routing depending on
- user inputs. They both depend on pickCorrelations.cpp/pickCorrelations.h,
+ user inputs. They depend on pickCorrelations.cpp/pickCorrelations.h,
  which contain function pointers to the different correlation kernels.
  
  Note that this file contains multiple versions of runcorr_3D. This is because
