@@ -44,7 +44,6 @@ if ~isempty(actualtemp)  % temperature correction
 	%}
 	  % ---- correct voltages for temperature: 
 	fprintf('  correcting voltages for temps...  \n'); 
-	tic
 	calibdata = extractcalibdata(calibrationfilename); 
     % get resistances from calibration file
     Rc = probeinfo.probe(probenumber).sensor(sensornumber).resistance;
@@ -52,7 +51,6 @@ if ~isempty(actualtemp)  % temperature correction
     calibtemp = mean(calibdata.calibtemp);
 	E = applytempcorrection(E, actualtemp, calibtemp, Rw, Rc, ...
         probeinfo.probe(probenumber).alpha);
-	toc 
 end
 
 

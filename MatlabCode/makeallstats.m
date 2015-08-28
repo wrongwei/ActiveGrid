@@ -37,11 +37,11 @@ if (~exist('highorder')), highorder = 1; end
 % ----------- PARAMETERS TO CHANGE (for standalone operation) -------------
 if (nargin == 0) % set up parameters if they're not provided
     %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/726G0.54/');
-    path = '/Users/nathan/Documents/Data/data08_24_15/'; % location of calib file
-    folder = 'th3.9th3_pos03'; % name of folder containing data
-    outputname = 'statscorr_th3.9th3_03_test.mat'; % name your .mat workspace!
-    calibfile = 'calib8_24a.m'; % calibration file name (set here for convenience)
-    actualtemp = 22.4; % change this if you have a temperature measurement you want to use, otherwise should be []
+    path = '/Users/nathan/Documents/Data/data08_28_15/'; % location of calib file
+    folder = 'us5.2us4_abs'; % name of folder containing data
+    outputname = 'statscorr_us5.2us4abs_0828.mat'; % name your .mat workspace!
+    calibfile = 'calib8_28.m'; % calibration file name (set here for convenience)
+    actualtemp = 22.3; % change this if you have a temperature measurement you want to use, otherwise should be []
     needU = true; % save vector u in workspace - 'false' to make smaller file, 'true' if you need access later
 end
 % -------------------------------------------------------------------------
@@ -55,8 +55,6 @@ addpath(fileparts(strcat(path, folder, '/')));
 %extract velocity
 u = [];
 for i = 1 : length(files)
-    disp(files(i).name); % debugging
-    %cast double to float
     newU = loadvelocityff(files(i).name, calibfile, 1, 1, actualtemp);
     u = cat(1, u, newU);
 end
