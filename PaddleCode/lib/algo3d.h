@@ -2,6 +2,7 @@
  
  Includes methods and functions for controlling grid correlations
    in the temporal dimension (hence "3D")
+ Referenced by menu3d.cpp
  Written by Kevin Griffin and Nathan Wei, July-August 2015
  
  **************************************************************/
@@ -24,6 +25,9 @@
 void testloaf(void);
 
 // methods in algo3d.cpp
+
+/* Because these are static methods (i.e. private methods for use in algo3d.cpp only), they should not be
+   declared in this algo3d.h file. If you want to make them public, uncomment these lines.
 static int setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms);
 
 static void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma,
@@ -38,6 +42,7 @@ static void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spac
 
 static float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha,
 				float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf);
+ */
 
 int correlatedMovement_correlatedInTime(int constantArea, float spatial_sigma, float temporal_sigma, float spatial_alpha,
 					float temporal_alpha, float spatial_height, float temporal_height,

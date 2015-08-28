@@ -1,26 +1,19 @@
 
 /*
- menu program to choose all kind of options via terminal
- just run it with:
+ menu program to select grid motions related to correlations in time, via terminal
+ compilation and execution:
  source source.txt
- ./menuII
+ ./menu3d
  
- Florian Koehler
- florian.koehler.email@googlemail.com
- September 2011
- 
- /////////
- 
- Always the same goal, with a few changes in the names and new options.
- 
- Florent Lachaussée
- florent.lachaussee@ens.fr
- March 2013
+ Kevin Griffin and Nathan Wei
+ kevinpg@princeton.edu
+ nwei@princeton.edu
+ (valid until graduation from Princeton in June 2017)
  
  Driver from FTDI for usb/serial port must be installed.
  check names of devices in /dev and in activegrid.h
  
- Dependencies: algo.h, algo3d.h (which rely on pickCorrelations.h, loaf.h,
+ Dependencies: algo3d.h (which relies on pickCorrelations.h, loaf.h,
    activegrid.h, SD84.h, and SD84constants.h, and all the associated .cpp files)
  
  */
@@ -41,7 +34,9 @@ void wait(float seconds);
 int main(int argc, char * const argv[]);
 double angle_check(double angle);
 double check_frequency(double frequency, double amplitude);
-activegrid grid;
+/* note: you can only have one activegrid object at a time; otherwise, the multiple
+instances fight for communication rights with the real grid, and errors get thrown */
+activegrid grid; // single activegrid instance for all functions of menu3d.cpp
 
 void wait(float seconds) {
     clock_t endwait;
@@ -57,7 +52,7 @@ int main (int argc , char * const argv[]) {
         
     // Welcome
     cout << endl << "Welcome to " << argv[0] << endl;
-    cout << "This is the program to run the software of the activegrid." << endl;
+    cout << "This program runs the 3-dimensional implementation of the active grid control code." << endl;
     //activegrid grid;    
     //    grid.opengrid();
     //grid.high_duty = false;
@@ -73,13 +68,13 @@ int main (int argc , char * const argv[]) {
         " 7 - set one row to one certain angle\n"
         " 8 - close row 1-5 and open 6-11\n"
         " 9 - get angle of one servo\n\n"
-        " 10 - correlated in space and correlated in time\n\n"
+        " 10 - run correlations in space and time\n\n"
         " 11 - grid test protocol\n\n"
         " 12 - set boundary paddles to constant angle\n\n"
         " 13 - test loaf object\n\n"
         " 14 - end program\n\n";
         cin >> choice;
-        cout << "your choice is  " << choice << "\n";
+        cout << "Your choice is  " << choice << "\n";
 
         if((int)choice==1){
             grid.showallangles();
