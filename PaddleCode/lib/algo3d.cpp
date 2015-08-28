@@ -64,14 +64,14 @@ static void mySignalHandler(int iSignal){
 
 // global variables needed for algo3d method operation
 // (in place of algo.h variable storage implementation in the 2D version)
-activegrid grid;
+extern activegrid grid;
 int updatetimeinmus = 100000; // time to calculate correlation and send angles to grid = 0.1 seconds
 float max_speed = 40.0; // maximum speed of servos = 42.8 degrees / 0.1 seconds
 ofstream anglefile; // file to write angles to (for MATLAB processing, if desired)
 float norm; // normalization for correlation functions
 
 // set differents angles to all servos (angles array provided by runcorr_3D/correlatedMovement_correlatedInTime)
-int setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms){
+static int setanglestoallservosIII(float angles[13][11], float steps[13][11], int constant, float rms){
     double newangle[14][12];
     double newangleperstep[14][12];
     for(int row = 1; row < 12; row++) {
@@ -109,7 +109,7 @@ int setanglestoallservosIII(float angles[13][11], float steps[13][11], int const
 // determines the positions of the servos by doing a 3D correlation. Stores these
 // positions in a 2D array, which lives in correlatedMovement_correlatedInTime.
 // Unlike its predecessor, this method does not deal with step-setting. That is done entirely by the client that calls it.
-void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
+static void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight,
                 float timeHeight, int spaceMode, int timeMode, int mrow, int mcol, float correction) {
     
     // convolution to create correlation between paddles
@@ -159,7 +159,7 @@ void runcorr_3D(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSig
 
 // Faster version of runcorr_3D, for long tail in both directions
 // Necessary to avoid timing issues when running tests on lt5.2lt50
-void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, float correction) {
+static void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, float correction) {
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -208,7 +208,7 @@ void ltfast(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, 
 // Modified version of runcorr_3D, for unsharp in both directions
 // Necessary to avoid issue with 2 unsharps having negative signs that multiply to become positive
 // Also, in order for unsharp to work (i.e. not look like top hat long tail), it needs the absolute value definition of correlation
-void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceDepth, float timeDepth, float correction) {
+static void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma, float timeSigma, float spaceAlpha, float timeAlpha, float spaceDepth, float timeDepth, float correction) {
     
     // convolution to create correlation between paddles
     // periodic boundary conditions are used
@@ -266,7 +266,7 @@ void unsharp(float newslice[][11], loaf* myLoaf, int halfLoaf, float spaceSigma,
 
 /* takes a random 3D sequence and computes its std dev (=rms). It helps calculate the correction
  coefficent that is needed to give to the output the desired rms value of angles. */
-float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf) {
+static float compute_rmscorr_3D(float spaceSigma, float timeSigma, int spaceMode, int timeMode, float spaceAlpha, float timeAlpha, float spaceHeight, float timeHeight, int mrow, int mcol, int halfLoaf) {
     cout << "compute_rmscorr_3D is running tests now" << endl << "Countdown:" << endl;
     // set up test parameters
     float mean = 0;
