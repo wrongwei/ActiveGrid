@@ -89,20 +89,32 @@ int main (int argc , char * const argv[]) {
 	    grid.showservomap();
         }
         
+	//open the grid
         else if((int)choice==3){
 	    grid.opengrid();
 	}
-        /* need to make a method in algo3d that takes an algo object as a parameter
+	
+	// set all paddles to one angle
+	// this method should call a function in algobasic.cpp which is shared by menuII and menu3d but we haven't made algobasic. cpp yet
         else if((int)choice==4){
-            double angle=0;
+            double angle = 0;
             cout << "Angle? (-90 - 90)";
             cin >> angle;
             angle=angle_check(angle);
             cout << endl;
-            alg.setsameangletoallservos(angle);
+            
+	    //this should be a function call
+	    double newangle[14][12];
+	    for(int row=0;row<12;row++){
+		for(int col=0;col<14;col++){
+		    if(grid.servo[col][row]!=0) newangle[col][row]= angle; //if you want all angles to have same sign then you can implement checkorientationofservo from algo.cpp
+		    else newangle[col][row]= Fictive;
+		}
+	    }
+	    grid.setanglesII(newangle);
         }
-        */
-
+	
+	//set one paddle to have some angle
         /* need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==5){
             int row=0;
@@ -122,6 +134,7 @@ int main (int argc , char * const argv[]) {
         }
         */
 
+	// set all paddles in a column to have some angle
         /* need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==6){
             int col=0;
@@ -137,6 +150,7 @@ int main (int argc , char * const argv[]) {
         }
 	*/
         
+	// set all paddles in a column to have some angle
 	/* need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==7){
             int row=0;
@@ -152,6 +166,7 @@ int main (int argc , char * const argv[]) {
         }
         */
 
+	// Close half of the grid
 	/* need to make a method in algo3d that takes an algo object as a parameter
 	   else if((int)choice==8){
             alg.openhalfclosehalf();
