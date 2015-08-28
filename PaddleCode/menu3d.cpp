@@ -6,9 +6,9 @@
  ./menu3d
  
  Kevin Griffin and Nathan Wei
- kevinpg@princeton.edu
+ kevinpg@princeton.edu or kgsoccer@rocketmail.com
  nwei@princeton.edu
- (valid until graduation from Princeton in June 2017)
+ (valid until graduation from Princeton in June 2017)(after 2017, use @alum.princeton.edu)
  
  Driver from FTDI for usb/serial port must be installed.
  check names of devices in /dev and in activegrid.h
@@ -33,10 +33,15 @@ using namespace std;
 void wait(float seconds);
 int main(int argc, char * const argv[]);
 double angle_check(double angle);
-double check_frequency(double frequency, double amplitude);
+
 /* note: you can only have one activegrid object at a time; otherwise, the multiple
 instances fight for communication rights with the real grid, and errors get thrown */
 activegrid grid; // single activegrid instance for all functions of menu3d.cpp
+// grid is a global variable included by correlatedMovement_correlatedInTime.
+// If you want to right another correlation method, include the grid variable using "extern activegrid grid"
+// But be ware since these are global variables, if you change angles in one, they will change everywhere.
+// The resaon we made grid a lobal varaible is that there is only one real grid so having multiple copies
+// or the grid is kind of silly and it confuses the hardware, as mentioned above.
 
 void wait(float seconds) {
     clock_t endwait;
@@ -45,18 +50,12 @@ void wait(float seconds) {
 }
 
 int main (int argc , char * const argv[]) {
-    // create an algo object
-    //algo alg;
     int choice=-1;
     int i=1;
         
     // Welcome
     cout << endl << "Welcome to " << argv[0] << endl;
     cout << "This program runs the 3-dimensional implementation of the active grid control code." << endl;
-    //activegrid grid;    
-    //    grid.opengrid();
-    //grid.high_duty = false;
-    //    cout << grid.high_duty << endl;
     while(i!=0){
         cout << "Menu:\n"
         " 1 - see current angle configuration\n"
@@ -84,7 +83,6 @@ int main (int argc , char * const argv[]) {
 	    grid.showservomap();
         }
         
-	//open the grid
         else if((int)choice==3){
 	    grid.opengrid();
 	}
@@ -98,7 +96,7 @@ int main (int argc , char * const argv[]) {
             angle=angle_check(angle);
             cout << endl;
             
-	    //this should be a function call
+	    //this could be a function call
 	    double newangle[14][12];
 	    for(int row=0;row<12;row++){
 		for(int col=0;col<14;col++){
@@ -110,64 +108,110 @@ int main (int argc , char * const argv[]) {
         }
 	
 	//set one paddle to have some angle
-        /* need to make a method in algo3d that takes an algo object as a parameter
+        // need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==5){
-            int row=0;
-            int col=0;
-            double angle=0;
-            cout << "Col? (1-13)";
-            cin >> col;
+            int tunedrow=0;
+            int tunedcol=0;
+            double tunedangle=0;
+            cout << "Column? (1-13)";
+            cin >> tunedcol;
             cout << endl;
             cout << "Row? (1-11)";
-            cin >> row;
+            cin >> tunedrow;
             cout << endl;
             cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
+            cin >> tunedangle;
+            tunedangle=angle_check(tunedangle);
             cout << endl;
-            alg.setangleofoneservo(col,row,angle);
+            
+	    //could be a function call
+	    double newangle[14][12];
+	    for(int row=0;row<12;row++){
+		for(int col=0;col<14;col++){
+		    if(grid.servo[col][row]!=0){
+			if(col==tunedcol && row==tunedrow)newangle[col][row]=tunedangle;
+			else newangle[col][row]=grid.angle[col][row];
+		    }
+		    else newangle[col][row]=Fictive;
+		}
+	    }
+	    grid.setanglesII(newangle);
         }
-        */
+        
 
 	// set all paddles in a column to have some angle
-        /* need to make a method in algo3d that takes an algo object as a parameter
+        // need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==6){
-            int col=0;
-            double angle=0;
-            cout << "Col? (1-13)";
-            cin >> col;
+            int tunedcol=0;
+            double tunedangle=0;
+            cout << "Column? (1-13)";
+            cin >> tunedcol;
             cout << endl;
             cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
+            cin >> tunedangle;
+            tunedangle=angle_check(tunedangle);
             cout << endl;
-            alg.setanglesofonecolumn(col,angle);
+	    
+	    // this could be a function call
+	    double newangle[14][12];
+	    for(int row=0;row<12;row++){
+		for(int col=0;col<14;col++){
+		    if(grid.servo[col][row]!=0){
+			if(col==tunedcol)newangle[col][row]=tunedangle;
+			else newangle[col][row]=grid.angle[col][row];
+		    }
+		    else newangle[col][row]=Fictive;
+		}
+	    }
+	    grid.setanglesII(newangle);
         }
-	*/
+	
         
-	// set all paddles in a column to have some angle
-	/* need to make a method in algo3d that takes an algo object as a parameter
+	// set all paddles in a row to have some angle
+	// need to make a method in algo3d that takes an algo object as a parameter
         else if((int)choice==7){
-            int row=0;
-            double angle=0;
+            int tunedrow=0;
+            double tunedangle=0;
             cout << "Row? (1-11)";
-            cin >> row;
+            cin >> tunedrow;
             cout << endl;
             cout << "Angle? (-90 - 90)";
-            cin >> angle;
-            angle=angle_check(angle);
+            cin >> tunedangle;
+            tunedangle=angle_check(tunedangle);
             cout << endl;
-            alg.setanglesofonerow(row,angle);
+          
+	    // this could be a function call
+	    double newangle[14][12];
+	    for(int row=0;row<12;row++){
+		for(int col=0;col<14;col++){
+		    if(grid.servo[col][row]!=0){
+			if(row==tunedrow)newangle[col][row]=tunedangle;
+			else newangle[col][row]=grid.angle[col][row];
+		    }
+		    else newangle[col][row]=Fictive;
+		}
+	    }
+	    grid.setanglesII(newangle);
         }
-        */
 
 	// Close half of the grid
-	/* need to make a method in algo3d that takes an algo object as a parameter
-	   else if((int)choice==8){
-            alg.openhalfclosehalf();
-        }
-        */
-
+	// need to make a method in algo3d that takes an algo object as a parameter
+	else if((int)choice==8){
+	    
+	    // this could be a function call
+	    double newangle[14][12];
+	    for(int row=0;row<12;row++){
+		for(int col=0;col<14;col++){
+		    if(grid.servo[col][row]!=0){
+			if(row<=5)newangle[col][row]=90;
+			else newangle[col][row]=0;
+		    }
+		    else newangle[col][row]=Fictive;
+		}
+	    }
+	    grid.setanglesII(newangle);
+	}
+	
         //Get angle of one servo
         else if((int)choice==9){
 	    int row=0;
@@ -407,20 +451,4 @@ double angle_check (double angle) {
         else return -90;
     }
     else return angle;
-}
-
-double check_frequency(double frequency, double amplitude) {
-    double angleperstep;
-    if (frequency<=0) {
-        cout << "Frequency should be greater than 0 Hz." << endl;
-        return -1;
-    }
-    angleperstep=2*fabs(amplitude)*frequency/5;
-    if (angleperstep>42.8) {
-        cout << "Chosen frequency mismatches amplitude, maximum servo speed is exceeded. Frequency is adjusted to: ";
-        frequency=5*42.8/(2*amplitude);
-        cout << frequency << "Hz.";
-        return frequency;
-    }
-    else return frequency;
 }
