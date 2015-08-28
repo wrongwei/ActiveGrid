@@ -4,10 +4,10 @@
  These functions were adapted from the old algo.cpp / algo.h, which was
  written before 2015 and debugged/refactored/optimized July-August 2015.
  
- The old programs and new programs only share the method "area," which is
- accessed here through inclusion of algo.h.
+ These methods are entirely independent of algo.h and menuII, since their
+ functions are different enough to merit a separate, cleaner executable.
  
- Both files are accessed by menuII.cpp, which handles routing depending on
+ These methods are accessed by menu3d.cpp, which handles routing depending on
  user inputs. They both depend on pickCorrelations.cpp/pickCorrelations.h,
  which contain function pointers to the different correlation kernels.
  
@@ -16,6 +16,8 @@
  for very large temporal kernels (sigma = 50). This workaround should ONLY be
  used for specific kernels where speed is an issue; otherwise, the standard
  function pointer runcorr_3D should be used for readability and simplicity.
+ This also applies for the unsharp kernel, which requires special absolute value
+ correlation handling when combined with itself in order to act as expected.
  
  Dependencies: pickCorrelations.h/.cpp, activegrid.h/.cpp, loaf.h/.cpp
     (only first order dependencies are listed)

@@ -20,8 +20,11 @@
  Driver from FTDI for usb/serial port must be installed.
  check names of devices in /dev and in activegrid.h
  
- Dependencies: algo.h, algo3d.h (which rely on pickCorrelations.h, loaf.h,
+ Dependencies: algo.h (which relies on pickCorrelations.h, loaf.h,
    activegrid.h, SD84.h, and SD84constants.h, and all the associated .cpp files)
+ 
+ Updated, reorganized, and optimized by Kevin Griffin and Nathan Wei (summer 2015)
+ kevinpg@princeton.edu & nwei@princeton.edu (valid until graduation in June 2017)
  
  */
 /*--------------------------------------------------------------------*/
@@ -31,7 +34,6 @@
 #include <unistd.h>
 #include <time.h>
 #include "lib/algo.h"
-//#include "lib/algo3d.h"
 
 /*--------------------------------------------------------------------*/
 
@@ -58,7 +60,7 @@ int main (int argc , char * const argv[]) {
         
     // Welcome
     cout << endl << "Welcome to " << argv[0] << endl;
-    cout << "This is the program to run the software of the activegrid." << endl;
+    cout << "This program runs the original functions of the active grid control code (pre-2015, spatial only)." << endl;
     
     while(i!=0){
         cout << "Menu:\n"
@@ -77,14 +79,12 @@ int main (int argc , char * const argv[]) {
         " 13 - chaotic correlated\n"
         " 14 - chaotic correlated (2 alternating amplitudes)\n"
         " 15 - chaotic correlated (periodic pattern)\n\n"
-        " 16 - correlated in space and correlated in time\n\n"
-        " 17 - grid test protocol\n\n"
-        " 18 - set boundary paddles to constant angle\n\n"
-        " 19 - test loaf object\n\n"
-        " 20 - end program\n\n";
-        cout << "!!! Numbers from 11 to 16 are the most interesting movements !!!" << endl;
+        " 16 - grid test protocol\n\n"
+        " 17 - set boundary paddles to constant angle\n\n"
+        " 18 - end program\n\n";
+        cout << "!!! Numbers from 11 to 15 are the most interesting movements !!!" << endl;
         cin >> choice;
-        cout << "your choice is  " << choice << "\n";
+        cout << "Your choice is  " << choice << "\n";
         
         if((int)choice==1){
             alg.grid.showallangles();
@@ -435,160 +435,9 @@ int main (int argc , char * const argv[]) {
             alg.correlatedMovement_periodic(constant,sigma, (int) mode, target_rms, numberofsteps);
         }
         
-        // correlated in space and time routine
-	else if((int)choice==16){
-	    cout << "\nYou should run ./menu3d if you want correlations in time\n" << endl;
-	    /*
-	    int constantArea = 0;
-            float spatial_sigma = 0;
-            float temporal_sigma = 0;
-            float spatial_alpha = 0;
-            float temporal_alpha = 0;
-            float spatial_height = 0;
-            float temporal_height = 0;
-            int typeOfSpatialCorr = 0;
-            int typeOfTemporalCorr = 0;
-            float target_rms = 0;
-            int numberOfSlices = 0;
-            
-            // CorrParameters temporalCorrParam;
-            // CorrParameters spatialCorrParam;
-            
-            cout << "Choose the spatial correlation function: \n"
-            " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-            " 5 - Top hat \n"
-            //" 6 - True top hat with a fixed main paddle \n"
-            //" 7 - True top hat with a random main paddle \n"
-            " 8 - Top hat with a long tail \n"
-            " 9 - Triangle\n"
-            " 10 - Unsharp filter\n";
-            cin >> typeOfSpatialCorr;
-            while (typeOfSpatialCorr > 10 || typeOfSpatialCorr < 0 ||
-                   typeOfSpatialCorr == 6 || typeOfSpatialCorr == 7){
-                cout << "Invalid choice! Try again! \n";
-                cout << "\n Choose the spatial correlation function: \n"
-                " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-                " 5 - Top hat \n"
-                //" 6 - True top hat with a fixed main paddle \n"
-                //" 7 - True top hat with a random main paddle \n"
-                " 8 - Top hat with a long tail \n"
-                " 9 - Triangle\n"
-                " 10 - Unsharp filter\n";
-                cin >> typeOfSpatialCorr;
-            }
-            
-            if (typeOfSpatialCorr == 1 || typeOfSpatialCorr > 4){
-                cout << "Spatial Sigma? (0->7) "; // maximum length of 7 because this is the biggest sigma loaf can handle at the moment
-                cin >> spatial_sigma;
-                while (spatial_sigma < 0 || spatial_sigma > 7) {
-                    cout << "Spatial sigma must be between 0 and 7. Try an acceptable value!" <<endl;
-                    cout << "\nSpatial Sigma? (0->7) ";
-                    cin >> spatial_sigma;
-                }
-            }
-            if (typeOfSpatialCorr == 8){
-                cout << "Spatial Alpha? This is the width of part with correlation of 1 (usually spatial_alpha=0)\n";
-                cin >> spatial_alpha;
-                cout << "Spatial Height? This is how tall the tail is. 1 would be a correlation of 1 and 0 would be no correlation in the tail.\n";
-                cin >> spatial_height;
-            }
-            else if (typeOfSpatialCorr == 10) {
-                cout << "Spatial Alpha? (This sets the radius of the positive portion of the unsharp kernel)\n";
-                cin >> spatial_alpha;
-                cout << "Spatial Depth? (This sets the magnitude of the negative portion of the unsharp kernel, should be between 0 and 1)\n";
-                cin >> spatial_height;
-            }
-            
-            cout << "Choose the temporal correlation function: \n"
-            " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-            " 5 - Top hat \n"
-            //" 6 - True top hat with a fixed main paddle \n"
-            //" 7 - True top hat with a random main paddle \n"
-            " 8 - Top hat with a long tail \n"
-            " 9 - Triangle\n"
-            " 10 - Unsharp filter\n";
-            cin >> typeOfTemporalCorr;
-            while (typeOfTemporalCorr > 10 || typeOfTemporalCorr < 0 ||
-                   typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7){
-                cout << "Invalid choice! Try again! \n";
-                cout << "\n Choose the temporal correlation function: \n"
-                " 0 - Random \n 1 - Gaussian \n 2 - 1/r^2 \n 3 - 1/|r|^3 \n 4 - 1/r^4 \n"
-                " 5 - Top hat \n"
-                //" 6 - True top hat with a fixed main paddle \n"
-                //" 7 - True top hat with a random main paddle \n"
-                " 8 - Top hat with a long tail \n"
-                " 9 - Triangle\n"
-                " 10 - Unsharp filter\n";
-                cin >> typeOfTemporalCorr;
-            }
-            
-            if ((int)typeOfTemporalCorr == 1 || (int)typeOfTemporalCorr == 10){
-                cout << "Temporal Sigma? (has units of 0.1 seconds times spacing) ";
-                cin >> temporal_sigma;
-            }
-            if (typeOfTemporalCorr == 5 || typeOfTemporalCorr == 6 || typeOfTemporalCorr == 7 ||
-                typeOfTemporalCorr == 8 || typeOfTemporalCorr == 9 ){
-                cout << "Temporal Sigma? (has units of 0.1 seconds times spacing) ";
-                cin >> temporal_sigma;
-            }
-            
-            if (typeOfTemporalCorr == 8){
-                cout << "Temporal Alpha? This is the width of the part with correlation of 1 (usually temporal_alpha=0)\n";
-                cin >> temporal_alpha;
-                cout << "Temporal Height? This is how tall the tail is. 1 would be a correlation of 1 and 0 would be no correlation in the tail.\n";
-                cin >> temporal_height;
-            }
-            
-            else if (typeOfTemporalCorr == 10) {
-                cout << "Temporal Alpha? (This sets the radius of the positive portion of the unsharp kernel)\n";
-                cin >> temporal_alpha;
-                cout << "Temporal Depth? (This sets the magnitude of the negative portion of the unsharp kernel, should be between 0 and 1)\n";
-                cin >> temporal_height;
-            }
-            
-            cout << "rms of angles? (0->50 degrees) "; // 30 * sqrt(2) = 42.4, which is about the maximum servo speed (42.8 degrees per 0.1 second interval)
-            cin >> target_rms;
-            while (target_rms < 0 || target_rms > 50){
-                cout << "For SAFETY reasons, rms should be between 0 and 50 degrees!! Try an acceptable value!" <<endl;
-                cout << "\n rms of angles? (0->50 degrees) ";
-                cin >> target_rms;
-            }
-	    */
-            /* NOT IMPLEMENTED - CAUSES PERIODIC FREEZING ISSUES IN THE GRID
-            cout << "Should the area be kept constant? (1,0) ";
-            cin >> constantArea;
-            while (constantArea < 0 || constantArea > 1){
-                cout << "Choose zero or 1\n";
-                cout << "Should the area be kept constant? (1,0)" << endl;
-                cin >> constantArea;
-            }*/
-            
-            // calculate width of temporal kernel (number of time-slices to analyze at a time)
-        /*    if ((int)typeOfTemporalCorr == 1) { // calculate width of Gaussian kernel
-                numberOfSlices = ceil(6 * temporal_sigma) + 1; // odd number with 3 standard deviations on either side of the middle slice
-            }
-            else if ((int)typeOfTemporalCorr > 1 && (int)typeOfTemporalCorr <= 4) { // user sets width of 1/r^n kernel manually
-                cout << "How many time-slices should the temporal kernel include? (number must be odd) ";
-                cin >> numberOfSlices;
-                while (numberOfSlices <= 0 || numberOfSlices % 2 == 0) { // input must be odd and > 0 so we can define a middle slice and have nice symmetry
-                    cout << "Input must be an odd integer greater than zero!" << endl;
-                    cin >> numberOfSlices;
-                }
-            }
-            else { // top hats, triangle, etc. - return values of 0 outside of one standard deviation
-                numberOfSlices = (2 * temporal_sigma) + 1; // so kernel just needs to have 1 standard deviation on either side of the middle slice
-            }
-            if (numberOfSlices % 2 == 0) numberOfSlices++; // make sure numberOfSlices is odd
-            cout << "\nThe range of the temporal correlation is " << numberOfSlices << " time-steps.\nNote: one time-step is equal to 'SPACING' grid positions, where the value of SPACING is set manually in algo.cpp. \nEach grid position lasts 0.1 seconds." << endl;
-            
-            cout << "\nInitializing preliminary computations...\n" << endl;
-          */  
-	    //correlatedMovement_correlatedInTime(constantArea, spatial_sigma, temporal_sigma, spatial_alpha, temporal_alpha, spatial_height, temporal_height, typeOfSpatialCorr, typeOfTemporalCorr, target_rms, numberOfSlices);
-        }
-        
         /* paddle test routine. Opens and closes each row, one at a time. Then opens and closes each column
          one at a time */
-        else if((int)choice==17){
+        else if((int)choice==16){
             int NUMBER_OF_ROWS = 11;
             int NUMBER_OF_COLUMNS = 13;
             double openAngle = 0;
@@ -615,7 +464,7 @@ int main (int argc , char * const argv[]) {
             }
         }
         
-        else if((int)choice==18){
+        else if((int)choice==17){
             int topRow = 11;
             double topAngle = 0;
             int bottomRow = 1;
@@ -638,12 +487,7 @@ int main (int argc , char * const argv[]) {
             alg.setanglesofonerow(bottomRow,bottomAngle);
         }
         
-        else if((int)choice==19){
-            //testloaf();
-            i = 0;
-        }
-        
-        else if((int)choice>=20 || choice<=0) i=0;
+        else if((int)choice>=18 || choice<=0) i=0;
     }
     return 0;
     
