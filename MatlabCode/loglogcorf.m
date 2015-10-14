@@ -7,21 +7,21 @@
 % Where is the path?-----------------------------------------------------
 %pathname = fileparts('/Users/Horace/Documents/Germany2014/MATLABCode/MoreCode/DecayData/');
 
-path = fileparts('/Users/kevin/Documents/Data/data08_05_15/');
+path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_05_15/');
 addpath(path);
-path1 = fileparts('/Users/kevin/Documents/Data/data08_06_15/');
+path1 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_06_15/');
 addpath(path1);
-path2 = fileparts('/Users/kevin/Documents/Data/data08_07_15/');
+path2 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_07_15/');
 addpath(path2);
-path3 = fileparts('/Users/kevin/Documents/Data/data08_10_15/');
+path3 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_10_15/');
 addpath(path3);
-path4 = fileparts('/Users/kevin/Documents/Data/data08_11_15/');
+path4 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
 addpath(path4);
-path5 = fileparts('/Users/kevin/Documents/Data/data08_12_15/');
+path5 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_12_15/');
 addpath(path5);
-path6 = fileparts('/Users/kevin/Documents/Data/data08_17_15/');
+path6 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_17_15/');
 addpath(path6);
-path7 = fileparts('/Users/kevin/Documents/Data/data08_18_15/');
+path7 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_18_15/');
 addpath(path7);
 % load all the workspaces you want to graph. Put each one in a varaible,
 % and then put all of those variables into the array below named
@@ -34,11 +34,12 @@ fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fprintf('Loading workspaces... ');
 tic;
 
-%workspace1 = load('statscorr_lt5.2lt4_0812.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace2 = load('statscorr_lt5.2lt50_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+%workspace2 = load('statscorr_lt5.2lt4_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+%workspace2 = load('statscorr_lt5.2lt50_0812.mat','MASC','sepval','MASvss','oneOverEScale');
 %workspace3 = load('statscorr_th2.6th2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
+
+workspace2 = load('statscorr_th3.9th3_0817.mat','MASC','sepval','MASvss','oneOverEScale');
 %{
-workspace4 = load('statscorr_th3.9th3_0812.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace5 = load('statscorr_us3us2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace6 = load('statscorr_us3us2_oldimp_newus_0818.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace7 = load('statscorr_th3th2_oldimp_abs_0818.mat','MASC','sepval','MASvss','oneOverEScale');
@@ -127,20 +128,7 @@ for j = 1 : length(workspaceArray)
 
     % Cut off MASC (the correlation function) at nth zero crossing. Discards
     % much of unwanted data
-    count = 0; 
-    n = 2;
-    for i=1:length(workspaceArray(j).MASC)
-        if(workspaceArray(j).MASC(i) < 0 ) 
-            count = count + 1;
-        end;
-        if(count >= n)
-            cutoff = i; 
-            break;
-        end;
-
-    end;
-    MASCc = workspaceArray(j).MASC(1: cutoff); % the cut off structure function
-    sepvalc = workspaceArray(j).sepval(1:cutoff); %the cut off sepval 
+    [ MASCc, sepvalc ] = cutoffcorrelation(workspaceArray(j).MASC, workspaceArray(j).sepval);
     
     nu = 15.11e-6; % kinematic viscosity of air
     % calculate energy dissipation
@@ -191,28 +179,10 @@ for j = 1 : length(workspaceArray)
     %xlim([0 4]);
     %ylim([0 1]);
     %semilogx(sepvalc/eta,MASCc);
-    hold on;
-    samplePoints = 5:30; % make a vector of the first 26 points excluding noise
-    samplePoints2 = sepvalc(samplePoints)/L;
-    curvePoints = 1:1000; % vector used for plotting the quadratic fit
-    curvePoints = sepvalc(curvePoints)/L;
-    corrVals = MASCc(samplePoints); % correlation value of the 26 sample points
-    %plot(samplePoints2,corrVals,'-ok'); % plot these 26 points
-    hold on;
-    p = polyfit(samplePoints2,corrVals',2); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
-    y1 = polyval(p,curvePoints);
-    %plot(curvePoints,y1,'r'); % plot the curve fit
-    % print standard deviation = RMS velocity
-    fprintf('RMS velocity (m/s) = %f \n', workspaceArray(j).MASvss);
-    fprintf('Integral Length Scale = %f\n', L);
-    % the x-intercept of polyfit p is the taylor length scale
-    taylorL = max(roots(p))*L;
-    fprintf('Taylor length scale = %f\n', taylorL);
-    %fprintf('Comment: I multipled by L because of the scaling of the graph\n');
-    nu = 15.11e-6;
-    turbRe = workspaceArray(j).MASvss*taylorL/nu;
-    fprintf('Turbulent Reynolds Number = %f\n', turbRe);
-
+    
+    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,L);
+    
+    %{
     %title('Correlation Function loglog');
     title(chartTitle);
 
@@ -221,6 +191,7 @@ for j = 1 : length(workspaceArray)
 
     %saveas(H1, ncorf);
     saveas(H2, logcorf);
+    %}
     
     % print results
     fprintf('One over e scale = %f\n',workspaceArray(j).oneOverEScale);
@@ -230,7 +201,8 @@ for j = 1 : length(workspaceArray)
     hold on;
 end
     
-%legend(workspaceNames);
+legend(workspaceNames);
+
 rmpath(path);
 rmpath(path1);
 rmpath(path2);
@@ -241,6 +213,7 @@ rmpath(path6);
 rmpath(path7);
 
 % play sound to alert sleeping user to end of data processing
+%{
 t = 0:(1/8000):0.25;
 y1 = sin(2*pi*440*t);
 y2 = sin(2*pi*554.37*t);
@@ -248,3 +221,4 @@ y3 = sin(2*pi*659.25*t);
 y4 = sin(2*pi*880*t);
 y = [y1 y2 y3 y4 y1 y1];
 sound(y, 8000);
+%}

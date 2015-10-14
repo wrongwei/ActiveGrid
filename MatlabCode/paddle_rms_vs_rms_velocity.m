@@ -1,4 +1,5 @@
 %Greg's Graph #4: Effect of varying paddle RMS (amplitude) on RMS Velocity
+clear all;
 
 paddleAmplitude = [9.808886;19.505719;28.51177;35.983436;41.412413];
 
