@@ -159,8 +159,34 @@ plot2 = fullfile(path, '1overE_vs_ltheights.fig');
 saveas(H2, plot2);
 
 % Plot length scale vs. effective sigma
-sigma_eff_1 = (heights*3.9) + 1; % just doing 2D calculation for now
-sigma_eff_2 = (heights*6.5) + 1; % should we do 3D and/or discretized sums?
+sigma_eff_1 = zeros(length(heights), 1);
+sigma_eff_2 = zeros(length(heights), 1);
+for i = 1 : length(heights)
+    for x = -7 : 7
+        for y = -7 : 7
+            dist = sqrt(x^2 + y^2);
+            if (dist <= 3.9 && dist ~= 0)
+                sigma_eff_1(i) = sigma_eff_1(i) + heights(i);
+            end
+            if (dist == 0)
+                sigma_eff_1(i) = sigma_eff_1(i) + 1;
+            end
+        end
+    end
+end
+for i = 1 : length(heights)
+    for x = -7 : 7
+        for y = -7 : 7
+            dist = sqrt(x^2 + y^2);
+            if (dist <= 6.5 && dist ~= 0)
+                sigma_eff_2(i) = sigma_eff_2(i) + heights(i);
+            end
+            if (dist == 0)
+                sigma_eff_2(i) = sigma_eff_2(i) + 1;
+            end
+        end
+    end
+end
 H3 = figure(3);
 set(gca, 'fontsize', 12);
 hax = gca;
