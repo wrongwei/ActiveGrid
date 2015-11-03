@@ -4,7 +4,7 @@
 % Written by Kevin Griffin and Nathan Wei, October 2015
 
 % Specify path to data folder ---------------------------------------------
-path = fileparts('/n/homeserver2/user3a/nwei/Documents/Turbulence2015/data08_11_15/');
+path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -18,25 +18,25 @@ fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fprintf('Loading workspaces... ');
 tic;
 
-workspace01 = load('lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace02 = load('lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace03 = load('lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace04 = load('lt3.9lt3_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace05 = load('lt3.9lt3_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace06 = load('lt3.9lt3_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace07 = load('lt6.5lt5_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace08 = load('lt6.5lt5_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace09 = load('lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace10 = load('lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace11 = load('lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace12 = load('lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace01 = load('statscorr_lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace02 = load('statscorr_lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace03 = load('statscorr_lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace04 = load('statscorr_lt3.9lt3_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace05 = load('statscorr_lt3.9lt3_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace06 = load('statscorr_lt3.9lt3_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace07 = load('statscorr_lt6.5lt5_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace08 = load('statscorr_lt6.5lt5_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace09 = load('statscorr_lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace10 = load('statscorr_lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace11 = load('statscorr_lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace12 = load('statscorr_lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 
 workspaceArray = [workspace01, workspace02, workspace03, workspace04, ...
     workspace05, workspace06, workspace07, workspace08, workspace09, ...
     workspace10, workspace11, workspace12];
 
 workspaceNames = {'lt3.9lt3 h0.0', 'lt3.9lt3 h0.05', 'lt3.9lt3 h0.1', 'lt3.9lt3 h0.2', ...
-    'lt3.9lt3 h0.4', 'lt3.9lt3 h0.8', 'lt6.5lt5 h0.0', 'lt3.9lt3 h0.05', ...
+    'lt3.9lt3 h0.4', 'lt3.9lt3 h0.8', 'lt6.5lt5 h0.0', 'lt6.5lt5 h0.05', ...
     'lt6.5lt5 h0.1', 'lt6.5lt5 h0.2', 'lt6.5lt5 h0.4', 'lt6.5lt5 h0.8', };
 
 % preallocating needed arrays for speed
@@ -121,7 +121,7 @@ for j = 1 : length(workspaceArray)
     ylabel('Correlation');
 
     h = semilogy(sepvalc/workspaceArray(j).oneOverEScale,MASCc,'LineWidth',2);
-    xlabel('distance (m/oneOverEScale)');
+    xlabel('Normalized Distance (m/oneOverEScale)');
     xlim([0 4]);
     ylim([0 1]);
     set(h, 'DisplayName', workspaceNames{j}); 
