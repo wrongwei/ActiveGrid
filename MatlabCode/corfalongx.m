@@ -27,52 +27,36 @@ fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 fprintf('Loading workspaces... ');
 tic;
 
-%workspace2 = load('statscorr_lt5.2lt4_0812.mat','MASC','sepval','MASvss','oneOverEScale');
-%workspace2 = load('statscorr_lt5.2lt50_0812.mat','MASC','sepval','MASvss','oneOverEScale');
-%workspace3 = load('statscorr_th2.6th2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
-
-workspace2 = load('statscorr_th3.9th3_0817.mat','MASC','sepval','MASvss','oneOverEScale');
+%workspace1 = load('statscorr_lt5.2lt50_0814.mat','MASC','sepval','MASvss','oneOverEScale'); % for 10 min lt5.2lt50
+%workspace2 = load('statscorr_lt5.2lt50_0819.mat','MASC','sepval','MASvss','oneOverEScale'); % for 40min lt5.2lt50
+%workspace3 = load('statscorr_lt5.2lt50_0820a.mat','MASC','sepval','MASvss','oneOverEScale'); % for 2nd 40min lt5.2lt50
+workspace4 = load('statscorr_lt5.2lt50_0826_00.mat','MASC','sepval','MASvss','oneOverEScale'); % for 70min lt5.2lt50
 %{
-workspace5 = load('statscorr_us3us2_0812.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace6 = load('statscorr_us3us2_oldimp_newus_0818.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace7 = load('statscorr_th3th2_oldimp_abs_0818.mat','MASC','sepval','MASvss','oneOverEScale');
-workspace8 = load('statscorr_us3us2_oldimp_abs_0818.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace1 = load('statscorr_th3.9th3_0821a.mat','MASC','sepval','MASvss','oneOverEScale'); % for 10 min th3.9th3
+workspace2 = load('statscorr_th3.9th3_0825.mat','MASC','sepval','MASvss','oneOverEScale');  % for 40min th3.9th3 
+workspace3 = load('statscorr_th3.9th3_0827.mat','MASC','sepval','MASvss','oneOverEScale');  % for 2nd 40 min th3.9th3
 %}
+%{
+workspace1 = load('statscorr_lt5.2lt4_0826.mat','MASC','sepval','MASvss','oneOverEScale'); % for 40min lt5.2lt4
+workspace2 = load('statscorr_lt5.2lt4_0827.mat','MASC','sepval','MASvss','oneOverEScale'); % for 2nd 40min lt5.2lt4
+%}
+
 workspaceArray = [...
-    
     %workspace1...
     %,...
-    workspace2...
-    
+    %workspace2...
     %,...
     %workspace3...
-    %{
-    ,...
+    %,...
     workspace4...
-    ,...
-    workspace5...
-    ,...
-    workspace6...
-    ,...
-    workspace7...
-    ,...
-    workspace8...
-    %}
     ];
 
 workspaceNames = {...
-    %'lt5.2lt4',...
-    'lt5.2lt50'
+    %'lt5.2lt50'...
+    %,...
+    'th3.9th3'...
     %,..
-    %'th2.6th2',...
-    %{
-    'th3.9th3',...
-    'us3us2'...
-    ,...
-    'us3us2 new',...
-    'th3th2 abs',...
-    'us3us2 abs'
-    %}
+    %'lt5.lt4'...
     };
 %manual command line legend: legend('us3us2_new','th3th2_oldimp_abs','us3us2_oldimp_abs','Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1','Spatial LT Sigma5.2, Temporal LT Sigma50, Height0.1','Spatial TH Sigma2.6, Temporal TH Sigma2','Spatial TH Sigma3.9, Temporal TH Sigma3','Spatial US Sigma3 Alpha1.5, Temporal US Sigma2 Alpha1, Height0.5')
 %'Spatial LT Sigma5.2, Temporal LT Sigma4, Height0.1',...
@@ -83,27 +67,6 @@ workspaceNames = {...
 chartTitle = 'Velocity Correlations for 5 Different Paddle Correlation Kernels. Reynolds Number Constant (within 5%)';  
 %chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=3.9, TemporalSigma=.3sec';
 
-%{
-workspace1 = load('statscorr_lt1.3lt1_h0_rms40_0806.mat');
-workspace2 = load('statscorr_lt1.3lt1_h0.05_rms40_0806.mat');
-workspace3 = load('statscorr_lt1.3lt1_h0.1_rms40_0806.mat');
-workspace4 = load('statscorr_lt1.3lt1_h0.2_rms40_0806.mat');
-workspace5 = load('statscorr_lt1.3lt1_h0.4_rms40_0806.mat');
-workspace6 = load('statscorr_lt1.3lt1_h0.8_rms40_0806.mat');
-workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,workspace6];
-workspaceNames = {'Height: 0','Height: 0.05',...
-    'Height: 0.1','Height: 0.2','Height: 0.4','Height: 0.8'};
-chartTitle = 'Correlation Functions for Top Hat Long Tail, SpatialSigma=1.3, TemporalSigma=.1sec, RMS=40deg';
-%}
-
-% Example with one workspace
-%workspace1 = load('statscorr_test_0810.mat');
-%workspaceArray = [workspace1];
-%workspaceNames = {'test'};
-%chartTitle = 'Correlation Function';
-
-%MODIFY THIS, WHAT YOU WANT TO NAME THE
-%FIGURES? ---------------------------------------------------------------
 figurename = 'lt1.3lt1_rms40_corrfs_lkjhffsdgh.fig';
 
 % This change in involved prefixed the loaded workspace variables with workspaceArray(j).
@@ -173,7 +136,7 @@ for j = 1 : length(workspaceArray)
     %ylim([0 1]);
     %semilogx(sepvalc/eta,MASCc);
     
-    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,L);
+    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,false);
     
     %{
     %title('Correlation Function loglog');
@@ -202,4 +165,4 @@ rmpath(path2);
 rmpath(path3);
 rmpath(path4);
 rmpath(path5);
-rmpath(path6);s
+rmpath(path6);
