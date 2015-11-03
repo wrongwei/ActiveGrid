@@ -30,7 +30,7 @@ tic;
 %workspace1 = load('statscorr_lt5.2lt50_0814.mat','MASC','sepval','MASvss','oneOverEScale'); % for 10 min lt5.2lt50
 %workspace2 = load('statscorr_lt5.2lt50_0819.mat','MASC','sepval','MASvss','oneOverEScale'); % for 40min lt5.2lt50
 %workspace3 = load('statscorr_lt5.2lt50_0820a.mat','MASC','sepval','MASvss','oneOverEScale'); % for 2nd 40min lt5.2lt50
-workspace4 = load('statscorr_lt5.2lt50_0826_00.mat','MASC','sepval','MASvss','oneOverEScale'); % for 70min lt5.2lt50
+workspace4 = load('statscorr_lt5.2lt50_0826_08.mat','MASC','sepval','MASvss','oneOverEScale'); % for 70min lt5.2lt50
 %{
 workspace1 = load('statscorr_th3.9th3_0821a.mat','MASC','sepval','MASvss','oneOverEScale'); % for 10 min th3.9th3
 workspace2 = load('statscorr_th3.9th3_0825.mat','MASC','sepval','MASvss','oneOverEScale');  % for 40min th3.9th3 
@@ -125,18 +125,27 @@ for j = 1 : length(workspaceArray)
     %xlabel('distance (m/L)  ');
     %xlim([0 4]);
     %ylim([0 1]);
+    
+    [turbRe, taylorL] = calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,false);
+    
     h = semilogy(sepvalc/workspaceArray(j).oneOverEScale,MASCc,'LineWidth',2);
+    %h = semilogy(sepvalc,MASCc,'LineWidth',2);
+    %h = semilogy(sepvalc*taylorL/L^3,MASCc,'LineWidth',2);
     xlabel('distance (m/oneOverEScale)');
+    %xlabel('distance (m)');
+    %xlabel('distance (m*taylorL/L^3)');
+    
     xlim([0 4]);
     ylim([.05 1]);
     set(h, 'DisplayName', workspaceNames{j}); 
+    
     %plot(sepvalc/L,MASCc);
     %xlabel('distance (m/L)');
     %xlim([0 4]);
     %ylim([0 1]);
     %semilogx(sepvalc/eta,MASCc);
     
-    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,false);
+   
     
     %{
     %title('Correlation Function loglog');
