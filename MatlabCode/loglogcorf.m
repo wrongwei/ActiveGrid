@@ -180,7 +180,7 @@ for j = 1 : length(workspaceArray)
     %ylim([0 1]);
     %semilogx(sepvalc/eta,MASCc);
     
-    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,L);
+    calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(j).MASvss,false);
     
     %{
     %title('Correlation Function loglog');

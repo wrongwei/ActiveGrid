@@ -21,7 +21,7 @@ fileBaseArray = {...
     %'energy_lt5.2lt50_0820a',...%energy file for 2nd 40 min lt5.2lt50
     %'energy_lt5.2lt50_0826'...  %energy file for 70 min lt5.2lt50
     
-    'energy_th3.9th3_0821a'...  %energy file for problem th3.9th3
+    'energy_th3.9th3_0821a'...  %energy file for 10 min th3.9th3
     'energy_th3.9th3_0825',...  %energy file for 40 min th3.9th3
     'energy_th3.9th3_0827'...   %energy file for 2nd 40 min th3.9th3
     
