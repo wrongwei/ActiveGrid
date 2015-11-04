@@ -28,26 +28,26 @@ workspaceArray = [...
 %Call the taylor Re function (returns taylor length scale and Re_turb)
 
 figure(1);
-title('Effect of varying paddle RMS (amplitude) on RMS Velocity');
-ylabel('RMS Velocity');
-xlabel('Paddle Amplitude (RMS)');
+title('RMS Velocity Fluctuations vs Paddle Amplitude (RMS)');
+ylabel('RMS Velocity (m/s)');
+xlabel('Paddle RMS (m/s)');
 xlim([0 60]);
 %ylim([]);
 h = gca;
 set(h,'XScale','linear');
 set(h,'YScale','linear');
-set(h,'Fontsize', 14);
+set(h,'Fontsize', 12);
 hold on;
 rmsVelocityArray = zeros(length(paddleAmplitude),1);
 for i = 1:length(workspaceArray)
     rmsVelocityArray(i) = workspaceArray(i).MASvss;
 end
 
+scatter(paddleAmplitude,rmsVelocityArray, 1000, '.');
+%legend('RMS=10','RMS=20','RMS=30','RMS=40','RMS=50','Location','best');
 p = polyfit(paddleAmplitude,rmsVelocityArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
 x1 = linspace(0,60);
 y1 = polyval(p,x1);
 plot(x1,y1,'r')
-scatter(paddleAmplitude,rmsVelocityArray, 1000, '.');
-legend('RMS=10','RMS=20','RMS=30','RMS=40','RMS=50','Location','best');
 
 rmpath(path1);

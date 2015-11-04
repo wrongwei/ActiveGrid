@@ -28,7 +28,11 @@ workspaceArray = [...
     ];   
 
 % will need touse the relevant sigma factor
-sigmaArray = [2,3,4,5];
+spatialSigmaArray = [2.6,3.9,5.2,6.5];
+temporalSigmaArray = [2,3,4,5];
+for i = 1 : length(spatialSigmaArray)
+    effectiveSigmaArray(i) = (8 * spatialSigmaArray(i)^2*temporalSigmaArray(i))^(1/3);
+end
 
 %rmsVelocityArray = zeros(length(paddleAmplitude),1);
 for i = 1:length(workspaceArray)
@@ -44,30 +48,40 @@ end
 figure();
 title('Attempts to Fix Re by Changing Paddle Amplitude');
 ylabel('Reyonlds Number');
-xlabel('Sigma');
-xlim([min(sigmaArray)-1 max(sigmaArray)+1]);
+xlabel('Effective Sigma');
+xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
 ylim([0 400]);
 h = gca;
 set(h,'XScale','linear');
 set(h,'YScale','linear');
 set(h,'Fontsize', 12);
 hold on;
-plot(sigmaArray, turbRe);
+plot(effectiveSigmaArray, turbRe);
 legend('Turbulent Re');
 
 figure();
 hold on;
-xlim([min(sigmaArray)-1 max(sigmaArray)+1]);
+xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
 %ylim([])l
 set(h,'Fontsize', 12);
-title('Effect of Sigma on Length Scale and RMS Velocity at Fixed Re (within 21%)');
-ylabel('Length Scales and RMS Velocity');
-xlabel('Sigma');
-plot(sigmaArray, taylorL);
-plot(sigmaArray, LArray);
-plot(sigmaArray, oneOverEScaleArray)
-plot(sigmaArray, MASvssArray);
-legend('Taylor Length Scale','Integral Length Scale','OneOverE Length Scale','RMS Velocity of Flow','Location','best');
+title('Length Scale vs effective sigma for tophats of varying widths (Re constant within 21%)');
+ylabel('Length Scales');
+xlabel('Effective Sigma');
+%plot(effectiveSigmaArray, taylorL);
+plot(effectiveSigmaArray, LArray);
+plot(effectiveSigmaArray, oneOverEScaleArray)
+legend('Integral Length Scale','OneOverE Length Scale','Location','best');
+
+figure();
+hold on;
+xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
+ylim([0 0.07]);
+set(h,'Fontsize', 12);
+title('RMS Velocity vs effective sigma for tophats of varying widths (Re constant within 21%)');
+ylabel('RMS Velocity');
+xlabel('Effective Sigma');
+plot(effectiveSigmaArray, MASvssArray);
+legend('RMS Velocity of Flow','Location','best');
 
 rmpath(path1);
 rmpath(path2);
