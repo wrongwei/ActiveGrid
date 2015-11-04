@@ -4,7 +4,8 @@
 % Written by Kevin Griffin and Nathan Wei, October 2015
 
 % Specify path to data folder ---------------------------------------------
-path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
+%path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
+path = fileparts('/n/homeserver2/user3a/nwei/Documents/Turbulence2015/data08_11_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -17,7 +18,7 @@ fprintf('***********************************************************************
 fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('Loading workspaces... ');
 tic;
-
+%{
 workspace01 = load('statscorr_lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace02 = load('statscorr_lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace03 = load('statscorr_lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
@@ -30,7 +31,19 @@ workspace09 = load('statscorr_lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','
 workspace10 = load('statscorr_lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace11 = load('statscorr_lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace12 = load('statscorr_lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-
+%}
+workspace01 = load('lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace02 = load('lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace03 = load('lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace04 = load('lt3.9lt3_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace05 = load('lt3.9lt3_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace06 = load('lt3.9lt3_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace07 = load('lt6.5lt5_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace08 = load('lt6.5lt5_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace09 = load('lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace10 = load('lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace11 = load('lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+workspace12 = load('lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspaceArray = [workspace01, workspace02, workspace03, workspace04, ...
     workspace05, workspace06, workspace07, workspace08, workspace09, ...
     workspace10, workspace11, workspace12];
@@ -54,6 +67,12 @@ end
 fprintf('Workspaces loaded in %.1f seconds.\n', round(10*toc)/10);
 
 H1 = figure(1);
+
+% calculate effective sigma (side length of box with volume equal to that of given kernel)
+heights = [0.0 0.05 0.1 0.2 0.4 0.8];
+sigma_eff_1 = (1 + (8*3.9^2*3-1)*heights.^2).^(1/3.0);
+sigma_eff_2 = (1 + (8*6.5^2*5-1)*heights.^2).^(1/3.0);
+    
 
 for j = 1 : length(workspaceArray)
     fprintf('\n-----------------------------------------------------------------------');
@@ -119,9 +138,15 @@ for j = 1 : length(workspaceArray)
     set(gca, 'fontsize', 12);
     hax = gca;
     ylabel('Correlation');
-
+    %{
+    if (j < 7)
+        sigma_eff = sigma_eff_1(j);
+    else
+        sigma_eff = sigma_eff_2(j-6);
+    end
+    %}
     h = semilogy(sepvalc/workspaceArray(j).oneOverEScale,MASCc,'LineWidth',2);
-    xlabel('Normalized Distance (m/oneOverEScale)');
+    xlabel('Normalized Distance (effective_sigma*m/oneOverEScale)');
     xlim([0 4]);
     ylim([0 1]);
     set(h, 'DisplayName', workspaceNames{j}); 
@@ -134,14 +159,15 @@ plot1 = fullfile(path, 'corrfs_ltheights.fig');
 saveas(H1, plot1);
 
 % Plot integral or 1/e length scale vs. long tail height
-heights = [0.0 0.05 0.1 0.2 0.4 0.8];
 lt3_9lt3_lengthscales = zeros(length(workspaceArray)/2, 1);
 lt6_5lt5_lengthscales = zeros(length(workspaceArray)/2, 1);
 for i = 1 : length(workspaceArray)/2
     lt3_9lt3_lengthscales(i) = workspaceArray(i).oneOverEScale;
+    %lt3_9lt3_lengthscales(i) = L(i);
 end
 for i = 1 : length(workspaceArray)/2
     lt6_5lt5_lengthscales(i) = workspaceArray(i+6).oneOverEScale;
+    %lt6_5lt5_lengthscales(i) = L(i+6);
 end
 H2 = figure(2);
 set(gca, 'fontsize', 12);
@@ -155,51 +181,24 @@ ylabel('1/e Length Scale');
 xlim('auto');
 ylim('auto');
 legend('lt3.9lt3','lt6.5lt5');
-plot2 = fullfile(path, '1overE_vs_ltheights.fig');
+plot2 = fullfile(path, 'oneOverEScale_vs_ltheights.fig');
 saveas(H2, plot2);
 
 % Plot length scale vs. effective sigma
-sigma_eff_1 = zeros(length(heights), 1);
-sigma_eff_2 = zeros(length(heights), 1);
-for i = 1 : length(heights)
-    for x = -7 : 7
-        for y = -7 : 7
-            dist = sqrt(x^2 + y^2);
-            if (dist <= 3.9 && dist ~= 0)
-                sigma_eff_1(i) = sigma_eff_1(i) + heights(i);
-            end
-            if (dist == 0)
-                sigma_eff_1(i) = sigma_eff_1(i) + 1;
-            end
-        end
-    end
-end
-for i = 1 : length(heights)
-    for x = -7 : 7
-        for y = -7 : 7
-            dist = sqrt(x^2 + y^2);
-            if (dist <= 6.5 && dist ~= 0)
-                sigma_eff_2(i) = sigma_eff_2(i) + heights(i);
-            end
-            if (dist == 0)
-                sigma_eff_2(i) = sigma_eff_2(i) + 1;
-            end
-        end
-    end
-end
 H3 = figure(3);
 set(gca, 'fontsize', 12);
 hax = gca;
-plot(sigma_eff_1, lt3_9lt3_lengthscales);
+scatter(sigma_eff_1, lt3_9lt3_lengthscales, 1000, '.');
 hold on;
-plot(sigma_eff_2, lt6_5lt5_lengthscales);
-title('1/e Length Scale vs. Long Tail Height');
+scatter(sigma_eff_2, lt6_5lt5_lengthscales, 1000, '.');
+title('1/e Length Scale vs. Effective Sigma');
 xlabel('Effective Sigma');
 ylabel('1/e Length Scale');
-xlim('auto');
+xlim([0, max(sigma_eff_2)]);
 ylim('auto');
-legend('lt3.9lt3','lt6.5lt5');
-plot3 = fullfile(path, '1overE_vs_sigma_eff.fig');
+set(hax,'XScale','log');
+legend('lt3.9lt3','lt6.5lt5','location','southeast');
+plot3 = fullfile(path, 'oneOverEScale_vs_sigma_eff.fig');
 saveas(H3, plot3);
     
 %legend(workspaceNames);
