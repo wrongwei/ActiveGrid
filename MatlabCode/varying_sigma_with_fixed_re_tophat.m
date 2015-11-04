@@ -1,6 +1,8 @@
 %Greg's Graph #2?: Effect of varying sigma on Lengths Scale? (with fixed Re)
 close all;
 clear all;
+paddled = 0.115; % meters
+meanVelocity = 1.45; % m/s
 
 % load all the workspaces you want to graph
 path1 = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_12_15/');
@@ -31,14 +33,14 @@ workspaceArray = [...
 spatialSigmaArray = [2.6,3.9,5.2,6.5];
 temporalSigmaArray = [2,3,4,5];
 for i = 1 : length(spatialSigmaArray)
-    effectiveSigmaArray(i) = (8 * spatialSigmaArray(i)^2*temporalSigmaArray(i))^(1/3);
+    effectiveSigmaArray(i) = ((2*spatialSigmaArray(i)*paddled)^2*temporalSigmaArray(i)*.1*meanVelocity)^(1/3);
 end
 
 %rmsVelocityArray = zeros(length(paddleAmplitude),1);
 for i = 1:length(workspaceArray)
     %rmsVelocityArray(i) = workspaceArray(i).MASvss;
     [ MASCc, sepvalc ] = cutoffcorrelation(workspaceArray(i).MASC, workspaceArray(i).sepval);
-    [ turbRe(i), taylorL(i) ] =  calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(i).MASvss, false);
+    [ turbRe(i), taylorL(i) ] =  calculatereynoldsnumber(MASCc,sepvalc,workspaceArray(i).MASvss, true);
     turbRe %print
     LArray(i) = hwils(MASCc,sepvalc,2);
     MASvssArray(i) = workspaceArray(i).MASvss;
@@ -48,40 +50,68 @@ end
 figure();
 title('Attempts to Fix Re by Changing Paddle Amplitude');
 ylabel('Reyonlds Number');
-xlabel('Effective Sigma');
-xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
+xlabel('Effective Sigma (m)');
+xlim([min(effectiveSigmaArray)-0.1 max(effectiveSigmaArray)+0.1]);
 ylim([0 400]);
 h = gca;
 set(h,'XScale','linear');
 set(h,'YScale','linear');
 set(h,'Fontsize', 12);
 hold on;
-plot(effectiveSigmaArray, turbRe);
-legend('Turbulent Re');
+scatter(effectiveSigmaArray, turbRe,1000,'.');
 
 figure();
 hold on;
-xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
+xlim([0 max(effectiveSigmaArray)+0.1]);
 %ylim([])l
 set(h,'Fontsize', 12);
 title('Length Scale vs effective sigma for tophats of varying widths (Re constant within 21%)');
-ylabel('Length Scales');
-xlabel('Effective Sigma');
-%plot(effectiveSigmaArray, taylorL);
-plot(effectiveSigmaArray, LArray);
-plot(effectiveSigmaArray, oneOverEScaleArray)
-legend('Integral Length Scale','OneOverE Length Scale','Location','best');
+ylabel('Length Scales (m)');
+xlabel('Effective Sigma (m)');
+scatter(effectiveSigmaArray, taylorL,1000,'.r');
+scatter(effectiveSigmaArray, LArray,1000,'.y');
+scatter(effectiveSigmaArray, oneOverEScaleArray,1000,'.b')
+p = polyfit(effectiveSigmaArray,taylorL,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'r')
+p = polyfit(effectiveSigmaArray,LArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'y')
+p = polyfit(effectiveSigmaArray,oneOverEScaleArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'b')
+legend('Taylor L','Integral Length Scale','OneOverE Length Scale','Location','best');
 
 figure();
 hold on;
-xlim([min(effectiveSigmaArray)-1 max(effectiveSigmaArray)+1]);
+xlim([0 max(effectiveSigmaArray)+0.1]);
 ylim([0 0.07]);
 set(h,'Fontsize', 12);
 title('RMS Velocity vs effective sigma for tophats of varying widths (Re constant within 21%)');
-ylabel('RMS Velocity');
-xlabel('Effective Sigma');
-plot(effectiveSigmaArray, MASvssArray);
-legend('RMS Velocity of Flow','Location','best');
+ylabel('RMS Velocity (m/s)');
+xlabel('Effective Sigma (m)');
+scatter(effectiveSigmaArray, MASvssArray,1000,'.');
+p = polyfit(effectiveSigmaArray,MASvssArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'r')
+
+figure();
+hold on;
+xlim([min(taylorL) max(taylorL)]);
+ylim('auto');
+set(h,'Fontsize', 12);
+title('1/e Scale vs Taylor Scale for tophats of varying widths (Re fixed)');
+ylabel('1/e Length Scale (m)');
+xlabel('Taylor Length Scale (m)');
+scatter(taylorL, oneOverEScaleArray,1000,'.');
+p = polyfit(taylorL,oneOverEScaleArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'r')
 
 rmpath(path1);
 rmpath(path2);
