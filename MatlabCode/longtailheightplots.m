@@ -220,25 +220,15 @@ set(gca, 'fontsize', 12);
 hax = gca;
 scatter(heights, lt3_9lt3_lengthscales,1000,'.');
 hold on;
-<<<<<<< HEAD
 scatter(heights, lt6_5lt5_lengthscales,1000,'.');
 title('1/e Length Scale vs. Long Tail Height');
-=======
-plot(heights, lt6_5lt5_lengthscales);
-title('Integral Length Scale vs. Long Tail Height');
->>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
 xlabel('Long Tail Height');
 ylabel('Integral Length Scale (m)');
 xlim('auto');
 ylim('auto');
 legend('lt3.9lt3','lt6.5lt5');
-<<<<<<< HEAD
-plot3 = fullfile(path, 'oneOverEScale_vs_ltheights.fig');
+plot3 = fullfile(path, 'L_vs_ltheights.fig');
 saveas(H3, plot3);
-=======
-plot2 = fullfile(path, 'L_vs_ltheights.fig');
-saveas(H2, plot2);
->>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
 
 % Plot length scale vs. effective sigma
 H4 = figure(4);
@@ -254,13 +244,8 @@ xlim([0, max(sigma_eff_2)]);
 ylim('auto');
 set(hax,'XScale','log');
 legend('lt3.9lt3','lt6.5lt5','location','southeast');
-<<<<<<< HEAD
-plot4 = fullfile(path, 'oneOverEScale_vs_sigma_eff.fig');
+plot4 = fullfile(path, 'L_vs_sigma_eff.fig');
 saveas(H4, plot4);
-=======
-plot3 = fullfile(path, 'L_vs_sigma_eff.fig');
-saveas(H3, plot3);
->>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
     
 %legend(workspaceNames);
 rmpath(path);
