@@ -77,9 +77,9 @@ H1 = figure(1);
 
 % calculate effective sigma (side length of box with volume equal to that of given kernel)
 heights = [0.0 0.05 0.1 0.2 0.4 0.8];
+
 sigma_eff_1 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*3.9^2*3-1)).^(1/3)
 sigma_eff_2 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*6.5^2*5-1)).^(1/3);
-    
 
 for j = 1 : length(workspaceArray)
     fprintf('\n-----------------------------------------------------------------------');
@@ -208,27 +208,37 @@ saveas(H2, plot2);
 lt3_9lt3_lengthscales = zeros(length(workspaceArray)/2, 1);
 lt6_5lt5_lengthscales = zeros(length(workspaceArray)/2, 1);
 for i = 1 : length(workspaceArray)/2
-    lt3_9lt3_lengthscales(i) = workspaceArray(i).oneOverEScale;
-    %lt3_9lt3_lengthscales(i) = L(i);
+    %lt3_9lt3_lengthscales(i) = workspaceArray(i).oneOverEScale;
+    lt3_9lt3_lengthscales(i) = L(i);
 end
 for i = 1 : length(workspaceArray)/2
-    lt6_5lt5_lengthscales(i) = workspaceArray(i+6).oneOverEScale;
-    %lt6_5lt5_lengthscales(i) = L(i+6);
+    %lt6_5lt5_lengthscales(i) = workspaceArray(i+6).oneOverEScale;
+    lt6_5lt5_lengthscales(i) = L(i+6);
 end
 H3 = figure(3);
 set(gca, 'fontsize', 12);
 hax = gca;
 scatter(heights, lt3_9lt3_lengthscales,1000,'.');
 hold on;
+<<<<<<< HEAD
 scatter(heights, lt6_5lt5_lengthscales,1000,'.');
 title('1/e Length Scale vs. Long Tail Height');
+=======
+plot(heights, lt6_5lt5_lengthscales);
+title('Integral Length Scale vs. Long Tail Height');
+>>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
 xlabel('Long Tail Height');
-ylabel('1/e Length Scale');
+ylabel('Integral Length Scale (m)');
 xlim('auto');
 ylim('auto');
 legend('lt3.9lt3','lt6.5lt5');
+<<<<<<< HEAD
 plot3 = fullfile(path, 'oneOverEScale_vs_ltheights.fig');
 saveas(H3, plot3);
+=======
+plot2 = fullfile(path, 'L_vs_ltheights.fig');
+saveas(H2, plot2);
+>>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
 
 % Plot length scale vs. effective sigma
 H4 = figure(4);
@@ -237,15 +247,20 @@ hax = gca;
 scatter(sigma_eff_1, lt3_9lt3_lengthscales, 1000, '.');
 hold on;
 scatter(sigma_eff_2, lt6_5lt5_lengthscales, 1000, '.');
-title('1/e Length Scale vs. Effective Sigma');
-xlabel('Effective Sigma');
-ylabel('1/e Length Scale');
+title('Integral Length Scale vs. Effective Sigma');
+xlabel('Effective Sigma (m)');
+ylabel('Integral Length Scale (m)');
 xlim([0, max(sigma_eff_2)]);
 ylim('auto');
 set(hax,'XScale','log');
 legend('lt3.9lt3','lt6.5lt5','location','southeast');
+<<<<<<< HEAD
 plot4 = fullfile(path, 'oneOverEScale_vs_sigma_eff.fig');
 saveas(H4, plot4);
+=======
+plot3 = fullfile(path, 'L_vs_sigma_eff.fig');
+saveas(H3, plot3);
+>>>>>>> 2e53c46373c88b68d48902ec0a4ea45bca1e0960
     
 %legend(workspaceNames);
 rmpath(path);
