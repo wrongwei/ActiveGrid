@@ -30,7 +30,7 @@ workspaceArray = [...
 figure(1);
 title('RMS Velocity Fluctuations vs Paddle Amplitude (RMS)');
 ylabel('RMS Velocity (m/s)');
-xlabel('Paddle RMS (m/s)');
+xlabel('Paddle RMS (degrees)');
 xlim([0 60]);
 %ylim([]);
 h = gca;

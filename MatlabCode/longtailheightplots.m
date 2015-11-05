@@ -70,8 +70,11 @@ H1 = figure(1);
 
 % calculate effective sigma (side length of box with volume equal to that of given kernel)
 heights = [0.0 0.05 0.1 0.2 0.4 0.8];
-sigma_eff_1 = (1 + (8*3.9^2*3-1)*heights.^2).^(1/3.0);
-sigma_eff_2 = (1 + (8*6.5^2*5-1)*heights.^2).^(1/3.0);
+paddleD = 0.115; % meters
+timeStep = 0.1; % seconds
+meanU = 1.45; % m/s
+sigma_eff_1 = (paddleD^2 + (8*(3.9*paddleD)^2*(3*timeStep*meanU)-paddleD^2)*heights.^2).^(1/3.0);
+sigma_eff_2 = (paddleD^2 + (8*(6.5*paddleD)^2*(5*timeStep*meanU)-paddleD^2)*heights.^2).^(1/3.0);
     
 
 for j = 1 : length(workspaceArray)
@@ -146,7 +149,7 @@ for j = 1 : length(workspaceArray)
     end
     %}
     h = semilogy(sepvalc/workspaceArray(j).oneOverEScale,MASCc,'LineWidth',2);
-    xlabel('Normalized Distance (effective_sigma*m/oneOverEScale)');
+    xlabel('Normalized Distance (m/oneOverEScale)');
     xlim([0 4]);
     ylim([0 1]);
     set(h, 'DisplayName', workspaceNames{j}); 
@@ -162,12 +165,12 @@ saveas(H1, plot1);
 lt3_9lt3_lengthscales = zeros(length(workspaceArray)/2, 1);
 lt6_5lt5_lengthscales = zeros(length(workspaceArray)/2, 1);
 for i = 1 : length(workspaceArray)/2
-    lt3_9lt3_lengthscales(i) = workspaceArray(i).oneOverEScale;
-    %lt3_9lt3_lengthscales(i) = L(i);
+    %lt3_9lt3_lengthscales(i) = workspaceArray(i).oneOverEScale;
+    lt3_9lt3_lengthscales(i) = L(i);
 end
 for i = 1 : length(workspaceArray)/2
-    lt6_5lt5_lengthscales(i) = workspaceArray(i+6).oneOverEScale;
-    %lt6_5lt5_lengthscales(i) = L(i+6);
+    %lt6_5lt5_lengthscales(i) = workspaceArray(i+6).oneOverEScale;
+    lt6_5lt5_lengthscales(i) = L(i+6);
 end
 H2 = figure(2);
 set(gca, 'fontsize', 12);
@@ -175,13 +178,13 @@ hax = gca;
 plot(heights, lt3_9lt3_lengthscales);
 hold on;
 plot(heights, lt6_5lt5_lengthscales);
-title('1/e Length Scale vs. Long Tail Height');
+title('Integral Length Scale vs. Long Tail Height');
 xlabel('Long Tail Height');
-ylabel('1/e Length Scale');
+ylabel('Integral Length Scale (m)');
 xlim('auto');
 ylim('auto');
 legend('lt3.9lt3','lt6.5lt5');
-plot2 = fullfile(path, 'oneOverEScale_vs_ltheights.fig');
+plot2 = fullfile(path, 'L_vs_ltheights.fig');
 saveas(H2, plot2);
 
 % Plot length scale vs. effective sigma
@@ -191,14 +194,14 @@ hax = gca;
 scatter(sigma_eff_1, lt3_9lt3_lengthscales, 1000, '.');
 hold on;
 scatter(sigma_eff_2, lt6_5lt5_lengthscales, 1000, '.');
-title('1/e Length Scale vs. Effective Sigma');
-xlabel('Effective Sigma');
-ylabel('1/e Length Scale');
+title('Integral Length Scale vs. Effective Sigma');
+xlabel('Effective Sigma (m)');
+ylabel('Integral Length Scale (m)');
 xlim([0, max(sigma_eff_2)]);
 ylim('auto');
 set(hax,'XScale','log');
 legend('lt3.9lt3','lt6.5lt5','location','southeast');
-plot3 = fullfile(path, 'oneOverEScale_vs_sigma_eff.fig');
+plot3 = fullfile(path, 'L_vs_sigma_eff.fig');
 saveas(H3, plot3);
     
 %legend(workspaceNames);
