@@ -33,7 +33,7 @@ workspaceArray = [...
 spatialSigmaArray = [2.6,3.9,5.2,6.5];
 temporalSigmaArray = [2,3,4,5];
 for i = 1 : length(spatialSigmaArray)
-    effectiveSigmaArray(i) = ((2*spatialSigmaArray(i)*paddled)^2*temporalSigmaArray(i)*.1*meanVelocity)^(1/3);
+    effectiveSigmaArray(i) = (8*(spatialSigmaArray(i)*paddled)^2*temporalSigmaArray(i)*.1*meanVelocity)^(1/3);
 end
 
 %rmsVelocityArray = zeros(length(paddleAmplitude),1);
@@ -104,11 +104,16 @@ hold on;
 xlim([min(taylorL) max(taylorL)]);
 ylim('auto');
 set(h,'Fontsize', 12);
-title('1/e Scale vs Taylor Scale for tophats of varying widths (Re fixed)');
-ylabel('1/e Length Scale (m)');
+title('Length Scales vs Taylor Scale for tophats of varying widths (Re fixed)');
+ylabel('1/e Length Scale and Integral Length Scale (m)');
 xlabel('Taylor Length Scale (m)');
 scatter(taylorL, oneOverEScaleArray,1000,'.');
+scatter(taylorL, LArray,1000,'.');
 p = polyfit(taylorL,oneOverEScaleArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
+x1 = linspace(0,60);
+y1 = polyval(p,x1);
+plot(x1,y1,'r')
+p = polyfit(taylorL,LArray,1); %fit a second order polynomial to these 26 points. Note polyfit wanted both vectors to be row vectors, I transpose corrVals
 x1 = linspace(0,60);
 y1 = polyval(p,x1);
 plot(x1,y1,'r')
