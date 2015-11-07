@@ -3,7 +3,6 @@
 % Written by Nathan Wei and Kevin Griffin, 6 November 2015
 % Dependencies: cutoffcorrelation.m, calculatereynoldsnumber.m, hwils.m
 close all;
-clear all;
 paddled = 0.115; % meters
 meanU = 1.45; % m/s
 timeStep = 0.1; % seconds
@@ -67,48 +66,58 @@ filenames = {...
     'th6.5th5_0828.mat',...        26
     'th3.9th3_rms20_0828.mat',...  27
     'th5.2th4_rms20_0828.mat',...  28
-    'th6.5th5_rms20_0828.mat',...  29
+    %'th6.5th5_rms20_0828.mat',...  29
     };
 if (~isNathan)
     strcat('statscorr_', filenames); % should take care of statscorr vs. no statscorr issue
 end
 
-workspace1 = load(filenames{1},'MASC','sepval','MASvss','oneOverEScale');
-workspace2 = load(filenames{2},'MASC','sepval','MASvss','oneOverEScale');
-workspace3 = load(filenames{3},'MASC','sepval','MASvss','oneOverEScale');
-workspace4 = load(filenames{4},'MASC','sepval','MASvss','oneOverEScale');
-workspace5 = load(filenames{5},'MASC','sepval','MASvss','oneOverEScale');
-workspace6 = load(filenames{6},'MASC','sepval','MASvss','oneOverEScale');
-workspace7 = load(filenames{7},'MASC','sepval','MASvss','oneOverEScale');
-workspace8 = load(filenames{8},'MASC','sepval','MASvss','oneOverEScale');
-workspace9 = load(filenames{9},'MASC','sepval','MASvss','oneOverEScale');
-workspace10 = load(filenames{10},'MASC','sepval','MASvss','oneOverEScale');
-workspace11 = load(filenames{11},'MASC','sepval','MASvss','oneOverEScale');
-workspace12 = load(filenames{12},'MASC','sepval','MASvss','oneOverEScale');
-workspace13 = load(filenames{13},'MASC','sepval','MASvss','oneOverEScale');
-workspace14 = load(filenames{14},'MASC','sepval','MASvss','oneOverEScale');
-workspace15 = load(filenames{15},'MASC','sepval','MASvss','oneOverEScale');
-workspace16 = load(filenames{16},'MASC','sepval','MASvss','oneOverEScale');
-workspace17 = load(filenames{17},'MASC','sepval','MASvss','oneOverEScale');
-workspace18 = load(filenames{18},'MASC','sepval','MASvss','oneOverEScale');
-workspace19 = load(filenames{19},'MASC','sepval','MASvss','oneOverEScale');
-workspace20 = load(filenames{20},'MASC','sepval','MASvss','oneOverEScale');
-workspace21 = load(filenames{21},'MASC','sepval','MASvss','oneOverEScale');
-workspace22 = load(filenames{22},'MASC','sepval','MASvss','oneOverEScale');
-workspace23 = load(filenames{23},'MASC','sepval','MASvss','oneOverEScale');
-workspace24 = load(filenames{24},'MASC','sepval','MASvss','oneOverEScale');
-workspace25 = load(filenames{25},'MASC','sepval','MASvss','oneOverEScale');
-workspace26 = load(filenames{26},'MASC','sepval','MASvss','oneOverEScale');
-workspace27 = load(filenames{27},'MASC','sepval','MASvss','oneOverEScale');
-workspace28 = load(filenames{28},'MASC','sepval','MASvss','oneOverEScale');
-workspace29 = load(filenames{29},'MASC','sepval','MASvss','oneOverEScale');
+% don't load workspaces every time if they already exist in memory
+loadWorkspaces = true;
+if (exist('workspaceArray','var'))
+    if (length(workspaceArray) == length(filenames))
+        loadWorkspaces = false;
+    end
+end
 
-workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,...
-    workspace6,workspace7,workspace8,workspace9,workspace10,workspace11...
-    ,workspace12,workspace13,workspace14,workspace15,workspace16,workspace17...
-    ,workspace18,workspace19,workspace20,workspace21,workspace22,workspace23...
-    ,workspace24,workspace25,workspace26,workspace27,workspace28,workspace29]; 
+if (loadWorkspaces)
+    workspace1 = load(filenames{1},'MASC','sepval','MASvss','oneOverEScale');
+    workspace2 = load(filenames{2},'MASC','sepval','MASvss','oneOverEScale');
+    workspace3 = load(filenames{3},'MASC','sepval','MASvss','oneOverEScale');
+    workspace4 = load(filenames{4},'MASC','sepval','MASvss','oneOverEScale');
+    workspace5 = load(filenames{5},'MASC','sepval','MASvss','oneOverEScale');
+    workspace6 = load(filenames{6},'MASC','sepval','MASvss','oneOverEScale');
+    workspace7 = load(filenames{7},'MASC','sepval','MASvss','oneOverEScale');
+    workspace8 = load(filenames{8},'MASC','sepval','MASvss','oneOverEScale');
+    workspace9 = load(filenames{9},'MASC','sepval','MASvss','oneOverEScale');
+    workspace10 = load(filenames{10},'MASC','sepval','MASvss','oneOverEScale');
+    workspace11 = load(filenames{11},'MASC','sepval','MASvss','oneOverEScale');
+    workspace12 = load(filenames{12},'MASC','sepval','MASvss','oneOverEScale');
+    workspace13 = load(filenames{13},'MASC','sepval','MASvss','oneOverEScale');
+    workspace14 = load(filenames{14},'MASC','sepval','MASvss','oneOverEScale');
+    workspace15 = load(filenames{15},'MASC','sepval','MASvss','oneOverEScale');
+    workspace16 = load(filenames{16},'MASC','sepval','MASvss','oneOverEScale');
+    workspace17 = load(filenames{17},'MASC','sepval','MASvss','oneOverEScale');
+    workspace18 = load(filenames{18},'MASC','sepval','MASvss','oneOverEScale');
+    workspace19 = load(filenames{19},'MASC','sepval','MASvss','oneOverEScale');
+    workspace20 = load(filenames{20},'MASC','sepval','MASvss','oneOverEScale');
+    workspace21 = load(filenames{21},'MASC','sepval','MASvss','oneOverEScale');
+    workspace22 = load(filenames{22},'MASC','sepval','MASvss','oneOverEScale');
+    workspace23 = load(filenames{23},'MASC','sepval','MASvss','oneOverEScale');
+    workspace24 = load(filenames{24},'MASC','sepval','MASvss','oneOverEScale');
+    workspace25 = load(filenames{25},'MASC','sepval','MASvss','oneOverEScale');
+    workspace26 = load(filenames{26},'MASC','sepval','MASvss','oneOverEScale');
+    workspace27 = load(filenames{27},'MASC','sepval','MASvss','oneOverEScale');
+    workspace28 = load(filenames{28},'MASC','sepval','MASvss','oneOverEScale');
+    %workspace29 = load(filenames{29},'MASC','sepval','MASvss','oneOverEScale');
 
+    workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,...
+        workspace6,workspace7,workspace8,workspace9,workspace10,workspace11...
+        ,workspace12,workspace13,workspace14,workspace15,workspace16,workspace17...
+        ,workspace18,workspace19,workspace20,workspace21,workspace22,workspace23...
+        ,workspace24,workspace25,workspace26,workspace27,workspace28]; 
+
+end
 disp('Workspaces loaded!');
 
 % String processing hacks
@@ -156,25 +165,33 @@ for i = 1 : length(workspaceArray)
         effectiveSigmas(i) = ((2*spatialSigmas(i)*paddled)^2*...
             temporalSigmas(i)*timeStep*meanU)^(1/3);
     else
-        disp(kernelID)
+        disp(kernelID); % something went wrong; we should only have lt and th
     end
 end
+
+disp(oneOverEScaleArray);
+disp(LArray);
 
 % plot length scales with effective sigma
 % Plot length scale vs. effective sigma
 H1 = figure(1);
 set(gca, 'fontsize', 12);
 hax = gca;
-scatter(effectiveSigmas, LArray, 100, '.');
+scatter(effectiveSigmas, LArray, 'o');
 hold on;
-scatter(effectiveSigmas, oneOverEScaleArray, 100, '.');
+scatter(effectiveSigmas, oneOverEScaleArray, '*');
+scatter(effectiveSigmas, taylorL, '.');
 title('Length Scales vs. Effective Sigma');
 xlabel('Effective Sigma (m)');
 ylabel('Length Scales (m)');
 xlim('auto');
-ylim([0 5]);
+ylim('auto');
 set(hax,'XScale','log');
-legend('Integral Length Scale','1/e Length Scale','location','southeast');
+legend('Integral Length Scale','1/e Length Scale','Taylor Length Scale',...
+    'location','northwest');
+%text(effectiveSigmas, LArray, filenames);
+%text(effectiveSigmas, oneOverEScaleArray, filenames);
+%text(effectiveSigmas, taylorL, filenames);
 plot1 = fullfile(path, 'length_scales_vs_effective_sigma.fig');
 saveas(H1, plot1);
 
