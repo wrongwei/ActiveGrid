@@ -16,14 +16,14 @@ pathArray = {...
 %array of the filebases for each set of mat files
 fileBaseArray = {...
     
-    %'energy_lt5.2lt50_0814',... %energy file for 10 min lt5.2lt50
-    %'energy_lt5.2lt50_0819',... %energy file for 1st 40 min lt5.2lt50
-    %'energy_lt5.2lt50_0820a',...%energy file for 2nd 40 min lt5.2lt50
-    %'energy_lt5.2lt50_0826'...  %energy file for 70 min lt5.2lt50
+    'energy_lt5.2lt50_0814',... %energy file for 10 min lt5.2lt50
+    'energy_lt5.2lt50_0819',... %energy file for 1st 40 min lt5.2lt50
+    'energy_lt5.2lt50_0820a',...%energy file for 2nd 40 min lt5.2lt50
+    'energy_lt5.2lt50_0826'...  %energy file for 70 min lt5.2lt50
     
-    'energy_th3.9th3_0821a'...  %energy file for 10 min th3.9th3
-    'energy_th3.9th3_0825',...  %energy file for 40 min th3.9th3
-    'energy_th3.9th3_0827'...   %energy file for 2nd 40 min th3.9th3
+    %'energy_th3.9th3_0821a'...  %energy file for 10 min th3.9th3
+    %'energy_th3.9th3_0825',...  %energy file for 40 min th3.9th3
+    %'energy_th3.9th3_0827'...   %energy file for 2nd 40 min th3.9th3
     
     %'energy_lt5.2lt4_0826',...  %energy file for 40 min lt5.2lt4
     %'energy_lt5.2lt4_0827'...  %energy file for 2nd 40 min lt5.2lt4
@@ -69,6 +69,16 @@ end
 weightedAverageEnergyArray = weightedAverageEnergyArray./totalLength;
 weightedAverageMASvsmArray = weightedAverageMASvsmArray./totalLength;
 weightedAverageOneOverEScaleArray = weightedAverageOneOverEScaleArray./totalLength;
+
+%plot the lengthscale versus distance
+figure(2);
+hold on;
+plot(vars.dist-1,weightedAverageOneOverEScaleArray);
+xlabel('Distance from the grid (m)');
+ylabel('1/e Length Scale (m)');
+%legend('lt5.2lt50','th3.9th3','lt5.2lt4');
+title('Length scale vs distance from grid for the three decay kernels');
+
 if(errorbars)
     weightedAverageEnergyVarianceArray = weightedAverageEnergyVarianceArray./totalLength;
 end
@@ -77,9 +87,9 @@ if(errorbars)
     totalNumberOfCorrLengths = totalLength*weightedAverageMASvsmArray...
         ./weightedAverageOneOverEScaleArray/samplingFrequency;
     stderr = sqrt(weightedAverageEnergyVarianceArray./totalNumberOfCorrLengths);
-    result = Edecfit(vars.dist, weightedAverageMASvsmArray, weightedAverageEnergyArray, b0, stderr);
+    result = Edecfit(vars.dist-1, weightedAverageMASvsmArray, weightedAverageEnergyArray, b0, stderr);
 else
-    result = Edecfit(vars.dist, weightedAverageMASvsmArray, weightedAverageEnergyArray, b0);
+    result = Edecfit(vars.dist-1, weightedAverageMASvsmArray, weightedAverageEnergyArray, b0);
 end
 
 %{
