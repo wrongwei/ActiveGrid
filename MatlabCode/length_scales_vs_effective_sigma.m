@@ -1,7 +1,8 @@
 % Plot length scales vs. effective sigma for as much data as possible
 % Length scales used: integral length scale, 1/e length scale
 % Written by Nathan Wei and Kevin Griffin, 6 November 2015
-% Dependencies: cutoffcorrelation.m, calculatereynoldsnumber.m, hwils.m
+% Dependencies: cutoffcorrelation.m, calculatereynoldsnumber.m, hwils.m,
+% calculateeffectivesigma.m
 close all;
 paddled = 0.115; % meters
 meanU = 1.45; % m/s
@@ -145,32 +146,12 @@ for i = 1 : length(workspaceArray)
     LArray(i) = hwils(MASCc,sepvalc,2);
     MASvssArray(i) = workspaceArray(i).MASvss;
     oneOverEScaleArray(i) = workspaceArray(i).oneOverEScale;
-    testID = strsplit(filenames{i}, '_'); % remove test ID from filename
-    testID = testID{1}; % thank goodness for matlab lazy typing!
-    spatialSigmas(i) = str2double(testID(3:5)); % assuming format xx#.#yy#####
-    temporalSigmas(i) = str2double(testID(8:end));
-    kernelID = testID(1:2); % assuming xx = yy (same kernel type in both dimensions)
-    if (strcmp(kernelID, 'lt')) % if long tail kernel
-        % isolate height
-        heightString = filenames{i}(strfind(filenames{i}, 'h') : strfind(filenames{i}, '.mat'));
-        heightString = strsplit(heightString, '_');
-        heightString = heightString{1};
-        height = str2double(heightString(2:end));
-        if (isnan(height))
-            height = 0.1; % unspecified heights are 0.1
-        end
-        effectiveSigmas(i) = paddled^2*timeStep*meanU*(1+height^2*...
-            (8*spatialSigmas(i)^2*temporalSigmas(i)-1))^(1/3);
-    elseif (strcmp(kernelID, 'th')) % if top hat kernel
-        effectiveSigmas(i) = ((2*spatialSigmas(i)*paddled)^2*...
-            temporalSigmas(i)*timeStep*meanU)^(1/3);
-    else
-        disp(kernelID); % something went wrong; we should only have lt and th
-    end
+    [spatialSigmas(i), temporalSigmas(i), effectiveSigmas(i)] =...
+        calculateeffectivesigma(filenames{i}, paddled, meanU, timeStep);
 end
 
-disp(oneOverEScaleArray);
-disp(LArray);
+%disp(oneOverEScaleArray);
+%disp(LArray);
 
 % plot length scales with effective sigma
 % Plot length scale vs. effective sigma
