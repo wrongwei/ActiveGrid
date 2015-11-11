@@ -54,6 +54,7 @@ function [spatialS, temporalS, effectiveS] = ...
             end
         end
     end
+    effectiveS = effectiveS ^ (1/3); % cube root of volume
     %disp(spatialS);
     %disp(temporalS);
     %disp(effectiveS);

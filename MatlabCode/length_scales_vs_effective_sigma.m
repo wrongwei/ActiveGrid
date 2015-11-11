@@ -67,7 +67,7 @@ filenames = {...
     'th6.5th5_0828.mat',...        26
     'th3.9th3_rms20_0828.mat',...  27
     'th5.2th4_rms20_0828.mat',...  28
-    %'th6.5th5_rms20_0828.mat',...  29
+    'th6.5th5_rms20_0828.mat',...  29
     };
 if (~isNathan)
     strcat('statscorr_', filenames); % should take care of statscorr vs. no statscorr issue
@@ -110,13 +110,13 @@ if (loadWorkspaces)
     workspace26 = load(filenames{26},'MASC','sepval','MASvss','oneOverEScale');
     workspace27 = load(filenames{27},'MASC','sepval','MASvss','oneOverEScale');
     workspace28 = load(filenames{28},'MASC','sepval','MASvss','oneOverEScale');
-    %workspace29 = load(filenames{29},'MASC','sepval','MASvss','oneOverEScale');
+    workspace29 = load(filenames{29},'MASC','sepval','MASvss','oneOverEScale');
 
     workspaceArray = [workspace1,workspace2,workspace3,workspace4,workspace5,...
         workspace6,workspace7,workspace8,workspace9,workspace10,workspace11...
         ,workspace12,workspace13,workspace14,workspace15,workspace16,workspace17...
         ,workspace18,workspace19,workspace20,workspace21,workspace22,workspace23...
-        ,workspace24,workspace25,workspace26,workspace27,workspace28]; 
+        ,workspace24,workspace25,workspace26,workspace27,workspace28,workspace29]; 
 
 end
 disp('Workspaces loaded!');
@@ -165,8 +165,8 @@ scatter(effectiveSigmas, taylorL, '.');
 title('Length Scales vs. Effective Sigma');
 xlabel('Effective Sigma (m)');
 ylabel('Length Scales (m)');
-xlim('auto');
-ylim('auto');
+xlim([0 30]);
+ylim([0 4]);
 set(hax,'XScale','log');
 legend('Integral Length Scale','1/e Length Scale','Taylor Length Scale',...
     'location','northwest');
