@@ -38,7 +38,7 @@ function [spatialS, temporalS, effectiveS] = ...
         for j = -boundS : boundS
             for t = -boundT : boundT
                 dist = sqrt(i^2 + j^2);
-                seed = 1;
+                seed = paddled^2 * timeStep * meanU;
                 if (isLT)
                     if (dist ~= 0 && dist <= spatialS)
                         seed = seed * height;

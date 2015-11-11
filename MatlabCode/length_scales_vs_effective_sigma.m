@@ -165,8 +165,8 @@ scatter(effectiveSigmas, taylorL, '.');
 title('Length Scales vs. Effective Sigma');
 xlabel('Effective Sigma (m)');
 ylabel('Length Scales (m)');
-xlim([0 30]);
-ylim([0 4]);
+%xlim([0 5]);
+%ylim([0 4]);
 set(hax,'XScale','log');
 legend('Integral Length Scale','1/e Length Scale','Taylor Length Scale',...
     'location','northwest');
