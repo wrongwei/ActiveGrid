@@ -11,8 +11,9 @@ w = load('statscorr_th5.2th50_0824.mat','u','MASvsm','deltaT');
 %[MASp, MASf] = hwspectrum(w.u-w.MASvsm, w.deltaT);
 
 samples = length(w.u); 
+interval = 5; % seconds of each segment to average
 
-num = samples*w.deltaT/10;
+num = samples*w.deltaT/interval;
 f = (0:num-1)/(samples-1); 
 f = f/w.deltaT; 
 spectrum = zeros(num,1);
@@ -23,14 +24,19 @@ for i = 1 : num
     spectrum = spectrum + tempspectrum;
 end
 
+% curve fits for sections of spectrum graph
+p1 = polyfit(log10(f(2:5)).', log10(spectrum(2:5)), 1);
+disp(p1);
+p2 = polyfit(log10(f(100:500)).', log10(spectrum(100:500)), 1);
+disp(p2);
+
 % plot histogram of velocity fluctuation data
 %figure(1);
 %histogram(w.u-w.MASvsm);
 
 % plot spectrum
 figure(1);
-semilogx(f, spectrum);
-xlim([0 max(f)*0.95]); % cut off noise from FFT
+semilogx(f(5:(length(f)-50)), spectrum(5:(length(f)-50)),'.'); % cut off FFT noise
 xlabel('Frequency'); % what are the units? Hz? kHz? GigaGriffins?
 ylabel('Power');
 title('Power Spectrum of Velocity Fluctuations');
