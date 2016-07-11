@@ -4,8 +4,8 @@
 % Written by Kevin Griffin and Nathan Wei, October 2015
 
 % Specify path to data folder ---------------------------------------------
-path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
-%path = fileparts('/n/homeserver2/user3a/nwei/Documents/Turbulence2015/data08_11_15/');
+%path = fileparts('/n/homeserver2/user3a/kevinpg/Data/data08_11_15/');
+path = fileparts('/n/homeserver2/user3a/nwei/Documents/Turbulence2015/data08_11_15/');
 addpath(path);
 
 % load all the workspaces you want to graph. Put each one in a varaible,
@@ -18,7 +18,7 @@ fprintf('***********************************************************************
 fprintf('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n');
 fprintf('Loading workspaces... ');
 tic;
-
+%{
 workspace01 = load('statscorr_lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace02 = load('statscorr_lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace03 = load('statscorr_lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
@@ -31,8 +31,8 @@ workspace09 = load('statscorr_lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','
 workspace10 = load('statscorr_lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace11 = load('statscorr_lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace12 = load('statscorr_lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
+%}
 
-%{
 workspace01 = load('lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace02 = load('lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace03 = load('lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
@@ -45,7 +45,7 @@ workspace09 = load('lt6.5lt5_h0.1_0811.mat','MASC','sepval','MASvss','oneOverESc
 workspace10 = load('lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace11 = load('lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace12 = load('lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
-%}
+
 workspaceArray = [workspace01, workspace02, workspace03, workspace04, ...
     workspace05, workspace06, workspace07, workspace08, workspace09, ...
     workspace10, workspace11, workspace12];
@@ -79,8 +79,62 @@ H1 = figure(1);
 heights = [0.0 0.05 0.1 0.2 0.4 0.8];
 
 sigma_eff_1 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*3.9^2*3-1)).^(1/3)
-sigma_eff_2 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*6.5^2*5-1)).^(1/3);
+sigma_eff_2 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*6.5^2*5-1)).^(1/3)
 
+% revised calculation of effective sigma
+sigma1s = 3.9;
+sigma1t = 3;
+sigma2s = 6.5;
+sigma2t = 5;
+sigma_eff_1 = 0;
+sigma_eff_2 = 0;
+for i = -ceil(sigma1s) : ceil(sigma1s)
+    for j = -ceil(sigma1s) : ceil(sigma1s)
+        dist = sqrt(i*i+j*j);
+        if dist == 0
+            spatial_factor = ones(length(heights), 1);
+        elseif dist <= sigma1s
+            spatial_factor = (heights).^2;
+        else
+            spatial_factor = zeros(length(heights), 1);
+        end
+        for t = -ceil(sigma1t) : ceil(sigma1t)
+            if t == 0
+                temporal_factor = ones(length(heights), 1);
+            elseif t <= sigma1t
+                temporal_factor = heights;
+            else
+                temporal_factor = zeros(length(heights), 1);
+            end
+            sigma_eff_1 = sigma_eff_1 + spatial_factor.*temporal_factor;
+        end
+    end
+end
+sigma_eff_1 = paddled^2*0.1*meanVelocity*(sigma_eff_1.^(1/3))
+for i = -ceil(sigma2s) : ceil(sigma2s)
+    for j = -ceil(sigma2s) : ceil(sigma2s)
+        dist = sqrt(i*i+j*j);
+        if dist == 0
+            spatial_factor = ones(length(heights), 1);
+        elseif dist <= sigma2s
+            spatial_factor = (heights).^2;
+        else
+            spatial_factor = zeros(length(heights), 1);
+        end
+        for t = -ceil(sigma2t) : ceil(sigma2t)
+            if t == 0
+                temporal_factor = ones(length(heights), 1);
+            elseif t <= sigma2t
+                temporal_factor = heights;
+            else
+                temporal_factor = zeros(length(heights), 1);
+            end
+            sigma_eff_2 = sigma_eff_2 + spatial_factor.*temporal_factor;
+        end
+    end
+end
+sigma_eff_2 = paddled^2*0.1*meanVelocity*(sigma_eff_2.^(1/3))
+%{
 for j = 1 : length(workspaceArray)
     fprintf('\n-----------------------------------------------------------------------');
     fprintf('------\n Processing test %s \n',workspaceNames{j});
@@ -249,3 +303,4 @@ saveas(H4, plot4);
     
 %legend(workspaceNames);
 rmpath(path);
+%}
