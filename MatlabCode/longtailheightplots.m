@@ -32,7 +32,7 @@ workspace10 = load('statscorr_lt6.5lt5_h0.2_0811.mat','MASC','sepval','MASvss','
 workspace11 = load('statscorr_lt6.5lt5_h0.4_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace12 = load('statscorr_lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 %}
-
+%{
 workspace01 = load('lt3.9lt3_h0_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace02 = load('lt3.9lt3_h0.05_0811.mat','MASC','sepval','MASvss','oneOverEScale');
 workspace03 = load('lt3.9lt3_h0.1_0811.mat','MASC','sepval','MASvss','oneOverEScale');
@@ -49,7 +49,7 @@ workspace12 = load('lt6.5lt5_h0.8_0811.mat','MASC','sepval','MASvss','oneOverESc
 workspaceArray = [workspace01, workspace02, workspace03, workspace04, ...
     workspace05, workspace06, workspace07, workspace08, workspace09, ...
     workspace10, workspace11, workspace12];
-
+%}
 workspaceNames = {'lt3.9lt3 h0.0', 'lt3.9lt3 h0.05', 'lt3.9lt3 h0.1', 'lt3.9lt3 h0.2', ...
     'lt3.9lt3 h0.4', 'lt3.9lt3 h0.8', 'lt6.5lt5 h0.0', 'lt6.5lt5 h0.05', ...
     'lt6.5lt5 h0.1', 'lt6.5lt5 h0.2', 'lt6.5lt5 h0.4', 'lt6.5lt5 h0.8', };
@@ -58,7 +58,7 @@ workspaceNames = {'lt3.9lt3 h0.0', 'lt3.9lt3 h0.05', 'lt3.9lt3 h0.1', 'lt3.9lt3 
 paddled = 0.115; % size of a paddle (m)
 meanVelocity = 1.45; % mean velocity of the flow (m/s)
 gridFreq= 0.1; %update frequency of the grid (1/s)
-
+%{
 % preallocating needed arrays for speed
 L = zeros(length(workspaceArray), 1);
 turbRe = zeros(length(workspaceArray), 1);
@@ -74,60 +74,63 @@ end
 fprintf('Workspaces loaded in %.1f seconds.\n', round(10*toc)/10);
 
 H1 = figure(1);
-
+%}
 % calculate effective sigma (side length of box with volume equal to that of given kernel)
 heights = [0.0 0.05 0.1 0.2 0.4 0.8];
 
 sigma_eff_1 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*3.9^2*3-1)).^(1/3)
-sigma_eff_2 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*6.5^2*5-1)).^(1/3)
+sigma_eff_2 = paddled^2*0.1*meanVelocity*(1+heights.^2*(8*6.5^2*5-1)).^(1/3);
 
 % revised calculation of effective sigma
 sigma1s = 3.9;
 sigma1t = 3;
 sigma2s = 6.5;
 sigma2t = 5;
-sigma_eff_1 = 0;
-sigma_eff_2 = 0;
+sigma_eff_1 = zeros(1, length(heights));
 for i = -ceil(sigma1s) : ceil(sigma1s)
     for j = -ceil(sigma1s) : ceil(sigma1s)
         dist = sqrt(i*i+j*j);
         if dist == 0
-            spatial_factor = ones(length(heights), 1);
+            spatial_factor = ones(1, length(heights));
         elseif dist <= sigma1s
             spatial_factor = (heights).^2;
         else
-            spatial_factor = zeros(length(heights), 1);
+            spatial_factor = zeros(1, length(heights));
         end
         for t = -ceil(sigma1t) : ceil(sigma1t)
             if t == 0
-                temporal_factor = ones(length(heights), 1);
+                temporal_factor = ones(1, length(heights));
             elseif t <= sigma1t
                 temporal_factor = heights;
             else
-                temporal_factor = zeros(length(heights), 1);
+                temporal_factor = zeros(1, length(heights));
             end
             sigma_eff_1 = sigma_eff_1 + spatial_factor.*temporal_factor;
         end
     end
 end
 sigma_eff_1 = paddled^2*0.1*meanVelocity*(sigma_eff_1.^(1/3))
+
+sigma_eff_2
+sigma_eff_2 = zeros(1, length(heights));
+
 for i = -ceil(sigma2s) : ceil(sigma2s)
     for j = -ceil(sigma2s) : ceil(sigma2s)
         dist = sqrt(i*i+j*j);
         if dist == 0
-            spatial_factor = ones(length(heights), 1);
+            spatial_factor = ones(1, length(heights));
         elseif dist <= sigma2s
             spatial_factor = (heights).^2;
         else
-            spatial_factor = zeros(length(heights), 1);
+            spatial_factor = zeros(1, length(heights));
         end
         for t = -ceil(sigma2t) : ceil(sigma2t)
             if t == 0
-                temporal_factor = ones(length(heights), 1);
+                temporal_factor = ones(1, length(heights));
             elseif t <= sigma2t
                 temporal_factor = heights;
             else
-                temporal_factor = zeros(length(heights), 1);
+                temporal_factor = zeros(1, length(heights));
             end
             sigma_eff_2 = sigma_eff_2 + spatial_factor.*temporal_factor;
         end
