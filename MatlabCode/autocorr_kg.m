@@ -1,4 +1,4 @@
-function [  ] = autocorr( spatialSig, temporalSig, tophat, plotStrKer, plotStrCorr )
+function [  ] = autocorr_kg( spatialSig, temporalSig, tophat, plotStrKer, plotStrCorr )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 %end
