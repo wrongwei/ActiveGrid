@@ -3,9 +3,10 @@
 % Active Grid Project: Data Presentation Script                           %
 % Applies standard formatting to figures for use in paper preparation     %
 % Operation: Run once with save_fig = 0, make edits to text and labels,   %
-%            then run again with save_fig = 1 to save the revised figure. %
+%            save as a .fig file manually, then run again with            %
+%            save_fig = 1 to save the revised figure.                     %
 % Dependencies: none                                                      %
-% Last Edited: 08/31/2017                                                 %
+% Last Edited:  08/31/2017                                                %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% ---------------------------- USER INPUTS ---------------------------- %%
@@ -17,11 +18,13 @@ save_fig    = 1; % export as .eps and save revised .fig if 1
 
 %% ---------------------------- FORMATTING ----------------------------- %%
 
+close all; % make sure nothing else is open before starting
+
 f1 = open(fullfile(fig_dir, fig_name)); % find and open figure
 
 % Set parameters
-set(f1,'color','w'); % figure must be black and white
-set(findall(f1,'-property','fontsize'),'fontsize',20);
+set(f1,'color','w'); % figure must be in black and white
+set(findall(f1,'-property','fontsize'),'fontsize',20); % must be legible
 set(findall(f1,'-property','markersize'),'markersize',20);
 set(findall(f1,'-property','linewidth'),'linewidth',2); % > 0.1 mm wide
 set(findall(f1,'-property','interpreter'),'interpreter','latex');
@@ -31,8 +34,6 @@ set(f1,'position',f1_size);
 
 if save_fig
     cd(fig_dir);
-    addpath(exfigpath); % access to export_fig ensemble
-    saveas(gcf, fig_name);
+    saveas(gcf, fig_name); % save revised figure under same name
     print(eps_name, '-depsc', '-tiff'); % export as eps
-    rmpath(exfigpath);
 end
