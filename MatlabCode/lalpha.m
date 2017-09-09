@@ -1,6 +1,5 @@
-% Plots a 2D representation of the correlation of a given set of angles, by
-% radially averaging correlations about the given paddle.
-% Nathan Wei, 28 August 2017 (modified from CorrCheck.m)
+% Computes grid correlation parameters from a given 3D kernel.
+% Kevin Griffin and Nathan Wei, September 2017 (modified from CorrCheck.m)
 
 % MODIFY THIS -------------------------------------------------------------
 function[corrLength] = lalpha(sigmaS,sigmaT,height)
@@ -88,7 +87,7 @@ for i = 1:size_a(1)
         end
     end
 end
-corrLength = sum(a_corr(:)/max(a_corr(:)))^(1/3);
+corrLength = sum(a_corr(:)*paddled^2*timeStep*meanU/max(a_corr(:)))^(1/3);
 for i = 1:size_a(1)
     for j = 1:size_a(2)
         for k = 1:size_a(3)
