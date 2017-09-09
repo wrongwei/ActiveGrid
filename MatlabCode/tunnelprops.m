@@ -27,11 +27,11 @@ u_f = u - mean(u); % fluctuation velocities
 u_var = var(u); % filter this?
 
 % Calculate Reynolds stresses: TauR_i,j = -rho mean(ui'uj')
-tau_Rxy = -rho * mean(u_f.^2); % Pa
+tau_Rxy = rho * mean(u_f.^2); % Pa
 % Note that i and j are different components of the velocity. If we assume
 % isotropic turbulence, ui' = uj' for all three flow dimensions.
 
-% Calculate turbulence intensity
+% Calculate turbulence intensity (percent)
 u_int = (rms(u_f) / mean(u)) * 100;
 
 %% --------------------------- PLOT RESULTS ---------------------------- %%

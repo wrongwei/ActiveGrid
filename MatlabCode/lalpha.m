@@ -57,7 +57,7 @@ end
 % Calculate resulting paddle correlations
 a_corr = convn(kernel, kernel);
 a_corr = a_corr / max(a_corr(:)); % normalize by maximum value so max = 1
-a_sum = sum(a_corr(:)); % integral of correlation, minus central paddle
+a_sum = sum(a_corr(:)); % integral of correlation
 a_vol = (paddled^2*meanU*timeStep) * nnz(a_corr); % m^3
 [aCs,~,aCt] = size(a_corr); % correlation lengths
 a_avgcorr = max(a_corr(:)) / (a_vol^(1/3)); % normalize by volume of kernel
@@ -91,7 +91,7 @@ corrLength = sum(a_corr(:)*paddled^2*timeStep*meanU/max(a_corr(:)))^(1/3);
 for i = 1:size_a(1)
     for j = 1:size_a(2)
         for k = 1:size_a(3)
-            % calc dist to center elm
+            % calc distance to center element
             mydist = sqrt((i-h1)^2+(j-h2)^2+(meanU*timeStep/paddled)^2*(k-h3)^2);
 %             if a_corr(i,j,k) > cutoff
 %                 triCnt = triCnt + 1;
