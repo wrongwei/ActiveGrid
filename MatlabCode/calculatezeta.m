@@ -78,10 +78,8 @@ for i = 1:size_a(1)
                 vol = vol + dV;
                 % zeta = zeta + dV*(C_ref(i,j,k)-C_ker(i,j,k))/(mydist*((1/(1-C_ref(i,j,k)))-1)); % slope differences
                 % zeta = zeta + dV*(C_ker(i,j,k))/(mydist*((1/(1-C_ref(i,j,k)))-1)); % just slope
-                zeta = zeta + dV*(C_ker(i,j,k))/abs(mydist-corrLength); % l_alpha instead of rng - not bad w/ or w/o abs
-                % GO BACK AND TRY USING L_ALPHA INSTEAD OF RNG BUT KEEP ALL
-                % SLOPES POSITIVE. TRY THIS AND TRY WITH ACTUAL SLOPE AT
-                % L_ALPHA (more physical but will probably fail)
+                zeta = zeta + dV*(C_ker(i,j,k))/(mydist-corrLength); % l_alpha instead of rng - best so far
+                % zeta = zeta + dV*(C_ref(i,j,k)-C_ker(i,j,k))/(mydist-corrLength); % l_alpha, with ref subtraction
             end
         end
     end
