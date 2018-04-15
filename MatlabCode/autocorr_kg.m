@@ -17,11 +17,11 @@ if abs(1.3 - spatialSig/temporalSig) < tol
     fprintf('This kernel is isotropic! Proceeding...\n')
 else
     fprintf('Anisotropic kernels not supported!!!\n')
-    assert(0) %Anisotropic kernels not supported
+    % assert(0) %Anisotropic kernels not supported
 end
 s = temporalSig;
 h = 0.1;
-alpha = 1;
+alpha = 0;
 kernel = ones(1+2*s,1);
 xKer = zeros(1+2*s,1);
 for i = 1:1+2*s
@@ -50,9 +50,9 @@ end
 result = zeros(width,1);
 for mainCnt = 1:width
     for stpCnt = mainCnt-s:mainCnt+s
-        mainCnt
-        xVals(mainCnt)
-        stpCnt
+        mainCnt;
+        xVals(mainCnt);
+        stpCnt;
         % check if in bounds of stamp kernel and within s units of main kernel
         if all([stpCnt >= 1, stpCnt <= width])
             if all([xVals(stpCnt) <= s, xVals(stpCnt) >= -s])
